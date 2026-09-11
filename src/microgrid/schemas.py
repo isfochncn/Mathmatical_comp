@@ -156,12 +156,7 @@ class Trajectory:
     soc_kwh: np.ndarray                  # (145,) E_s，s = 0..144
     price_actual: np.ndarray             # (144,) 实际执行价（问题4 为附件4）
     surplus_disposed_kwh: np.ndarray | None = None
-    """(144,) 已披露的安全阀：因"计划购电过量且储能已满"而无法消纳的富余。
-
-    规范第 6 节禁止用拒收、售电或损耗烧电掩盖这种富余，并要求如实报告。
-    故这里把它显式记账：它不是"丢弃外购电"这一被禁止的操作，
-    而是"该计划在当日物理条件下不可行"的**缺口量**，必须进入论文的风险披露。
-    为 None 表示当日不存在该情形（此时逐段守恒严格成立）。
+    """(144,) 已付费但无法消纳的弃购电；与弃光独立记账。
     """
     events: list[ExecutedEvent] = field(default_factory=list)
     updates: list[PlanUpdate] = field(default_factory=list)
@@ -319,6 +314,12 @@ class CommittedBalances:
         self.abs_minutes = np.asarray(self.abs_minutes, dtype=np.int64)
         self.o_kwh = np.asarray(self.o_kwh, dtype=np.float64)
         self.a_kwh = np.asarray(self.a_kwh, dtype=np.float64)
+        if not np.isfinite(self.o_kwh).all() or not np.isfinite(self.a_kwh).all() or np.any(self.o_kwh < -1e-6) or np.any(self.a_kwh < -1e-6):
+            raise ValueError("Invalid commitment quantities")
+        self.o_kwh = np.maximum(self.o_kwh, 0)
+        self.a_kwh = np.maximum(self.a_kwh, 0)
+        if np.any(np.diff(self.abs_minutes) <= 0):
+            raise ValueError("Commitment timestamps must be unique and ordered")
         if not (self.abs_minutes.shape == self.o_kwh.shape == self.a_kwh.shape):
             raise ValueError("CommittedBalances 三个数组形状必须一致")
 
@@ -339,6 +340,9 @@ class CommittedBalances:
         y_new = np.asarray(new_y_kwh, dtype=np.float64)
         if y_new.shape != self.o_kwh.shape:
             raise ValueError("新计划形状与 O/A 状态不一致")
+        if not np.isfinite(y_new).all() or np.any(y_new < -1e-6):
+            raise ValueError("Invalid revised quantities")
+        y_new = np.maximum(y_new, 0)
         o_new = np.minimum(self.o_kwh, y_new)
         a_new = np.maximum(y_new - self.o_kwh, 0.0)
         delta_minus = np.maximum(self.o_kwh + self.a_kwh - y_new, 0.0)
@@ -348,15 +352,10 @@ class CommittedBalances:
         )
 
     def take(self, abs_minute: int) -> tuple[float, float]:
-        """Take the executed (O, A) of one interval and remove it from the state.
-
-        Returns ``(0.0, 0.0)`` when the interval is not under commitment (it was
-        released, or the plan chain has a gap). That case must not abort the run:
-        the interval is simply settled from the committed values on record.
-        """
+        """Execute and remove exactly one existing commitment."""
         idx = int(np.searchsorted(self.abs_minutes, abs_minute))
         if idx >= self.abs_minutes.size or self.abs_minutes[idx] != abs_minute:
-            return 0.0, 0.0
+            raise ValueError(f"Missing commitment for interval {abs_minute}")
         o, a = float(self.o_kwh[idx]), float(self.a_kwh[idx])
         self.abs_minutes = np.delete(self.abs_minutes, idx)
         self.o_kwh = np.delete(self.o_kwh, idx)
@@ -413,10 +412,10 @@ class AbsoluteStep:
     abs_minute: int
     grid_kwh: float                  # 非紧急普通实际购电 = O + A
     emergency_kwh: float
-    charge_kwh: float                # q_ch（母线侧充电量）
+    charge_kwh: float                # q_ch（电池实际存入量）
     discharge_kwh: float             # q_dis（实际送达量）
     curtail_kwh: float
-    surplus_kwh: float               # 已披露的安全阀（计划过量且储能已满）
+    surplus_kwh: float               # 已付费弃购电，既不退费也不改变O/A标签
     soc_end_kwh: float
     price_actual_yuan_per_kwh: float
 
@@ -430,6 +429,7 @@ class AbsoluteRun:
     soc_boundary_kwh: np.ndarray     # (n+1,)
     events: list[DispatchEvent]
     penalties: list[PenaltyEvent]
+    initial_plans: dict[int, float] = field(default_factory=dict)
 
     def arrays(self) -> dict[str, np.ndarray]:
         return {

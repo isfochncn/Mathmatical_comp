@@ -29,10 +29,8 @@ N_INTERVAL = 144
 #: 一天中的状态边界数（边界 s = 0..144），比区间数恰好多 1
 N_BOUNDARY = 145
 
-#: 源标签含义：第 t 段是 [t*10min, (t+1)*10min)，标签写作该段的结束时刻。
-#: 因此第 0 段标签 "0:10"、最后一段 (t=143) 标签 "0:00+1"（即 24:00）。
-#: 来源：Pr/题意解析与建模衔接备忘录.md 第 7 节。
-INTERVAL_LABEL_IS_END_TIME = True
+#: Source labels are interval starts; the tail denotes next-day 00:00.
+INTERVAL_LABEL_IS_END_TIME = False
 
 # --------------------------------------------------------------------------
 # 储能设备物理参数  [题面 附录1]
@@ -60,19 +58,10 @@ ETA_ROUND_TRIP = ETA_CHARGE * ETA_DISCHARGE  # 0.81
 # 备忘录原文："两向5000×0.9=4500kW；每10分钟实际有效电量上限750kWh"、
 # "不得将有效750kWh再乘0.9作为实际充电上限"。
 #
-# 在 η_c = η_d = 0.9（两次损耗、往返 0.81）的方案下逐项核对：
-#   充电  q_ch ≤ 750  ->  电池实际存入 0.9*750 = 675 kWh  ->  母线侧 5000 kW（= 额定功率）
-#   放电  q_dis ≤ 750 ->  电池实际放出 750/0.9 = 833.333 kWh -> 母线侧 4500 kW
-#   两向的电池内部交换功率都恰好不超过 5000 kW 额定值，自洽。
-#   被明确拒绝的错误做法：把 750 再乘 0.9 得到 675。
-# q_ch 是**母线侧**充电量（未扣效率），这一点在命名上必须说清，
-# 否则很容易误以为电池内部只交换了 750 kWh。
-P_MAX_EFFECTIVE_KW = P_MAX_KW * ETA_CHARGE  # 4500.0，放电侧母线功率上限
-
-#: 每段母线侧充电量上限（kWh）= 4500/6 = 750。电池实际存入为 0.9 * 该值。
-Q_MAX = P_MAX_EFFECTIVE_KW * DELTA_T_HOURS  # 750.0
-
-#: 每段放电送达上限（kWh）= 4500/6 = 750
+# q_ch is energy stored in the battery; q_dis is energy delivered to the bus.
+# Each effective direction is limited to 4500 kW = 750 kWh per interval.
+P_MAX_EFFECTIVE_KW = P_MAX_KW * ETA_CHARGE
+Q_MAX = P_MAX_EFFECTIVE_KW * DELTA_T_HOURS
 Q_DIS_MAX = Q_MAX
 
 #: 母线侧充电输入换算系数：存入 q_ch 需要母线付出 q_ch / ETA_CHARGE
@@ -98,9 +87,6 @@ DISCHARGE_BATTERY_FACTOR = 1.0 / ETA_DISCHARGE
 # 正是备忘录第 3 节给出的形式
 #   Σ(h+u) = Σ(D-G+r) + (19/90)·Σq_ch + 0.9·(E_144 - E_0)
 #
-# 等价闭式：K = 2/η - 1 - η（因为 1/η - η 与 2/η - 1 - η 恒等）。
-# 注意**不是** 1/η + 1/η - 1——那是把 q_dis 误当成与 q_ch 同侧时的常见错误，
-# 在 η=0.9 下会得到 1.2222 而不是 0.2111。已用随机轨迹数值验证 K = 1/η - η。
 LOSS_COEFF = 1.0 / ETA_CHARGE - ETA_DISCHARGE  # 19/90
 
 #: 状态项系数 β = η_d（不是 η_c·η_d）。δE 以"实际存入"为口径，故只带放电效率。
@@ -116,8 +102,10 @@ CHARGE_LOSS_FRACTION = 1.0 / ETA_CHARGE - 1.0  # 1/9
 # --------------------------------------------------------------------------
 # 初始状态与日边界  [题面][口径]
 # --------------------------------------------------------------------------
-#: 2025-01-01 0:00 的储电量（kWh）
+#: 初始储电量（kWh）：滚动模型设于2025-01-01 00:10；问题一仍为典型日0:00。
 E_INIT_2025_01_01 = 6_000.0
+# Rolling runs initialize at the first observed interval, Jan 1 00:10.
+ROLLING_START_ABS_MINUTE = 10
 
 #: 只有问题一要求日首日末相等  [题面 问题1]
 P1_REQUIRE_DAILY_CYCLE = True

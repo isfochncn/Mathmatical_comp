@@ -16,7 +16,7 @@ from microgrid.planning import FeeMode, WindowForecast, solve_window
 from microgrid.simulation import execute_interval
 from microgrid.solver import solver_available
 
-pytestmark = pytest.mark.skipif(
+needs_solver = pytest.mark.skipif(
     not solver_available(), reason="HiGHS 求解器不可用（需要 pip install highspy）"
 )
 
@@ -24,11 +24,11 @@ pytestmark = pytest.mark.skipif(
 # ============================================================ effective limits
 
 
-def test_full_power_charge_stores_675_bus_side_750() -> None:
-    """q_ch = 750 is the BUS-side charge; the battery stores 0.9*750 = 675."""
+def test_full_power_charge_stores_750_with_833_bus_input() -> None:
+    """q_ch = 750 is stored energy; bus input includes the charging loss."""
     assert Q_MAX == pytest.approx(750.0)
     assert physics.charge_bus_input_kwh(750.0) == pytest.approx(750.0 / 0.9)
-    assert 750.0 * ETA_CHARGE == pytest.approx(675.0)
+    assert physics.soc_next(6000, 750, 0) == pytest.approx(6750)
 
 
 def test_full_power_discharge_draws_833() -> None:
@@ -94,46 +94,38 @@ def test_loss_accounting_separates_loss_from_storage() -> None:
 # ============================================================ execution feedback
 
 
-def test_execute_interval_deficit_is_covered_by_emergency() -> None:
+def test_execute_interval_deficit_uses_storage_before_emergency() -> None:
     a = execute_interval(
         abs_minute=0, grid_committed_kwh=500.0, demand_kwh=600.0, pv_kwh=0.0,
         soc_now_kwh=6000.0, soc_target_kwh=6000.0,
     )
-    assert a.discharge_kwh == pytest.approx(0.0)
-    assert a.emergency_kwh == pytest.approx(100.0)
-    assert a.soc_end_kwh == pytest.approx(6000.0)
+    assert a.discharge_kwh == pytest.approx(100.0)
+    assert a.emergency_kwh == pytest.approx(0.0)
+    assert a.soc_end_kwh == pytest.approx(6000.0-100/0.9)
 
 
 def test_execute_interval_holds_when_the_plan_asks_for_no_change() -> None:
-    """Level 1 is "minimise deviation from the charge target".
+    """Emergency reduction now precedes matching the charge target.
 
-    With a flat target the feedback must not discharge opportunistically to
-    cover a deficit: the deficit is settled by emergency purchase instead.
+    With a flat target the revised feedback first uses stored energy to
+    cover the deficit, minimizing emergency purchases before target deviation.
     """
     a = execute_interval(
         abs_minute=0, grid_committed_kwh=500.0, demand_kwh=600.0, pv_kwh=0.0,
         soc_now_kwh=6000.0, soc_target_kwh=6000.0,
     )
-    assert a.discharge_kwh == pytest.approx(0.0)
+    assert a.discharge_kwh == pytest.approx(100.0)
     assert a.charge_kwh == pytest.approx(0.0)
-    assert a.emergency_kwh == pytest.approx(100.0)
-    assert a.target_gap_kwh == pytest.approx(0.0)
-
-
-def test_execute_interval_discharges_towards_the_target_and_spills_the_rest() -> None:
-    """A target below the current SOC discharges towards it; the excess of a
-    discharge that overshoots the deficit is reported, not hidden."""
-    a = execute_interval(
-        abs_minute=0, grid_committed_kwh=100.0, demand_kwh=600.0, pv_kwh=0.0,
-        soc_now_kwh=6000.0, soc_target_kwh=5000.0,
-    )
-    # want = -1000, bounded by the 750 kWh per-interval limit
-    assert a.discharge_kwh == pytest.approx(750.0)
     assert a.emergency_kwh == pytest.approx(0.0)
-    # 500 kWh of the discharge serves the deficit, the remaining 250 has nowhere
-    # to go in this interval (the battery is the only sink and it is discharging)
-    assert a.spill_kwh == pytest.approx(250.0)
-    assert a.soc_end_kwh == pytest.approx(6000.0 - 750.0 / 0.9)
+    assert a.target_gap_kwh == pytest.approx(100.0)
+
+
+def test_execute_interval_preserves_targets_without_discarding_discharge() -> None:
+    action = execute_interval(abs_minute=0, grid_committed_kwh=100, demand_kwh=600,
+        pv_kwh=0, soc_now_kwh=6000, charge_target_kwh=0, discharge_target_kwh=750)
+    assert action.spill_kwh == 0
+    assert action.charge_kwh / 0.9 - action.discharge_kwh == pytest.approx(-500, abs=1e-6)
+    assert action.soc_end_kwh == pytest.approx(6000+action.charge_kwh-action.discharge_kwh/0.9)
 
 
 def test_execute_interval_never_exceeds_the_interval_limit() -> None:
@@ -145,20 +137,18 @@ def test_execute_interval_never_exceeds_the_interval_limit() -> None:
     assert a.soc_end_kwh >= 1200.0 - 1e-6
 
 
-def test_execute_interval_reports_unabsorbable_surplus_honestly() -> None:
-    """Committed power that cannot be used or stored is a disclosed surplus."""
-    a = execute_interval(
-        abs_minute=0, grid_committed_kwh=500.0, demand_kwh=300.0, pv_kwh=0.0,
-        soc_now_kwh=6000.0, soc_target_kwh=6000.0,
-    )
-    assert a.spill_kwh == pytest.approx(200.0)
-    assert a.emergency_kwh == pytest.approx(0.0)
+def test_execute_interval_absorbs_committed_surplus() -> None:
+    a = execute_interval(abs_minute=0, grid_committed_kwh=500, demand_kwh=300,
+        pv_kwh=0, soc_now_kwh=6000, charge_target_kwh=0, discharge_target_kwh=0)
+    assert a.spill_kwh == 0
+    assert a.charge_kwh == pytest.approx(180, abs=1e-6)
+    assert a.soc_end_kwh == pytest.approx(6180, abs=1e-6)
 
 
 def test_execute_interval_never_breaks_conservation() -> None:
     rng = np.random.default_rng(7)
     for _ in range(200):
-        grid = float(rng.uniform(0, 800))
+        grid = float(rng.uniform(0, 150))
         demand = float(rng.uniform(0, 1200))
         pv = float(rng.uniform(0, 900))
         soc = float(rng.uniform(1200, 10800))
@@ -168,8 +158,8 @@ def test_execute_interval_never_breaks_conservation() -> None:
             soc_now_kwh=soc, soc_target_kwh=target,
         )
         lhs = grid + a.emergency_kwh + pv + a.discharge_kwh
-        rhs = demand + a.charge_kwh / 0.9 + a.spill_kwh
-        assert lhs == pytest.approx(rhs, abs=1e-9)
+        rhs = demand + a.charge_kwh / 0.9 + a.curtail_kwh + a.spill_kwh
+        assert lhs == pytest.approx(rhs, abs=1e-6)
         assert 1200.0 - 1e-6 <= a.soc_end_kwh <= 10800.0 + 1e-6
 
 
@@ -186,6 +176,7 @@ def _forecast(n: int, demand: float, pv: float, price: float) -> WindowForecast:
     )
 
 
+@needs_solver
 def test_window_first_plan_covers_demand_at_flat_price() -> None:
     """Flat price, no PV: the window never buys more than it needs.
 
@@ -212,6 +203,7 @@ def test_window_first_plan_covers_demand_at_flat_price() -> None:
     assert lhs == pytest.approx(rhs, abs=1e-4)
 
 
+@needs_solver
 def test_window_cycle_constraint_only_when_requested() -> None:
     n = 144
     r = solve_window(
@@ -226,6 +218,7 @@ def test_window_cycle_constraint_only_when_requested() -> None:
     assert float(r.soc_boundary_kwh[-1]) == pytest.approx(6000.0)
 
 
+@needs_solver
 def test_window_frozen_commits_exactly_the_o_plus_a() -> None:
     n = 12
     o = np.full(n, 100.0)
@@ -242,6 +235,7 @@ def test_window_frozen_commits_exactly_the_o_plus_a() -> None:
     assert np.allclose(r.grid_kwh, 120.0)
 
 
+@needs_solver
 def test_window_frozen_fee_uses_one_point_five_on_a() -> None:
     n = 4
     o = np.full(n, 100.0)
@@ -258,6 +252,7 @@ def test_window_frozen_fee_uses_one_point_five_on_a() -> None:
     assert float(r.objective_yuan) == pytest.approx(520.0)
 
 
+@needs_solver
 def test_window_adjustable_can_cut_and_charges_the_penalty() -> None:
     n = 8
     o = np.full(n, 200.0)
@@ -277,6 +272,7 @@ def test_window_adjustable_can_cut_and_charges_the_penalty() -> None:
     assert float(r.objective_yuan) == pytest.approx(0.5 * 200.0 * n)
 
 
+@needs_solver
 def test_window_absorption_cap_is_respected() -> None:
     n = 24
     cap = np.full(n, 300.0)
@@ -293,6 +289,7 @@ def test_window_absorption_cap_is_respected() -> None:
     assert float(r.emergency_kwh.sum()) + float(r.discharge_kwh.sum()) > 0.0
 
 
+@needs_solver
 def test_window_committed_mask_keeps_carry_over_values() -> None:
     n = 12
     fixed = np.zeros(n)

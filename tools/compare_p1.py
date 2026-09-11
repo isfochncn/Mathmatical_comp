@@ -59,7 +59,8 @@ def run_arm(
         run_from=run_from,
         run_to=run_to,
         progress_every_days=progress_every_days,
-        max_infeasible_intervals=200000,
+        max_infeasible_intervals=0,
+        experiment="main" if load_method == "same_clock_mean" else "comparison",
     )
     print(f"\n>>> [{label}] load_method={load_method} -> {config.problem_dir()}", flush=True)
     t0 = time.perf_counter()
@@ -93,8 +94,14 @@ def main(argv: list[str]) -> int:
         if not summary_path.exists():
             print(f"找不到 {summary_path}；先去跑主线或去掉 --skip-main", file=sys.stderr)
             return 2
-        arms["main"] = json.loads(summary_path.read_text(encoding="utf-8"))
-        walls["main"] = float(arms["main"].get("wall_seconds", float("nan")))
+        payload = json.loads(summary_path.read_text(encoding="utf-8"))
+        if payload.get("validation_version") != "main-model-v4-paid-spill":
+            raise ValueError("Cannot compare against an obsolete model run")
+        saved_config = json.loads((summary_path.parent / "config.json").read_text(encoding="utf-8"))
+        if saved_config.get("run_from") != args.run_from or saved_config.get("run_to") != args.run_to:
+            raise ValueError("Comparison arms must use the same reporting dates")
+        arms["main"] = payload["summary"]
+        walls["main"] = float(payload.get("wall_seconds", float("nan")))
         print(f">>> [main] 复用已有 {summary_path}", flush=True)
     else:
         s, w, _ = run_arm(

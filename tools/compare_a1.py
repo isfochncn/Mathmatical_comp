@@ -1,6 +1,6 @@
 """比较事项 A1：计划重算周期敏感性。
 
-规范写"每个区间初重算"，定稿口径取每 6 段（1 小时）重算一次。本脚本在同一区间上
+规范写"每个区间初重算"，主模型逐段重算，其他周期仅用于比较。本脚本在同一区间上
 跑不同重算周期并对比，量化该技术近似的影响。执行反馈本身始终逐 10 分钟，不随此参数变化。
 
 用法（项目根目录）::
@@ -22,7 +22,7 @@ sys.path.insert(0, "src")
 
 from microgrid.absolute_run import RunConfig, run, save_run  # noqa: E402
 
-#: 重算周期（单位：10 分钟段）。1 = 规范字面要求，6 = 定稿口径。
+#: 重算周期（单位：10 分钟段）。1 = 主模型，6 = 每小时比较方案。
 REFRESHES = (6, 1, 2, 12, 144)
 
 METRICS = (
@@ -65,7 +65,8 @@ def main(argv: list[str]) -> int:
             run_to=run_to,
             plan_refresh_intervals=refresh,
             progress_every_days=args.progress_every_days,
-            max_infeasible_intervals=200000,
+            max_infeasible_intervals=0,
+            experiment="comparison",
         )
         print(f"\n>>> 重算周期 {refresh} 段（{refresh * 10} 分钟） -> {cfg.problem_dir()}", flush=True)
         t0 = time.perf_counter()
@@ -79,7 +80,7 @@ def main(argv: list[str]) -> int:
     print()
     print("=" * 100)
     print(f"比较事项 A1：计划重算周期敏感性（{args.problem}，{run_from} .. {run_to}）")
-    print("  规范字面要求 = 每段（1）；定稿口径 = 每 6 段（1 小时）")
+    print("  主模型 = 每段（1）；其余重算周期仅为对照实验")
     print("=" * 100)
     header = f"{'指标':<20}" + "".join(f"{('每' + str(r) + '段'):>14}" for r in refreshes)
     print(header)
@@ -100,11 +101,11 @@ def main(argv: list[str]) -> int:
     print(row)
     print("-" * 100)
 
-    base = results[6]["total_cost_yuan"] if 6 in results else None
+    base = results[1]["total_cost_yuan"] if 1 in results else None
     if base:
-        print("相对定稿口径（每 6 段）的总费用偏差：")
+        print("相对主模型（每 1 段）的总费用偏差：")
         for r in refreshes:
-            if r == 6:
+            if r == 1:
                 continue
             d = float(results[r]["total_cost_yuan"]) - float(base)
             print(f"  每 {r:>3} 段: {d:>+14,.1f} 元（{d / float(base) * 100:+.3f}%）")

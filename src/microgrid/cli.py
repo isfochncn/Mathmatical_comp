@@ -64,26 +64,26 @@ def build_parser() -> argparse.ArgumentParser:
     runp.add_argument(
         "--absorption-safety-kwh",
         type=float,
-        default=600.0,
+        default=0.0,
         help="可消纳上限的安全裕度（技术近似，比较事项 A1）",
     )
     runp.add_argument(
         "--plan-refresh-intervals",
         type=int,
-        default=6,
-        help="窗口 LP 的重算周期（单位：10 分钟段）。6 = 每小时重算（已定口径）；"
-        "1 = 每段重算，为规范字面要求但耗时约 6 倍",
+        default=1,
+        help="主模型每段重算；其他周期需命名为独立实验",
     )
-    runp.add_argument("--run-from", default=None, help="只跑该日期起（YYYY-MM-DD）")
+    runp.add_argument("--experiment", default="main", help="独立实验名；主模型为 main")
+    runp.add_argument("--run-from", default=None, help="报告起始日期；仍从 1 月 1 日 00:10 连续执行（YYYY-MM-DD）")
     runp.add_argument("--run-to", default=None, help="只跑到该日期（YYYY-MM-DD）")
-    runp.add_argument("--max-infeasible-intervals", type=int, default=20000)
+    runp.add_argument("--max-infeasible-intervals", type=int, default=0)
     runp.add_argument(
         "--progress-every-days",
         type=int,
         default=0,
         help="每 N 个自然日打印一次进度（0 = 不打印）",
     )
-    runp.add_argument("--strict-no-spill", action="store_true", help="富余无处安放即判不可行")
+    runp.add_argument("--strict-no-spill", action="store_true", help="旧版禁止弃购电对照；需指定 --experiment 名称")
     runp.add_argument("--no-save", action="store_true")
 
     exp = sub.add_parser("export", help="由已保存的运行结果生成结果文件与论文用表")
@@ -93,6 +93,7 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("problem1", "problem2", "problem3", "problem4-2", "problem4-3"),
     )
     exp.add_argument("--out", default="out")
+    exp.add_argument("--experiment", default="main")
     return p
 
 
@@ -125,7 +126,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     print()
     print("时间轴口径（2026-09-11 定稿）：源标签=区间起点；")
     print("  result 行覆盖 [当日 00:10, 次日 00:10)；自然日时钟 t=0 由上一源日尾值桥接")
-    print("  B_{d,j} = E_{d,j+1}；B_{d,144} = E_{d+1,1} ≠ B_{d+1,0}（相差次日首段一个区间）")
+    print("  B_{d,j} = E_{d,j+1}；B_{d,144} = E_{d+1,1} = B_{d+1,0}（共享次日00:10状态）")
     print()
     print(f"输出窗口：{OUTPUT_START} .. {OUTPUT_END}（"
           f"{len(calendar_days(date(*OUTPUT_START), date(*OUTPUT_END)))} 天）+ 1 月预热")
@@ -133,7 +134,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     print(f"求解器 {args.solver}: {'可用' if solver_available(args.solver) else '不可用'}")
     print()
     print("已冻结口径：η_c = η_d = 0.9；每段 q_ch, q_dis ≤ 750 kWh；1200 ≤ E ≤ 10800；")
-    print("            允许同时充放电（正常损耗核算）；初始 6000 仅 2025-01-01 00:00。")
+    print("            允许同时充放电（正常损耗核算）；滚动初始 6000 设于 2025-01-01 00:10，跳过年初首段。")
     return 0
 
 
@@ -147,6 +148,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         problem=args.problem,
         out_dir=Path(args.out),
         history_days=args.history_days,
+        experiment=args.experiment,
         load_method=args.load_method,
         absorption_safety_kwh=args.absorption_safety_kwh,
         plan_refresh_intervals=args.plan_refresh_intervals,
@@ -177,7 +179,7 @@ def cmd_run(args: argparse.Namespace) -> int:
           f"{g('curtail_total_kwh'):,.0f} kWh")
     print(f"  损耗              {g('total_loss_kwh'):,.3f} kWh"
           f"（同时充放 {int(g('n_simultaneous_intervals'))} 段，属合法运行状态）")
-    print(f"  富余无处安放      {g('surplus_disposed_kwh'):,.3f} kWh（已披露安全阀）")
+    print(f"  富余无处安放      {g('surplus_disposed_kwh'):,.3f} kWh（已付费弃购电）")
     print(f"  窗口求解/计划成文  {int(g('window_solves'))} / {int(g('plan_revisions'))}")
     infeasible = s.get("infeasible_intervals") or []
     if infeasible:
@@ -196,14 +198,14 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 def cmd_export(args: argparse.Namespace) -> int:
     out_root = Path(args.out)
-    run_dir = out_root / args.problem
+    run_dir = (out_root if args.experiment == "main" else out_root / args.experiment) / args.problem
     npz_path = run_dir / "trajectory.npz"
     summary_path = run_dir / "summary.json"
     if not npz_path.exists():
         print(f"找不到 {npz_path}；请先运行 microgrid run --problem {args.problem}", file=sys.stderr)
         return 2
 
-    data = np.load(npz_path, allow_pickle=True)
+    data = np.load(npz_path, allow_pickle=False)
     arrays = {k: data[k] for k in data.files}
     # save_run stores the SOC boundary series under its own key.
     if "soc_kwh" not in arrays and "soc_boundary_kwh" in arrays:
@@ -213,7 +215,51 @@ def cmd_export(args: argparse.Namespace) -> int:
         rec["date"]: rec for rec in payload.get("result_row_bills", [])
     }
 
+    from .validation import validate_absolute_run
+    if payload.get("validation_version") != "main-model-v4-paid-spill":
+        raise ValueError("旧结果未经当前主模型校验，请重新运行")
+    saved_config = json.loads((run_dir / "config.json").read_text(encoding="utf-8"))
+    validate_absolute_run(abs_minutes=arrays["abs_minute"], grid_kwh=arrays["grid_kwh"],
+        emergency_kwh=arrays["emergency_kwh"], charge_kwh=arrays["charge_kwh"],
+        discharge_kwh=arrays["discharge_kwh"], curtail_kwh=arrays["curtail_kwh"],
+        surplus_kwh=arrays["surplus_kwh"], soc_boundary_kwh=arrays["soc_kwh"],
+        demand_kwh=arrays["demand_kwh"], pv_kwh=arrays["pv_kwh"], soc_start_kwh=6000,
+        require_daily_cycle=args.problem == "problem1",
+        allow_spill=saved_config["allow_spill"] and args.problem != "problem1")
+    if "plan_initial_kwh" not in arrays or not np.isfinite(arrays["plan_initial_kwh"]).all():
+        raise ValueError("Missing midnight plan archive")
+    from .schemas import DispatchEvent, PenaltyEvent
+    from .settlement import validate_ledger, LabelTotals, verify_bill
+    from .absolute_run import natural_day_bounds, result_row_bounds
+    ledger = json.loads((run_dir / "settlement_events.json").read_text(encoding="utf-8"))
+    initial = json.loads((run_dir / "initial_plans.json").read_text(encoding="utf-8"))
+    events = [DispatchEvent(**e) for e in ledger["execution"]]
+    penalties = [PenaltyEvent(**p) for p in ledger["penalties"]]
+    validate_ledger(abs_minutes=arrays["abs_minute"], grid_kwh=arrays["grid_kwh"],
+        emergency_kwh=arrays["emergency_kwh"], price_actual=arrays["price_actual"],
+        initial_plans=initial, events=events, penalties=penalties,
+        can_adjust=args.problem in ("problem3", "problem4-3"),
+        expected_start_abs=0 if args.problem == "problem1" else 10)
+    if not np.allclose(arrays["plan_initial_kwh"], [initial[str(int(t))] for t in arrays["abs_minute"]], atol=1e-6, rtol=0):
+        raise ValueError("Saved initial plan differs from midnight archive")
+    for key, field in (("plan_exec_kwh", "o_exec_kwh"), ("add_exec_kwh", "a_exec_kwh")):
+        if args.problem != "problem1" and (key not in arrays or not np.allclose(
+                arrays[key], [getattr(e, field) for e in events], atol=1e-6, rtol=0)):
+            raise ValueError(f"Saved {key} differs from settlement ledger")
+    for name, bounds in (("natural_day_bills", natural_day_bounds), ("result_row_bills", result_row_bounds)):
+        if args.problem == "problem1" and name == "result_row_bills":
+            continue
+        for rec in payload.get(name, []):
+            lo, hi = bounds(date.fromisoformat(rec["date"]))
+            bill = LabelTotals(**{k: rec[k] for k in LabelTotals.__dataclass_fields__})
+            verify_bill(bill, [e for e in events if lo <= e.at_abs < hi],
+                        [p for p in penalties if lo <= p.at_abs < hi])
+            if any(not np.isclose(rec[k], v, atol=1e-5, rtol=1e-9) for k, v in bill.as_dict().items()):
+                raise ValueError("Saved bill totals differ from fee components")
     if args.problem == "problem1":
+        if np.any(arrays["emergency_kwh"] > 1e-6) or not np.allclose(
+                arrays["result_grid_kwh"], np.roll(arrays["grid_kwh"], -1), atol=1e-6, rtol=0):
+            raise ValueError("Invalid problem 1 execution/export")
         dest = run_dir / "result"
         path = export_result1(arrays, dest)
         print(f"已写出 {path}")
@@ -239,24 +285,16 @@ def cmd_export(args: argparse.Namespace) -> int:
         soc_by_abs[int(m)] = float(arrays["soc_kwh"][i])
         soc_by_abs[int(m) + 10] = float(arrays["soc_kwh"][i + 1])
 
-    # The two plan sheets are different objects and must not be conflated:
-    #   * "计划购电量"    = the normal purchase O that the signed plan delivers;
-    #   * "调整购电量"    = the effective purchase after intra-day revisions,
-    #                      i.e. O + A, whose excess over the plan sheet is the
-    #                      adjustment A charged at the 1.5x rate.
-    # For problem 3 / 4-3 the adjustment sheet must actually differ from the plan
-    # sheet, so O and A are read separately from the saved execution arrays. When
-    # those arrays are absent (older artifacts) the two sheets would be identical,
-    # which would silently claim "no adjustment ever happened" — so say so.
+    # Initial midnight commitments and final executed O/A labels are distinct.
     plan_exec = arrays.get("plan_exec_kwh")
     add_exec = arrays.get("add_exec_kwh")
     has_split = plan_exec is not None and add_exec is not None
+    if not has_split:
+        raise ValueError("Missing executed O/A labels")
 
     rows: list[DailyExportRow] = []
     for day_text in sorted(row_bills):
         day = date.fromisoformat(day_text)
-        if day < date(*_OS):
-            continue
         rec = row_bills[day_text]
         grid = np.zeros(144)
         emg = np.zeros(144)
@@ -267,19 +305,22 @@ def cmd_export(args: argparse.Namespace) -> int:
         for j in range(144):
             abs_minute = abs_minute_of_result_cell(day, j)
             idx = step_index.get(abs_minute)
+            if idx is None:
+                raise ValueError(f"Missing executed interval {abs_minute}")
             if idx is not None:
                 grid[j] = float(arrays["grid_kwh"][idx])
                 emg[j] = float(arrays["emergency_kwh"][idx])
                 ch[j] = float(arrays["charge_kwh"][idx])
                 dis[j] = float(arrays["discharge_kwh"][idx])
                 if has_split:
-                    plan[j] = float(plan_exec[idx])
+                    plan[j] = float(arrays["plan_initial_kwh"][idx])
                     adjust[j] = float(add_exec[idx])
         df, _dt = natural_day_bounds(day)
         # The 4-hour blocks are labelled on the natural-day clock (0:00-4:00 …),
         # and the day's own 00:00-00:10 interval sits in the PREVIOUS date's
         # result row, so it is read straight from the trajectory.
         i_start = step_index.get(df)
+        start_minute = 10 if df == 0 and minutes[0] == 10 else 0
         rows.append(
             DailyExportRow(
                 day=day,
@@ -288,12 +329,13 @@ def cmd_export(args: argparse.Namespace) -> int:
                 # intra-day revisions are the deltas.
                 plan_initial_kwh=plan if has_split else grid.copy(),
                 # effective purchase = O + (intra-day revisions)
-                final_plan_kwh=(plan + adjust) if has_split else grid.copy(),
+                final_plan_kwh=grid.copy(),
                 grid_actual_kwh=grid,
                 emergency_actual_kwh=emg,
                 charge_stored_kwh=ch,
                 discharge_delivered_kwh=dis,
-                soc_natural_start_kwh=soc_by_abs.get(df, float("nan")),
+                soc_natural_start_kwh=soc_by_abs.get(df + start_minute, float("nan")),
+                natural_start_minute=start_minute,
                 soc_natural_end_kwh=soc_by_abs.get(df + MINUTES_PER_DAY, float("nan")),
                 execution_cost_yuan=float(rec.get("execution_cost_yuan", 0.0)),
                 reduce_cost_yuan=float(rec.get("reduce_cost_yuan", 0.0)),
@@ -308,12 +350,14 @@ def cmd_export(args: argparse.Namespace) -> int:
 
     dest = run_dir / "result"
     wants_adjust = args.problem in ("problem3", "problem4-3")
-    if wants_adjust and not has_split:
-        print(
-            "警告：轨迹里没有 O/A 拆分（plan_exec_kwh / add_exec_kwh），"
-            "无法还原日内调整量，调整购电量表将留空；请用当前版本重跑该问。",
-            file=sys.stderr,
-        )
+    # Recompute saved window bills from execution labels before writing a workbook.
+    for row in rows:
+        lo = (row.day - date(2025, 1, 1)).days * 1440 + 10
+        mask = (minutes >= lo) & (minutes < lo + 1440)
+        cost = float(np.sum(arrays["price_actual"][mask] *
+                     (plan_exec[mask] + 1.5 * add_exec[mask] + 5 * arrays["emergency_kwh"][mask])))
+        if not np.isclose(cost, row.execution_cost_yuan, atol=1e-5, rtol=1e-9):
+            raise ValueError("Saved execution bill mismatch")
     path = export_multiday(
         args.problem,
         rows,

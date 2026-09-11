@@ -2,7 +2,7 @@
 
 不依赖被测代码的映射函数，只用最朴素的分钟算术重新推一遍：
   result 行第 j 列 -> 区间起点 = 当日 00:00 + (j+1)*10 分钟
-  该行覆盖 [当日 00:10, 次日 00:10)，共 14400 分钟 = 144 段
+  该行覆盖 [当日 00:10, 次日 00:10)，共 1440 分钟 = 144 段
 自然日时钟第 t 段 -> 当日 00:00 + t*10 分钟
 """
 
@@ -18,7 +18,7 @@ sys.path.insert(0, "src")
 RUN = sys.argv[1] if len(sys.argv) > 1 else "out/problem2"
 DAY0 = date(2025, 1, 1)
 
-arrays = dict(np.load(Path(RUN) / "trajectory.npz", allow_pickle=True))
+arrays = dict(np.load(Path(RUN) / "trajectory.npz", allow_pickle=False))
 _raw = json.loads((Path(RUN) / "summary.json").read_text(encoding="utf-8"))
 # save_run nests the metric dict under "summary" and keeps the per-window bills
 # at the top level; accept a flat file too so the checker works on both shapes.
@@ -55,14 +55,14 @@ print("=" * 78)
 _probe_pref = [date(2025, 3, 20), date(2025, 6, 21), date(2025, 9, 23), date(2025, 12, 21)]
 DAY = next(
     (d for d in _probe_pref if covered_first <= d and d + timedelta(days=1) <= covered_last),
-    covered_first + timedelta(days=1),
+    covered_first,
 )
 print(f"\n1) result 行 j 与自然日时钟 t 的对应（探针日期 {DAY}）")
 row = [idx(DAY, j + 1) for j in range(144)]
 have = [x for x in row if x is not None]
 check(len(have) == 144, f"{DAY} 的 144 个 result 单元格在轨迹中都有对应区间（实到 {len(have)}）")
 check(row[0] == idx(DAY, 1), "j=0 -> 当日时钟第 1 段（00:10-00:20）")
-check(row[142] == idx(DAY, 143), "j=142 -> 当日时钟第 143 段（23:40-23:50）")
+check(row[142] == idx(DAY, 143), "j=142 -> 当日时钟第 143 段（23:50-24:00）")
 check(len(have) == 144 and row[143] == idx(DAY + timedelta(days=1), 0),
       "j=143 -> 次日时钟第 0 段（00:00-00:10），即跨入次日")
 # Compare the ABSOLUTE MINUTES, not the trajectory indices: consecutive indices
@@ -108,21 +108,14 @@ tl = build_timeline(bundle)
 D = np.array([float(tl.demand_kwh.value_at(int(m))) for m in minutes])
 P = np.array([float(tl.pv_kwh.value_at(int(m))) for m in minutes])
 
-# 执行层每段的物理平衡用的是**实测**需求与光伏：
-#   grid + emergency + (pv_real - curtail) + discharge = demand + charge/0.9 + surplus
-# 残差因此恒等于 (实测可用光伏 - 计划所用预报光伏)。执行时计划给出的"弃光"是按
-# 实测光伏量执行的，于是模型侧的预报光伏可由 实测 + 弃光 还原。
-resid = g + u + (P - cur) + dis - D - ch / 0.9 - sur
-model_pv = P + cur
-check(float(model_pv.min()) >= -1e-6, f"计划所用预报光伏非负（最小 {model_pv.min():.3f} kWh）")
-print(f"       残差 = 实测可用光伏 - 预报光伏：最大 {np.max(np.abs(resid)):.1f} kWh/段，"
-      f"MAE {np.mean(np.abs(resid)):.3f} kWh/段（= {np.mean(np.abs(resid)) * 6:.1f} kW）")
-print(f"       实测光伏 {P.sum():,.1f} kWh | 弃光 {cur.sum():,.1f} kWh | "
-      f"预报光伏 {model_pv.sum():,.1f} kWh")
-print(f"       预报超出实测 {model_pv.sum() - P.sum():+,.1f} kWh；"
-      f"执行时该超出的份额（实测并不存在）以弃光形式记账 {cur.sum():,.1f} kWh")
-check(abs((model_pv.sum() - P.sum()) - cur.sum()) < 1e-3,
-      "弃光累计 = 预报超出实测光伏的累计（计划按预报预留、实测量不足的部分）")
+# 实际执行必须逐段守恒；弃光只能来自该段真实光伏。
+resid = g + u + P - cur + dis - D - ch / 0.9 - sur
+check(np.isfinite(resid).all() and float(np.max(np.abs(resid))) < 1e-6,
+      f"真实母线逐段守恒（最大残差 {np.max(np.abs(resid)):.3e} kWh）")
+check(bool(np.all((sur >= -1e-6) & (sur <= g+1e-6))), "弃购电非负且不超过已付费普通购电")
+minimum_spill = np.maximum(g-D-np.minimum(750, np.maximum(10800-E[:-1], 0))/.9, 0)
+check(np.allclose(sur, minimum_spill, atol=2e-6, rtol=0), "逐段弃购电已降至不可避免量")
+check(bool(np.all((cur >= -1e-6) & (cur <= P + 1e-6))), "逐段弃光不超过真实光伏")
 
 soc_resid = E[1:] - (E[:-1] + ch - dis / 0.9)
 check(float(np.max(np.abs(soc_resid))) < 1e-6,
@@ -133,20 +126,10 @@ check(float(ch.max()) <= 750 + 1e-6 and float(dis.max()) <= 750 + 1e-6,
       f"充放电功率不超过 750 kWh/段（实际 {ch.max():.1f} / {dis.max():.1f}）")
 check(float(cur.max()) <= float(P.max()) + 1e-6, "弃光不超过可用光伏")
 
-print("\n4) 损耗恒等式（模型侧：预报光伏 / 实测需求）")
-lhs = float(np.sum(g) + np.sum(u))
-rhs = (float(np.sum(D) - float(np.sum(model_pv)) + np.sum(cur))
-       + (19.0 / 90.0) * float(np.sum(ch))
-       + 0.9 * (float(E[-1]) - float(E[0]))
-       + float(np.sum(sur)))
-check(abs(lhs - rhs) < 1e-4 * max(1.0, abs(lhs)),
-      f"Σ(购+紧急) {lhs:,.3f} = Σ(需-预报光伏+弃光) + (19/90)Σ充电 + 0.9ΔE + Σ富余 {rhs:,.3f}"
-      f"（差 {lhs - rhs:+.6f} kWh）")
-rhs_real = (float(np.sum(D) - np.sum(P) + np.sum(cur))
-            + (19.0 / 90.0) * float(np.sum(ch))
-            + 0.9 * (float(E[-1]) - float(E[0]))
-            + float(np.sum(sur)))
-print(f"       若把弃光误当作真实发电（用实测光伏替代预报），等式差 {lhs - rhs_real:+,.1f} kWh")
+print("\n4) 真实物理损耗恒等式")
+lhs = float(np.sum(g + u))
+rhs = float(np.sum(D - P + cur) + (19.0/90.0)*np.sum(ch) + 0.9*(E[-1]-E[0]) + np.sum(sur))
+check(abs(lhs-rhs) < max(1e-5, n*1e-8), f"真实能量总账残差 {lhs-rhs:+.6f} kWh")
 
 print("\n5) result 行费用与 summary 记录一致")
 row_bills = {r["date"]: r for r in bills.get("result_row_bills", [])}
@@ -159,7 +142,7 @@ for d in ("2025-03-20", "2025-06-21", "2025-09-23", "2025-12-21"):
     dd = date.fromisoformat(d)
     cells = [idx(dd, j + 1) for j in range(144)]
     if any(i is None for i in cells):
-        print(f"       {d} result 行跨越轨迹边界，跳过")
+        check(False, f"{d} 已有账单但执行轨迹缺段")
         continue
     q = sum(float(g[i] + u[i]) for i in cells)
     probed += 1
@@ -169,32 +152,9 @@ for d in ("2025-03-20", "2025-06-21", "2025-09-23", "2025-12-21"):
 if probed == 0:
     print("       该次运行未完整覆盖任何论文日期，本项不适用（全年运行会覆盖）")
 
-print("\n6) 已知记账问题：弃光与富余重复计入（README 7.6 的自动校验）")
-# The deliverable README discloses that the execution layer books PV that the
-# plan never asked the battery to absorb as BOTH curtailment and surplus. The
-# disclosure must stay true of the artifacts, so assert its measurable form:
-#   (a) curtailment never exceeds surplus,
-#   (b) on most co-positive intervals the two are numerically equal,
-#   (c) the equalities account for the bulk of the curtailed energy.
-both = (cur > 1e-9) & (sur > 1e-9)
-n_both = int(both.sum())
-check(n_both > 0, f"存在弃光与富余同时为正的段（实测 {n_both} 段）")
-check(bool(np.all(cur <= sur + 1e-6)),
-      f"弃光在每一段都不超过富余（弃光 {cur.sum():,.1f} <= 富余 {sur.sum():,.1f} kWh）")
-n_eq = int(np.sum(np.abs(cur[both] - sur[both]) < 1e-6))
-share = float(cur[both][np.abs(cur[both] - sur[both]) < 1e-6].sum() / cur.sum()) if cur.sum() else 0.0
-check(n_both > 0 and n_eq / n_both > 0.5,
-      f"多数同时在正的段上两者数值恒等（{n_eq}/{n_both} 段，占弃光量的 {share:.1%}）")
-# The equality share is a property of the data, not of the code: on the 7-day
-# benchmark it is 98.7%, over a full year 85-87%. Assert only that the bulk is
-# explained by exact equality, so a real accounting change (>15% unexplained)
-# still fails.
-check(share > 0.75,
-      f"恒等的那些段覆盖弃光总量的大部分（{share:.1%}；7 天算例约 98.7%，全年约 85–87%）")
-print(f"       弃光累计 {cur.sum():,.1f} kWh，富余累计 {sur.sum():,.1f} kWh")
-print(f"       重复计量部分 ≈ 弃光累计 {cur.sum():,.1f} kWh（占富余的 {cur.sum() / sur.sum():.1%}）")
-print(f"       富余中不重复的部分（购电过量所致）= {sur.sum() - cur.sum():,.1f} kWh")
-print("       引用时请写“富余（含光伏未能吸收的部分）”，不要把两者相加（会重复计算）")
+print("\n6) 验证版本与有限值")
+check(_raw.get("validation_version") == "main-model-v4-paid-spill", "产物经过当前主模型校验")
+check(all(np.isfinite(v).all() for v in (g, u, ch, dis, cur, sur, E, D, P)), "物理量均为有限值")
 
 print()
 print("=" * 78)

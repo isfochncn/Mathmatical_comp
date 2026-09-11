@@ -82,7 +82,7 @@ SOURCE_EXTENDED = "extended"            # beyond the source horizon (forecast on
 def seq_index_from_label(label: object) -> int:
     """Map one source label to its sequence interval index.
 
-    Labels are interval START times, so ``00:10`` -> 0 and ``23:50`` -> 143.
+    Labels are interval START times, so ``00:10`` -> 0 and ``23:50`` -> 142.
     ``0:00+1`` / ``24:00`` denote [next day 00:00, next day 00:10) -> 143.
     """
     if isinstance(label, time):
@@ -156,7 +156,7 @@ def clock_to_abs_minute(day_index: int, t: int) -> int:
 
 def boundary_abs_minute(day_index: int, s: int) -> int:
     """(day index, boundary s in 0..144) -> minutes since 2025-01-01 00:00."""
-    if not 0 <= s <= N_BOUNDARY:
+    if not 0 <= s < N_BOUNDARY:
         raise ValueError(f"边界下标越界：{s}")
     return day_index * 24 * 60 + s * MINUTES_PER_INTERVAL
 

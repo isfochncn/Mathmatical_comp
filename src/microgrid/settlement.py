@@ -252,6 +252,50 @@ def verify_bill(
         raise SettlementError("费用分项与合计不符")
 
 
+def validate_ledger(*, abs_minutes, grid_kwh, emergency_kwh, price_actual,
+                    initial_plans, events, penalties, can_adjust: bool, expected_start_abs: int = 10) -> None:
+    """Cross-check the event ledger against physical execution and permissions."""
+    minutes = np.asarray(abs_minutes)
+    if [e.at_abs for e in events] != minutes.tolist():
+        raise SettlementError("Execution ledger timestamps do not match trajectory")
+    if not len(minutes) or minutes[0] != expected_start_abs:
+        raise SettlementError("Execution ledger starts at the wrong initialization time")
+    archive = {int(k): float(v) for k, v in initial_plans.items()}
+    for start in sorted(set([int(minutes[0]), *map(int, minutes[minutes % 1440 == 0])])):
+        end = (start // 1440 + 1) * 1440
+        if any(int(t) not in archive for t in range(start, end, 10)):
+            raise SettlementError("Incomplete midnight plan archive")
+    if any(t < expected_start_abs for t in archive):
+        raise SettlementError("Archive includes a skipped interval")
+    if not np.isfinite(list(archive.values())).all() or any(v < -1e-6 for v in archive.values()):
+        raise SettlementError("Invalid midnight plan archive")
+    for i, e in enumerate(events):
+        vals = [e.o_exec_kwh, e.a_exec_kwh, e.emergency_kwh, e.price_actual_yuan_per_kwh]
+        if not np.isfinite(vals).all() or min(vals) < -1e-6:
+            raise SettlementError("Invalid execution fee labels")
+        if not np.allclose([e.o_exec_kwh+e.a_exec_kwh, e.emergency_kwh, e.price_actual_yuan_per_kwh],
+                           [grid_kwh[i], emergency_kwh[i], price_actual[i]], atol=1e-6, rtol=0):
+            raise SettlementError("Execution ledger differs from physical trajectory")
+        if e.o_exec_kwh > archive[e.at_abs] + 1e-6:
+            raise SettlementError("Original-plan remainder exceeds midnight commitment")
+        if not can_adjust and (abs(e.a_exec_kwh) > 1e-6 or abs(e.o_exec_kwh-archive[e.at_abs]) > 1e-6):
+            raise SettlementError("Frozen plan was revised")
+    by_time = {e.at_abs: e for e in events}
+    seen = set()
+    for p in penalties:
+        if not can_adjust or p.at_abs % 1440 not in (360, 720, 1080) or p.at_abs in seen:
+            raise SettlementError("Penalty outside an allowed revision node")
+        seen.add(p.at_abs)
+        stamps, amounts = np.asarray(p.reduced_abs), np.asarray(p.reduced_kwh)
+        if (stamps.ndim != 1 or amounts.shape != stamps.shape or not np.isfinite(amounts).all()
+                or np.any(amounts < -1e-6) or np.any(stamps % 10) or np.any(np.diff(stamps) <= 0)
+                or np.any(stamps < p.at_abs) or np.any(stamps >= (p.at_abs//1440+1)*1440)):
+            raise SettlementError("Revision affects an invalid delivery interval")
+        event = by_time.get(p.at_abs)
+        if event is None or not np.isclose(p.price_at_yuan_per_kwh, event.price_actual_yuan_per_kwh, atol=1e-9, rtol=0):
+            raise SettlementError("Penalty does not use actual price at revision time")
+
+
 # ==========================================================================
 # 5. Gold cases from the specification (used directly by the tests)
 # ==========================================================================
@@ -271,7 +315,7 @@ def gold_case_100_120_80() -> dict[str, float]:
 
     # Both intervals execute; only the first carries the committed quantity.
     events = [
-        DispatchEvent(0, o_exec_kwh=80.0, a_exec_kwh=0.0, emergency_kwh=0.0, price_actual_yuan_per_kwh=1.0),
+        DispatchEvent(0, o_exec_kwh=float(state.o_kwh[0]), a_exec_kwh=float(state.a_kwh[0]), emergency_kwh=0.0, price_actual_yuan_per_kwh=1.0),
         DispatchEvent(10, o_exec_kwh=0.0, a_exec_kwh=0.0, emergency_kwh=0.0, price_actual_yuan_per_kwh=1.0),
     ]
     totals = result_row_bill(0, 20, events, penalties)

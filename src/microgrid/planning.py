@@ -28,7 +28,7 @@ All three are convex piecewise linear in y', so the whole model stays an LP.
 
 Structure reuse (2026 performance fix)
 --------------------------------------
-The rolling driver calls :func:`solve_window` ~24 times per simulated day, and
+The rolling driver calls :func:`solve_window` 144 times per simulated day, and
 consecutive windows differ **only in parameter values** (demand, PV, price, the
 SOC start value, the absorption cap / commitment floor, the committed O/A).
 Rebuilding the Pyomo model and re-transferring it to HiGHS every time used to
@@ -50,7 +50,7 @@ what the previous one-shot construction produced.
 from __future__ import annotations
 
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
@@ -84,6 +84,8 @@ class WindowForecast:
     def __post_init__(self) -> None:
         n = np.asarray(self.abs_minutes, dtype=np.int64).size
         self.abs_minutes = np.asarray(self.abs_minutes, dtype=np.int64)
+        if self.abs_minutes.shape != (n,) or np.any(self.abs_minutes % 10) or np.any(np.diff(self.abs_minutes) != 10):
+            raise ValueError("Window timestamps must be contiguous ten-minute starts")
         for name in ("demand_kwh", "pv_kwh", "price_yuan_per_kwh", "provenance"):
             arr = np.asarray(getattr(self, name))
             if arr.shape != (n,):
@@ -108,6 +110,7 @@ class WindowResult:
     curtail_kwh: np.ndarray
     soc_boundary_kwh: np.ndarray
     objective_yuan: float
+    spill_kwh: np.ndarray = field(default_factory=lambda: np.empty(0))
 
     def require_ok(self) -> "WindowResult":
         self.report.require_ok()
@@ -156,7 +159,7 @@ def _add_frozen_fee(m: pyo.ConcreteModel, frozen_mask: np.ndarray) -> None:
         )
 
 
-def _add_adjustable_fee(m: pyo.ConcreteModel) -> None:
+def _add_adjustable_fee(m: pyo.ConcreteModel, adjustable_mask: np.ndarray) -> None:
     """Adjustable segment: convex piecewise-linear fee via the epigraph of [.]_+.
 
     f(y') = p_s*y' + 0.5*p_s*v + 0.5*p_a*w,  v >= y'-O, v >= 0, w >= O+A-y', w >= 0
@@ -176,9 +179,11 @@ def _add_adjustable_fee(m: pyo.ConcreteModel) -> None:
     )
 
     def _rule(m, t):
+        if not adjustable_mask[t]:
+            return m.price[t] * m.grid[t]
         return (
             m.price[t] * m.grid[t]
-            + FEE_ADJUST_UP * m.price[t] * m.increase[t]
+            + (FEE_ADJUST_UP - 1.0) * m.price[t] * m.increase[t]
             + FEE_PENALTY_DOWN * m.price_now * m.reduce[t]
         )
 
@@ -194,10 +199,8 @@ def _add_first_plan_fee(m: pyo.ConcreteModel) -> None:
 # Structural signature and the reuse cache
 # ==========================================================================
 
-#: 缓存上限。默认刷新节奏（每小时重解一次）下，一天最多出现 24 个不同的
-#: (窗口长度 n, 承诺掩码) 组合；留一倍余量即可让整天的求解都不重建模型。
-#: 超出后按 LRU 淘汰最久未用的条目（连同它的求解器实例一起释放）。
-MAX_CACHED_WINDOWS = 48
+#: Cache the shrinking ten-minute windows; eviction affects performance only.
+MAX_CACHED_WINDOWS = 160
 
 #: 结构指纹 -> 已建好的 Pyomo 模型 + 绑定其上的 appsi 求解器。
 _CACHE: "OrderedDict[_WindowShape, _WindowTemplate]" = OrderedDict()
@@ -226,6 +229,9 @@ class _WindowShape:
     frozen_mask: bytes | None
     #: 被 fix_committed 钉住的区间掩码（承诺结转）；None 表示没有结转
     committed_mask: bytes | None
+    adjustable_mask: bytes | None
+    allow_emergency: bool
+    allow_spill: bool
 
 
 @dataclass
@@ -261,6 +267,9 @@ def _window_shape(
     soc_end_fixed_kwh: float | None,
     committed_grid_kwh: np.ndarray | None,
     committed_mask: np.ndarray | None,
+    adjustable_mask: np.ndarray | None,
+    allow_emergency: bool,
+    allow_spill: bool,
 ) -> _WindowShape:
     """由本次调用的输入推出结构指纹（只取真正影响模型形状的部分）。"""
     mask = None
@@ -273,6 +282,9 @@ def _window_shape(
         frozen = None
     return _WindowShape(
         n=n,
+        adjustable_mask=None if adjustable_mask is None else np.ascontiguousarray(adjustable_mask, dtype=bool).tobytes(),
+        allow_emergency=allow_emergency,
+        allow_spill=allow_spill,
         fee_mode=fee_mode,
         absorption=absorption_upper_kwh is not None and committed_mask is None,
         commitment_floor=commitment_lower_kwh is not None and committed_mask is None,
@@ -344,8 +356,15 @@ def _build_window_model(
     )
     m.soc_start_kwh = pyo.Param(mutable=True, initialize=0.0)
 
+    # Disposal is a fallback only for deliveries whose quantities are frozen.
+    frozen_for_spill = np.zeros(n, dtype=bool)
+    for raw_mask in (shape.frozen_mask, shape.committed_mask):
+        if raw_mask is not None:
+            frozen_for_spill |= np.frombuffer(raw_mask, dtype=bool)
+    m.spill = pyo.Var(m.T, domain=pyo.NonNegativeReals,
+                     bounds=lambda m, t: (0, None if shape.allow_spill and frozen_for_spill[t] else 0))
     m.grid = pyo.Var(m.T, domain=pyo.NonNegativeReals)
-    m.emergency = pyo.Var(m.T, domain=pyo.NonNegativeReals)
+    m.emergency = pyo.Var(m.T, domain=pyo.NonNegativeReals, bounds=(0, None if shape.allow_emergency else 0))
     m.charge = pyo.Var(m.T, domain=pyo.NonNegativeReals, bounds=(0.0, Q_MAX))
     m.discharge = pyo.Var(m.T, domain=pyo.NonNegativeReals, bounds=(0.0, Q_DIS_MAX))
     m.curtail = pyo.Var(m.T, domain=pyo.NonNegativeReals)
@@ -359,7 +378,7 @@ def _build_window_model(
         + m.pv[t]
         - m.curtail[t]
         + m.discharge[t]
-        == m.demand[t] + m.charge[t] * CHARGE_BUS_FACTOR,
+        == m.demand[t] + m.charge[t] * CHARGE_BUS_FACTOR + m.spill[t],
     )
 
     m.transition = pyo.Constraint(
@@ -370,6 +389,32 @@ def _build_window_model(
 
     m.curtail_limit = pyo.Constraint(m.T, rule=lambda m, t: m.curtail[t] <= m.pv[t])
     m.soc_start = pyo.Constraint(expr=m.soc[0] == m.soc_start_kwh)
+
+    # Direct grid supply serves demand without passing through the battery.
+    # Only the surplus after serving demand must fit into charging. These named
+    # inequalities make the implications of balance/transition/bounds explicit;
+    # they use this window's forecast, never future actual demand.
+    m.surplus_to_charge = pyo.Expression(
+        m.T, rule=lambda m, t: m.grid[t] + m.emergency[t] + m.pv[t]
+        - m.curtail[t] + m.discharge[t] - m.demand[t] - m.spill[t],
+    )
+    m.purchase_absorption_power = pyo.Constraint(
+        m.T, rule=lambda m, t: m.surplus_to_charge[t] <= Q_MAX * CHARGE_BUS_FACTOR,
+    )
+    m.purchase_absorption_capacity = pyo.Constraint(
+        m.T, rule=lambda m, t: m.surplus_to_charge[t]
+        <= (E_MAX - m.soc[t] + m.discharge[t] * DISCHARGE_BATTERY_FACTOR) * CHARGE_BUS_FACTOR,
+    )
+
+    m.spill_from_paid_purchase = pyo.Constraint(m.T, rule=lambda m, t: m.spill[t] <= m.grid[t])
+    if shape.allow_spill:
+        m.discharge_serves_load = pyo.Constraint(m.T, rule=lambda m, t: m.discharge[t] <= m.demand[t])
+        # Do not discharge merely to dissipate a fixed overpurchase. This cap
+        # is based on a known fixed delivery, so the formulation stays linear.
+        m.uncovered_load = pyo.Param(m.T, mutable=True, initialize=0.0)
+        fixed_slots = [t for t in T if frozen_for_spill[t]]
+        m.discharge_to_uncovered_load = pyo.Constraint(
+            fixed_slots, rule=lambda m, t: m.discharge[t] <= m.uncovered_load[t])
 
     if shape.absorption:
         cap = np.asarray(absorption_upper_kwh, dtype=np.float64)
@@ -407,7 +452,8 @@ def _build_window_model(
         m.o_kwh = pyo.Param(m.T, mutable=True, initialize=0.0)
         m.oa_kwh = pyo.Param(m.T, mutable=True, initialize=0.0)
         m.price_now = pyo.Param(mutable=True, initialize=0.0)
-        _add_adjustable_fee(m)
+        _add_adjustable_fee(m, np.ones(n, dtype=bool) if shape.adjustable_mask is None
+                            else np.frombuffer(shape.adjustable_mask, dtype=bool))
     else:
         raise ValueError(f"unknown fee mode: {shape.fee_mode}")
 
@@ -416,6 +462,18 @@ def _build_window_model(
         + sum(FEE_EMERGENCY * m.price[t] * m.emergency[t] for t in m.T),
         sense=pyo.minimize,
     )
+
+    if shape.allow_spill:
+        m.spill_limit = pyo.Param(mutable=True, initialize=0.0)
+        m.cost_limit = pyo.Param(mutable=True, initialize=0.0)
+        m.keep_spill = pyo.Constraint(expr=sum(m.spill[t] for t in m.T) <= m.spill_limit)
+        m.keep_cost = pyo.Constraint(expr=m.obj.expr <= m.cost_limit)
+        m.min_spill = pyo.Objective(expr=sum(m.spill[t] for t in m.T))
+        # At equal disposal and fee, prefer less early grid purchasing: stored
+        # energy serves load first without sacrificing price arbitrage.
+        m.prefer_storage = pyo.Objective(expr=sum((n-t)*(m.grid[t]+m.emergency[t]) for t in m.T))
+        for component in (m.keep_spill, m.keep_cost, m.min_spill, m.prefer_storage):
+            component.deactivate()
 
     if shape.soc_end_fixed:
         m.soc_end_kwh = pyo.Param(mutable=True, initialize=0.0)
@@ -453,6 +511,10 @@ def _load_window_inputs(
     if shape.commitment_floor:
         _load(m.floor, commitment_lower_kwh)
 
+    if shape.allow_spill:
+        fixed_qty = o_eff + a_eff if committed_grid_kwh is None else committed_grid_kwh
+        _load(m.uncovered_load, np.maximum(forecast.demand_kwh - fixed_qty, 0))
+
     if shape.fee_mode == FeeMode.FROZEN:
         _load(m.commit_val, o_eff + a_eff)
         _load(
@@ -489,6 +551,9 @@ def solve_window(
     commitment_lower_kwh: np.ndarray | None = None,
     committed_grid_kwh: np.ndarray | None = None,
     committed_mask: np.ndarray | None = None,
+    adjustable_mask: np.ndarray | None = None,
+    allow_emergency: bool = True,
+    allow_spill: bool = False,
     solver_name: str = DEFAULT_SOLVER,
     problem_name: str = "window",
 ) -> WindowResult:
@@ -505,10 +570,8 @@ def solve_window(
         FROZEN and ADJUSTABLE fee expressions. Intervals that are not committed
         yet are passed as 0 and are freed by ``committed_mask``.
     committed_grid_kwh, committed_mask
-        Per-interval carry-over of already committed quantities. This is how the
-        previous natural day's plan keeps covering the next day's first ten
-        minutes while the rest of the window is being re-optimised. Intervals
-        with ``committed_mask == True`` have their grid value fixed.
+        Already committed intervals in today's remaining plan; the next-day
+        lookahead is not committed. True mask entries fix ordinary quantities.
     soc_end_fixed_kwh
         Only problem 1 (``E_144 = E_0 = 6000``).
     absorption_upper_kwh
@@ -524,6 +587,25 @@ def solve_window(
     if n <= 0:
         raise ValueError("empty window")
     T = list(range(n))
+    for name, arr in (("demand", forecast.demand_kwh), ("pv", forecast.pv_kwh), ("price", forecast.price_yuan_per_kwh)):
+        if not np.isfinite(arr).all() or np.any(arr < 0):
+            raise ValueError(f"{name} must be finite and nonnegative")
+    if not np.isfinite(soc_start_kwh) or not E_MIN <= soc_start_kwh <= E_MAX:
+        raise ValueError("Invalid initial SOC")
+    if adjustable_mask is not None and np.asarray(adjustable_mask).shape != (n,):
+        raise ValueError("Invalid adjustable mask")
+    if (committed_mask is None) != (committed_grid_kwh is None):
+        raise ValueError("Committed quantities and mask must be supplied together")
+    if (o_kwh is None) != (a_kwh is None):
+        raise ValueError("O/A labels must be supplied together")
+    for name, vector in (("O", o_kwh), ("A", a_kwh), ("committed", committed_grid_kwh),
+                         ("absorption cap", absorption_upper_kwh), ("commitment floor", commitment_lower_kwh)):
+        if vector is not None:
+            v = np.asarray(vector)
+            if v.shape != (n,) or not np.isfinite(v).all() or np.any(v < -1e-6):
+                raise ValueError(f"Invalid {name} quantities")
+    if price_now_yuan_per_kwh is not None and (not np.isfinite(price_now_yuan_per_kwh) or price_now_yuan_per_kwh < 0):
+        raise ValueError("Invalid adjustment planning price")
 
     # ---- 输入校验（与结构复用前完全一致） ----------------------------------
     cap_arr: np.ndarray | None = None
@@ -567,6 +649,9 @@ def solve_window(
         soc_end_fixed_kwh=soc_end_fixed_kwh,
         committed_grid_kwh=committed_grid_kwh,
         committed_mask=committed_mask,
+        adjustable_mask=adjustable_mask,
+        allow_emergency=allow_emergency,
+        allow_spill=allow_spill,
     )
     template = _CACHE.get(shape)
     if template is None:
@@ -610,25 +695,65 @@ def solve_window(
         template.solver = make_appsi_solver(solver_name)
         template.solver_name = solver_name
 
-    report = solve_model(
-        m, problem_name, solver_name=solver_name, solver=template.solver
-    )
+    def stage_solve():
+        report = solve_model(m, problem_name, solver_name=solver_name, solver=template.solver)
+        if not report.feasible:
+            active = next(m.component_data_objects(pyo.Objective, active=True)).name
+            report.message += f" Lexicographic stage: {active}"
+        return report
+
+    if allow_spill:
+        for component in (m.obj, m.keep_spill, m.keep_cost, m.prefer_storage):
+            component.deactivate()
+        m.min_spill.activate()
+        report = stage_solve()
+        if report.feasible:
+            optimum_spill = max(0., float(pyo.value(m.min_spill.expr)))
+            m.spill_limit.set_value(optimum_spill + max(1e-6, 1e-9*optimum_spill))
+            m.min_spill.deactivate()
+            m.keep_spill.activate()
+            m.obj.activate()
+            report = stage_solve()
+        if report.feasible:
+            optimum_cost = float(pyo.value(m.obj.expr))
+            m.cost_limit.set_value(optimum_cost + max(1e-6, 1e-9*abs(optimum_cost)))
+            m.obj.deactivate()
+            m.keep_cost.activate()
+            m.prefer_storage.activate()
+            report = stage_solve()
+        if report.feasible:
+            report.objective_yuan = float(pyo.value(m.obj.expr))  # actual fee, not tie-break objective
+    else:
+        report = stage_solve()
     if not report.feasible:
+        frozen = np.zeros(n, dtype=bool)
+        quantities = np.zeros(n)
+        if fee_mode == FeeMode.FROZEN:
+            frozen[:] = True if mask_arr is None else mask_arr
+            quantities = o_eff + a_eff if fixed_arr is None else fixed_arr
+        elif mask_arr is not None:
+            frozen, quantities = mask_arr, fixed_arr
+        excess = np.where(frozen, quantities - forecast.demand_kwh - Q_MAX * CHARGE_BUS_FACTOR, -np.inf)
+        if np.max(excess) > 1e-6:
+            i = int(np.argmax(excess))
+            report.message += (f" Frozen purchase at abs={int(forecast.abs_minutes[i])} exceeds forecast demand"
+                               f" plus maximum bus charging input by {excess[i]:.6f} kWh; even full PV curtailment cannot absorb it.")
         return WindowResult(
             report=report,
             abs_minutes=forecast.abs_minutes.copy(),
-            grid_kwh=np.zeros(n),
-            emergency_kwh=np.zeros(n),
-            charge_kwh=np.zeros(n),
-            discharge_kwh=np.zeros(n),
-            curtail_kwh=np.zeros(n),
-            soc_boundary_kwh=np.full(n + 1, float(soc_start_kwh)),
+            grid_kwh=np.full(n, np.nan),
+            emergency_kwh=np.full(n, np.nan),
+            charge_kwh=np.full(n, np.nan),
+            discharge_kwh=np.full(n, np.nan),
+            curtail_kwh=np.full(n, np.nan),
+            soc_boundary_kwh=np.full(n + 1, np.nan),
             objective_yuan=float("nan"),
+            spill_kwh=np.full(n, np.nan),
         )
 
     get = lambda var, i: float(pyo.value(var[i]))  # noqa: E731
 
-    return WindowResult(
+    answer = WindowResult(
         report=report,
         abs_minutes=forecast.abs_minutes.copy(),
         grid_kwh=np.array([get(m.grid, t) for t in T]),
@@ -637,8 +762,34 @@ def solve_window(
         discharge_kwh=np.array([get(m.discharge, t) for t in T]),
         curtail_kwh=np.array([get(m.curtail, t) for t in T]),
         soc_boundary_kwh=np.array([get(m.soc, s) for s in m.S]),
-        objective_yuan=float(report.objective_yuan or float("nan")),
+        objective_yuan=float(report.objective_yuan),
+        spill_kwh=np.array([get(m.spill, t) for t in T]),
     )
+
+
+    from .validation import validate_absolute_run
+    diag = validate_absolute_run(
+        abs_minutes=answer.abs_minutes, grid_kwh=answer.grid_kwh,
+        emergency_kwh=answer.emergency_kwh, charge_kwh=answer.charge_kwh,
+        discharge_kwh=answer.discharge_kwh, curtail_kwh=answer.curtail_kwh,
+        surplus_kwh=answer.spill_kwh, soc_boundary_kwh=answer.soc_boundary_kwh,
+        demand_kwh=forecast.demand_kwh, pv_kwh=forecast.pv_kwh,
+        soc_start_kwh=soc_start_kwh, allow_spill=allow_spill, validate_feedback=False)
+    # Recompute the exact labels, including zero-price epigraph degeneracy.
+    price = forecast.price_yuan_per_kwh
+    exact = price * answer.grid_kwh
+    if fee_mode == FeeMode.FROZEN:
+        frozen = np.ones(n, dtype=bool) if mask_arr is None else mask_arr
+        exact[frozen] = price[frozen] * (o_eff[frozen] + FEE_ADJUST_UP * a_eff[frozen])
+    elif fee_mode == FeeMode.ADJUSTABLE:
+        adj = np.ones(n, dtype=bool) if adjustable_mask is None else np.asarray(adjustable_mask, dtype=bool)
+        exact[adj] += ((FEE_ADJUST_UP - 1) * price[adj] * np.maximum(answer.grid_kwh[adj] - o_eff[adj], 0)
+                       + FEE_PENALTY_DOWN * price_now_yuan_per_kwh * np.maximum(o_eff[adj] + a_eff[adj] - answer.grid_kwh[adj], 0))
+    exact_total = float(exact.sum() + FEE_EMERGENCY * np.dot(price, answer.emergency_kwh))
+    if not np.isclose(exact_total, answer.objective_yuan, atol=1e-5, rtol=1e-9):
+        raise RuntimeError("Window fee recomputation failed")
+    report.max_residual = max(diag.max_bus_residual_kwh, diag.max_soc_error_kwh)
+    return answer
 
 
 __all__ = [

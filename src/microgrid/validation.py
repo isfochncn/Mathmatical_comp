@@ -5,8 +5,8 @@ The 2026-09-11 rules changed what has to be checked:
 * simultaneous charge/discharge is a **legal operating state**, not an anomaly.
   It must be accounted for (losses enter the energy balance) but never treated as
   a feasibility criterion;
-* a committed purchase that cannot be absorbed is reported as a disclosed
-  surplus rather than hidden behind a rejection or a sale;
+* unavoidable paid overpurchase may be discarded, but remains fully billed;
+  disposal is separately measured and cannot be manufactured by battery cycling;
 * the natural-day bill and the result-row bill cover different windows
   (``[00:00, 24:00)`` vs ``[00:10, next 00:10)``) and must be labelled as such;
 * the executed fee labels are re-derived from the realised quantities, never
@@ -88,114 +88,71 @@ def validate_absolute_run(
     soc_start_kwh: float,
     require_daily_cycle: bool = False,
     final: bool = True,
+    allow_spill: bool = True,
+    validate_feedback: bool = True,
 ) -> RunDiagnostics:
     """Per-interval conservation, SOC recursion, device bounds and loss accounting."""
-    diag = RunDiagnostics(n_intervals=int(abs_minutes.size))
-    problems: list[str] = []
-
-    n = abs_minutes.size
-    for name, arr in (
-        ("grid", grid_kwh),
-        ("emergency", emergency_kwh),
-        ("charge", charge_kwh),
-        ("discharge", discharge_kwh),
-        ("curtail", curtail_kwh),
-        ("surplus", surplus_kwh),
-        ("demand", demand_kwh),
-        ("pv", pv_kwh),
-    ):
-        if arr.shape != (n,):
-            problems.append(f"{name} 形状应为 ({n},)，得到 {arr.shape}")
-        elif float(arr.min()) < -TOL_ENERGY_KWH:
-            problems.append(f"{name} 出现负值 {float(arr.min()):.6f}")
-    if soc_boundary_kwh.size != n + 1:
-        problems.append(f"soc 边界应为 ({n + 1},)，得到 {soc_boundary_kwh.shape}")
-
+    n = len(abs_minutes)
+    diag = RunDiagnostics(n_intervals=n)
+    problems = []
+    quantities = dict(grid=grid_kwh, emergency=emergency_kwh, charge=charge_kwh,
+                      discharge=discharge_kwh, curtail=curtail_kwh, surplus=surplus_kwh,
+                      demand=demand_kwh, pv=pv_kwh)
+    if n == 0 or np.asarray(abs_minutes).shape != (n,) or np.any(np.diff(abs_minutes) != 10) or np.any(abs_minutes % 10):
+        problems.append("Execution timestamps must be nonempty, contiguous and aligned")
+    for name, arr in quantities.items():
+        if arr.shape != (n,) or not np.isfinite(arr).all() or np.any(arr < -1e-6):
+            problems.append(f"Invalid {name} quantities")
+    if soc_boundary_kwh.shape != (n+1,) or not np.isfinite(soc_boundary_kwh).all():
+        problems.append("Invalid SOC boundaries")
     if problems:
-        if final:
-            raise ValidationError("轨迹校验失败：\n  - " + "\n  - ".join(problems))
-        diag.warnings.extend(problems)
-        return diag
-
-    # Device bounds.
-    if float(soc_boundary_kwh.min()) < E_MIN - 1e-6:
-        problems.append(f"SOC 低于下限：{float(soc_boundary_kwh.min()):.6f} < {E_MIN}")
-    if float(soc_boundary_kwh.max()) > E_MAX + 1e-6:
-        problems.append(f"SOC 高于上限：{float(soc_boundary_kwh.max()):.6f} > {E_MAX}")
-    if float(charge_kwh.max()) > Q_MAX + 1e-6:
-        problems.append(f"充电量超过 750：{float(charge_kwh.max()):.6f}")
-    if float(discharge_kwh.max()) > Q_DIS_MAX + 1e-6:
-        problems.append(f"放电量超过 750：{float(discharge_kwh.max()):.6f}")
-    if float((curtail_kwh - pv_kwh).max()) > 1e-6:
-        problems.append("弃光超过可用光伏")
-
-    # SOC recursion.
-    rebuilt = soc_boundary_kwh[0] + np.concatenate(
-        ([0.0], np.cumsum(charge_kwh - discharge_kwh / 0.9))
-    )
-    diag.max_soc_error_kwh = float(np.max(np.abs(rebuilt - soc_boundary_kwh)))
-    if diag.max_soc_error_kwh > 1e-6:
-        problems.append(f"SOC 递推不自洽：最大偏差 {diag.max_soc_error_kwh:.3e}")
-    if abs(float(soc_boundary_kwh[0]) - float(soc_start_kwh)) > 1e-6:
-        problems.append("SOC 起点与轨迹不一致")
-
-    # Bus conservation. Delivered power cannot be rejected, so any positive
-    # residual is the disclosed surplus and must match `surplus_kwh`.
-    required = demand_kwh - pv_kwh + curtail_kwh + charge_kwh / 0.9 - discharge_kwh
-    supplied = grid_kwh + emergency_kwh
-    signed = supplied - required
-    if float(signed.min()) < -TOL_ENERGY_KWH:
-        t = int(np.argmin(signed))
-        problems.append(
-            f"母线守恒出现少供：区间 {t} 需要 {required[t]:.6f}，实供 {supplied[t]:.6f}"
-        )
-    positive = np.maximum(signed, 0.0)
-    diag.max_bus_residual_kwh = float(np.max(np.abs(signed)))
-    diag.total_surplus_kwh = float(positive.sum())
-    if abs(diag.total_surplus_kwh - float(surplus_kwh.sum())) > 1e-3:
-        problems.append(
-            f"已披露富余 {float(surplus_kwh.sum()):.6f} 与实测正残差 "
-            f"{diag.total_surplus_kwh:.6f} 不一致（不得静默丢弃能量）"
-        )
-
-    # Window identity:
-    #   sum(h+u) = sum(D-G+r) + (19/90)*sum(q_ch) + 0.9*(E_end - E_start) + surplus
-    lhs = float(np.sum(grid_kwh) + np.sum(emergency_kwh))
-    rhs = (
-        float(np.sum(demand_kwh - pv_kwh + curtail_kwh))
-        + physics.LOSS_COEFF * float(np.sum(charge_kwh))
-        + 0.9 * (float(soc_boundary_kwh[-1]) - float(soc_boundary_kwh[0]))
-        + diag.total_surplus_kwh
-    )
-    if abs(lhs - rhs) > 1e-4:
-        problems.append(f"窗口恒等式残差 {lhs - rhs:.6f} kWh")
-
-    if require_daily_cycle:
-        if abs(float(soc_boundary_kwh[-1]) - float(soc_boundary_kwh[0])) > 1e-6:
-            problems.append("要求日循环但首末 SOC 不等")
-
-    # Loss accounting; simultaneous charge/discharge is legal.
+        raise ValidationError("; ".join(problems))
+    if np.any(soc_boundary_kwh < E_MIN-1e-6) or np.any(soc_boundary_kwh > E_MAX+1e-6):
+        problems.append("SOC outside device limits")
+    if np.any(charge_kwh > Q_MAX+1e-6) or np.any(discharge_kwh > Q_DIS_MAX+1e-6):
+        problems.append("Dispatch exceeds effective power limits")
+    if np.any(curtail_kwh > pv_kwh+1e-6):
+        problems.append("Curtailment exceeds PV")
+    if not allow_spill and np.any(np.abs(surplus_kwh) > 1e-6):
+        problems.append("External-power disposal is forbidden in this run")
+    if np.any(surplus_kwh > grid_kwh + 1e-6):
+        problems.append("Paid disposal exceeds ordinary purchases")
+    surplus_to_charge = grid_kwh + emergency_kwh + pv_kwh - curtail_kwh + discharge_kwh - demand_kwh - surplus_kwh
+    if np.any(surplus_to_charge > Q_MAX / 0.9 + 1e-6):
+        problems.append("Purchase surplus exceeds charging input power")
+    capacity_input = (E_MAX-soc_boundary_kwh[:-1] + discharge_kwh/0.9) / 0.9
+    if np.any(surplus_to_charge > capacity_input + 1e-6):
+        problems.append("Purchase surplus exceeds battery headroom")
+    residual = grid_kwh + emergency_kwh + pv_kwh - curtail_kwh + discharge_kwh - demand_kwh - charge_kwh/0.9 - surplus_kwh
+    diag.max_bus_residual_kwh = float(np.max(np.abs(residual)))
+    if diag.max_bus_residual_kwh > 1e-6:
+        problems.append("Bus energy balance failed")
+    rebuilt = soc_boundary_kwh[0] + np.r_[0, np.cumsum(charge_kwh-discharge_kwh/0.9)]
+    diag.max_soc_error_kwh = float(np.max(np.abs(rebuilt-soc_boundary_kwh)))
+    if diag.max_soc_error_kwh > max(1e-6, n*1e-8):
+        problems.append("SOC recursion failed")
+    if abs(soc_boundary_kwh[0]-soc_start_kwh) > 1e-6:
+        problems.append("SOC start mismatch")
+    if require_daily_cycle and abs(soc_boundary_kwh[-1]-soc_boundary_kwh[0]) > 1e-6:
+        problems.append("Daily cycle failed")
+    diag.total_surplus_kwh = float(surplus_kwh.sum())
+    if allow_spill and validate_feedback:
+        # The exact least unavoidable paid disposal under battery-first feedback:
+        # no discharge is used merely to burn an ordinary overpurchase.
+        max_charge = np.minimum(Q_MAX, np.maximum(E_MAX-soc_boundary_kwh[:-1], 0))
+        unavoidable = np.maximum(grid_kwh-demand_kwh-max_charge/0.9, 0)
+        if not np.allclose(surplus_kwh, unavoidable, atol=2e-6, rtol=0):
+            problems.append("Avoidable paid disposal was not eliminated")
+        if np.any(discharge_kwh > np.maximum(demand_kwh-grid_kwh, 0) + 2e-6):
+            problems.append("Battery discharge is not serving uncovered load")
     loss = physics.loss_accounting(charge_kwh, discharge_kwh)
     diag.total_loss_kwh = float(loss["total_loss_kwh"])
     diag.n_simultaneous = int(loss["n_simultaneous_intervals"])
-    diag.min_soc_kwh = float(soc_boundary_kwh.min())
-    diag.max_soc_kwh = float(soc_boundary_kwh.max())
-    diag.max_charge_kwh = float(charge_kwh.max())
-    diag.max_discharge_kwh = float(discharge_kwh.max())
+    diag.min_soc_kwh, diag.max_soc_kwh = float(soc_boundary_kwh.min()), float(soc_boundary_kwh.max())
+    diag.max_charge_kwh, diag.max_discharge_kwh = float(charge_kwh.max()), float(discharge_kwh.max())
     diag.max_curtail_kwh = float(curtail_kwh.max())
-    if diag.n_simultaneous:
-        diag.notes.append(
-            f"同时充放电 {diag.n_simultaneous} 段（合法运行状态，非异常）；"
-            f"总损耗 {diag.total_loss_kwh:.6f} kWh"
-        )
-    if diag.total_surplus_kwh > 1e-6:
-        diag.warnings.append(
-            f"存在无处安放的富余 {diag.total_surplus_kwh:.3f} kWh"
-            "（计划购电过量且储能已满），已如实记账，未用拒收或售电掩盖"
-        )
-
     if final and problems:
-        raise ValidationError("轨迹校验失败：\n  - " + "\n  - ".join(problems))
+        raise ValidationError("; ".join(problems))
     diag.warnings.extend(problems)
     return diag
 
@@ -226,6 +183,8 @@ def validate_no_future_leak(*, context: str, **flags: bool) -> None:
 
 def validate_prices_non_negative(price: np.ndarray, name: str) -> None:
     p = np.asarray(price, dtype=np.float64)
+    if not p.size or not np.isfinite(p).all():
+        raise ValidationError(f"{name} 缺少有效价格")
     if float(p.min()) < 0.0:
         raise ValidationError(f"{name} 出现负价：最小 {float(p.min()):.6f}（负价机制未定义）")
 

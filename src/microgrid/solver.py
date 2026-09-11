@@ -45,8 +45,7 @@ def solver_available(name: str = DEFAULT_SOLVER) -> bool:
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                pyo.SolverFactory(name).available(exception_flag=False)
-            _AVAILABLE[name] = True
+                _AVAILABLE[name] = bool(pyo.SolverFactory(name).available(exception_flag=False))
         except Exception:
             _AVAILABLE[name] = False
     return _AVAILABLE[name]
@@ -145,7 +144,7 @@ def _appsi_solver(solver_name: str):
     ``self.config = self.config()`` 重建配置并把 ``load_solution`` 覆盖成
     ``load_solutions`` 参数的值，因此外部设置的 ``config.load_solution=False``
     会被静默忽略；不可行时它还会直接抛 RuntimeError。
-    直接用原生实例才能：① 关闭自动加载；② 从 ``_last_results_object`` 拿到
+    直接用原生实例才能：① 关闭自动加载；② 从 solve 的返回值拿到
     ``solution_loader`` 与真实终止条件。
     """
     if solver_name.startswith("appsi"):
@@ -212,17 +211,18 @@ def _solve_appsi(
             pass
 
     try:
-        opt.solve(model)
+        results = opt.solve(model)
     except Exception as exc:
         return _fail(problem, solver_name, time.perf_counter() - t0, f"求解异常：{exc}")
 
     wall = time.perf_counter() - t0
-    results = getattr(opt, "_last_results_object", None)
     if results is None:
-        return _fail(problem, solver_name, wall, "求解器未返回结果对象 (_last_results_object 为空)")
+        return _fail(problem, solver_name, wall, "求解器未返回结果对象")
 
     termination = str(getattr(results, "termination_condition", "unknown"))
     loader = getattr(results, "solution_loader", None)
+    if termination.lower().split(".")[-1] != "optimal":
+        return SolveReport(problem, termination.lower(), False, None, termination.lower(), solver_name, wall)
 
     if loader is None:
         # 不可行 / 无界 / 超时无解：如实报告终止条件，不加载、不伪造
@@ -292,7 +292,7 @@ def _solve_legacy(
     wall = time.perf_counter() - t0
     status = str(results.solver.status).lower()
     termination = str(results.solver.termination_condition).lower()
-    feasible = status in ("ok", "warning") and termination in ("optimal", "feasible")
+    feasible = status in ("ok", "warning") and termination == "optimal"
     return SolveReport(
         problem=problem,
         status=status,

@@ -62,6 +62,7 @@ def test_clock_labels() -> None:
 def test_result_row_maps_to_clock_interval_plus_one() -> None:
     for j in range(144):
         assert T.result_interval_clock_index(j) == j + 1
+    for j in range(145):
         assert T.result_boundary_clock_index(j) == j + 1
 
 
@@ -102,11 +103,14 @@ def test_result_row_spans_next_day_first_interval(
     assert row[143] == pytest.approx(timeline.demand_clock_kwh(d2)[0] * 6)
 
 
-def test_first_bridge_is_missing_and_estimated(timeline) -> None:
+def test_first_bridge_is_missing_and_skipped(timeline) -> None:
     """2025-01-01 00:00-00:10 has no previous source row; it must be flagged."""
     from microgrid.timeaxis import SOURCE_BRIDGE_MISSING
 
     prov = timeline.demand_kwh.provenance
+    assert np.isnan(timeline.demand_kwh.values[0])
+    assert np.isnan(timeline.pv_kwh.values[0])
+    assert np.isnan(timeline.price_yuan_per_kwh.values[0])
     assert prov[0] == SOURCE_BRIDGE_MISSING
     assert int(np.sum(prov == SOURCE_BRIDGE_MISSING)) == 1
 
@@ -115,15 +119,15 @@ def test_carry_over_provenance_count(timeline) -> None:
     from microgrid.timeaxis import SOURCE_CARRY_OVER
 
     n_carry = int(np.sum(timeline.demand_kwh.provenance == SOURCE_CARRY_OVER))
-    assert n_carry == 364  # one per natural day except the very first
+    assert n_carry == 365  # includes Jan 1 of the following year from the final source tail
 
 
 def test_year_end_extension_is_marked(timeline) -> None:
     from microgrid.timeaxis import SOURCE_EXTENDED
 
     n_ext = int(np.sum(timeline.demand_kwh.provenance == SOURCE_EXTENDED))
-    assert n_ext == 288  # 48 hours of ten-minute intervals
-    assert n_ext == timeline.demand_kwh.values.size - 365 * 144
+    assert n_ext == 287  # first extension slot is an actual source-tail observation
+    assert n_ext + 1 == timeline.demand_kwh.values.size - 365 * 144
 
 
 def test_clock_and_result_windows_differ_by_one_interval(timeline) -> None:

@@ -89,8 +89,10 @@ for name, path in TEMPLATES.items():
         continue
     h = hashlib.sha256(p.read_bytes()).hexdigest()[:16]
     check(p.stat().st_size > 1000, f"{path} size={p.stat().st_size} sha256[:16]={h}")
-    # Recorded so a rerun can prove the file never changed.
-    (Path("out") / f".template_{name}.sha256").write_text(h, encoding="utf-8")
+    baseline = Path("out") / f".template_{name}.sha256"
+    check(baseline.exists(), f"{name} has a previously recorded template hash")
+    if baseline.exists():
+        check(baseline.read_text(encoding="utf-8").strip() == h, f"{name} template hash unchanged")
 
 # ---------------------------------------------------------------------------
 section("2) exports exist with the expected sheet structure")
@@ -183,6 +185,7 @@ for name, run_dir in RUNS.items():
         check(False, f"{summary_path} exists")
         continue
     payload = json.loads(summary_path.read_text(encoding="utf-8"))
+    check(payload.get("validation_version") == "main-model-v4-paid-spill", f"{name} current model validation version")
     row_bills = {r["date"]: r for r in payload.get("result_row_bills", [])}
     day_bills = {r["date"]: r for r in payload.get("natural_day_bills", [])}
     out_dates = sorted(d for d in row_bills if d >= FIRST_OUTPUT_DAY.isoformat())
@@ -207,12 +210,12 @@ for name, run_dir in RUNS.items():
 
     # The two windows are different by design; report the difference rather than
     # asserting equality.
-    first_day = out_dates[0]
+    first_day = out_dates[0] if out_dates else None
     if first_day in day_bills:
         delta_q = row_bills[first_day]["total_kwh"] - day_bills[first_day]["total_kwh"]
         print(
             f"       window check {first_day}: result-row minus natural-day = "
-            f"{delta_q:+.3f} kWh (expected non-zero: different windows)"
+            f"{delta_q:+.3f} kWh (different windows; equality is possible)"
         )
 
     # Problem 3 / 4-3 declare an adjustment sheet. It must carry the effective
@@ -221,16 +224,17 @@ for name, run_dir in RUNS.items():
     # saved, restricted to exactly the cells the two sheets cover.
     if name in ("result3.xlsx", "result4-3.xlsx"):
         npz_path = Path(run_dir) / "trajectory.npz"
-        data = np.load(npz_path, allow_pickle=True)
+        data = np.load(npz_path, allow_pickle=False)
         keys = set(data.files)
         check(
-            {"plan_exec_kwh", "add_exec_kwh"} <= keys,
+            {"plan_initial_kwh", "plan_exec_kwh", "add_exec_kwh"} <= keys,
             f"{name} 轨迹保存了 O/A 拆分（plan_exec_kwh / add_exec_kwh）",
         )
-        if {"plan_exec_kwh", "add_exec_kwh"} <= keys:
+        if {"plan_initial_kwh", "plan_exec_kwh", "add_exec_kwh"} <= keys:
             minutes_all = data["abs_minute"].astype(np.int64)
             idx_of = {int(m): i for i, m in enumerate(minutes_all)}
             plan_exec, add_exec = data["plan_exec_kwh"], data["add_exec_kwh"]
+            plan_initial = data["plan_initial_kwh"]
             wb = load_workbook(Path(run_dir) / "result" / name, read_only=True, data_only=True)
             ws_plan = wb["计划购电量"]
             ws_adj = wb["调整购电量"]
@@ -251,25 +255,27 @@ for name, run_dir in RUNS.items():
                     base = (day - date(2025, 1, 1)).days * MINUTES_PER_DAY
                     o = idx_of.get(base + (j + 1) * 10)
                     if o is None:
+                        bad_plan += 1
+                        bad_adj += 1
                         continue
                     o_kwh = float(plan_exec[o])
                     a_kwh = float(add_exec[o])
-                    exp_plan += o_kwh
+                    exp_plan += float(plan_initial[o])
                     exp_adj += o_kwh + a_kwh
-                    vp = float(plan_cells[i][j] or 0.0)
-                    va = float(adj_cells[i][j] or 0.0)
-                    if abs(vp - o_kwh) > 1e-6:
+                    vp = float(plan_cells[i][j]) if plan_cells[i][j] is not None else float("inf")
+                    va = float(adj_cells[i][j]) if adj_cells[i][j] is not None else float("inf")
+                    if abs(vp - float(plan_initial[o])) > 1e-6:
                         bad_plan += 1
                     if abs(va - (o_kwh + a_kwh)) > 1e-6:
                         bad_adj += 1
                     if abs(vp - va) > 1e-6:
                         n_diff += 1
-            check(bad_plan == 0, f"{name} 计划购电量表 = O^exec（{bad_plan} 个单元格不符）")
+            check(bad_plan == 0, f"{name} 计划购电量表 = 零点原计划（{bad_plan} 个单元格不符）")
             check(bad_adj == 0, f"{name} 调整购电量表 = O^exec + A^exec（{bad_adj} 个单元格不符）")
             check(
-                n_diff > 0 or exp_adj - exp_plan <= 1e-6,
+                bad_plan == 0 and bad_adj == 0,
                 f"{name} 调整表与计划表确有差异（{n_diff} 个单元格不同；"
-                f"两表差额合计 {exp_adj - exp_plan:,.3f} kWh = A^exec 之和）",
+                f"两表差额合计 {exp_adj - exp_plan:,.3f} kWh（非 A^exec 合计））",
             )
 
 # ---------------------------------------------------------------------------
@@ -281,7 +287,7 @@ for name, run_dir in RUNS.items():
     if not npz_path.exists():
         check(False, f"{npz_path} exists")
         continue
-    data = np.load(npz_path, allow_pickle=True)
+    data = np.load(npz_path, allow_pickle=False)
     minutes = data["abs_minute"].astype(np.int64)
     idx_of = {int(m): i for i, m in enumerate(minutes)}
     soc = data["soc_boundary_kwh"]
@@ -291,6 +297,8 @@ for name, run_dir in RUNS.items():
     rows = list(ws.iter_rows(min_row=2, max_row=1 + 6 * 334, max_col=6, values_only=True))
     wb.close()
 
+    summary = json.loads((Path(run_dir) / "summary.json").read_text(encoding="utf-8"))
+    out_dates = sorted(r["date"] for r in summary.get("result_row_bills", []) if r["date"] >= FIRST_OUTPUT_DAY.isoformat())
     bad_block = 0
     bad_soc = 0
     for i, day_text in enumerate(out_dates):
@@ -302,6 +310,8 @@ for name, run_dir in RUNS.items():
             for k in range(24):
                 abs_minute = base + (b * 24 + k) * 10
                 j = idx_of.get(abs_minute)
+                if j is None:
+                    bad_block += 1
                 if j is not None:
                     c_exp += float(data["charge_kwh"][j])
                     d_exp += float(data["discharge_kwh"][j])
@@ -314,6 +324,7 @@ for name, run_dir in RUNS.items():
         for label, abs_minute in (("0:00", base), ("24:00", base + MINUTES_PER_DAY)):
             j = idx_of.get(abs_minute)
             if j is None:
+                bad_soc += 1
                 continue
             rec = rows[i * 6 + (0 if label == "0:00" else 5)]
             col = 5

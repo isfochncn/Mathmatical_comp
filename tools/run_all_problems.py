@@ -53,6 +53,8 @@ def main(argv: list[str]) -> int:
             problem=problem,
             out_dir=out_dir,
             history_days=args.history_days,
+            experiment=args.experiment,
+            allow_spill=not args.strict_no_spill,
             load_method=args.load_method,
             absorption_safety_kwh=args.absorption_safety_kwh,
             plan_refresh_intervals=args.plan_refresh_intervals,
@@ -79,7 +81,7 @@ def main(argv: list[str]) -> int:
             f"富余 {s['surplus_disposed_kwh']:,.0f} kWh ---"
         )
         sys.stdout.flush()
-        export_args = parser.parse_args(["export", "--problem", problem, "--out", str(out_dir)])
+        export_args = parser.parse_args(["export", "--problem", problem, "--out", str(out_dir), "--experiment", args.experiment])
         cmd_export(export_args)
         sys.stdout.flush()
 

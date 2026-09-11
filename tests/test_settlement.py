@@ -118,9 +118,6 @@ def test_verify_bill_detects_tampering() -> None:
     events = [
         DispatchEvent(0, 10.0, 5.0, 1.0, 2.0),
     ]
-    totals = S.LabelTotals()
-    for e in events:
-        pass
     totals = S.result_row_bill(0, 10, events, [])
     S.verify_bill(totals, events, [])
     bad = S.LabelTotals(

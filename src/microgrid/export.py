@@ -49,13 +49,13 @@ class DailyExportRow:
     """Everything needed to write one date row of a multi-day workbook."""
 
     day: date
-    plan_initial_kwh: np.ndarray      # (144,) 00:00 plan, result-row aligned
+    plan_initial_kwh: np.ndarray      # (144,) initial daily plan (Jan 1: formed at 00:10)
     final_plan_kwh: np.ndarray        # (144,) final effective plan, result-row aligned
     grid_actual_kwh: np.ndarray       # (144,) executed normal purchase = O + A
     emergency_actual_kwh: np.ndarray  # (144,)
     charge_stored_kwh: np.ndarray     # (144,)
     discharge_delivered_kwh: np.ndarray
-    soc_natural_start_kwh: float      # natural day 00:00 (E_{d,0})
+    soc_natural_start_kwh: float      # day start SOC; Jan 1 partial day uses 00:10
     soc_natural_end_kwh: float        # natural day 24:00 (E_{d,144})
     execution_cost_yuan: float
     reduce_cost_yuan: float
@@ -64,6 +64,8 @@ class DailyExportRow:
     #: 4-hour blocks are laid out on the natural-day clock and therefore need it.
     charge_clock_start_kwh: float | None = None
     discharge_clock_start_kwh: float | None = None
+    # Only Jan 1 may start at 00:10; its omitted interval remains absent.
+    natural_start_minute: int = 0
 
     @property
     def result_row_cost_yuan(self) -> float:
@@ -102,7 +104,7 @@ def export_result1(trajectory, dest_dir: Path) -> Path:
     ws = wb["计划购电量"]
     if ws.max_row != 145:
         raise ValidationError(f"result1 计划购电量应为 145 行，实际 {ws.max_row}")
-    grid = np.asarray(trajectory["grid_kwh"], dtype=np.float64)
+    grid = np.asarray(trajectory.get("result_grid_kwh", np.roll(trajectory["grid_kwh"], -1)), dtype=np.float64)
     for j in range(144):
         ws.cell(row=j + 2, column=2).value = round(float(grid[j]), 6)
 
@@ -112,16 +114,13 @@ def export_result1(trajectory, dest_dir: Path) -> Path:
     soc = np.asarray(
         trajectory.get("soc_boundary_kwh", trajectory.get("soc_kwh")), dtype=np.float64
     )
-    # Problem 1 is a periodic single day: cell j is clock interval j + 1 and the
-    # day's own 00:00 interval is the periodic extension, i.e. cell 143. Convert
-    # to the natural-day clock the block labels are written in, otherwise every
-    # 4-hour block would be one interval late (same defect as problem 2/3/4-x).
+    # Physical arrays and SOC are in natural-day order; only plan cells use result order.
     if charge.size != N_INTERVAL or discharge.size != N_INTERVAL:
         raise ValidationError(
             f"问题一充放电序列应为 {N_INTERVAL} 段，实际 {charge.size}/{discharge.size}"
         )
-    charge_clock = _clock_order(charge, float(charge[N_INTERVAL - 1]))
-    discharge_clock = _clock_order(discharge, float(discharge[N_INTERVAL - 1]))
+    charge_clock = charge
+    discharge_clock = discharge
     for b in range(6):
         lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
         row = b + 2
@@ -148,7 +147,7 @@ def _merge_adjacent(intervals: list[int]) -> list[tuple[int, int]]:
     out: list[tuple[int, int]] = []
     start = prev = intervals[0]
     for t in intervals[1:]:
-        if t == prev + 1:
+        if t == prev + 1 and t != 143:
             prev = t
             continue
         out.append((start, prev + 1))
@@ -158,12 +157,10 @@ def _merge_adjacent(intervals: list[int]) -> list[tuple[int, int]]:
 
 
 def _fmt_interval_range(lo: int, hi: int) -> str:
-    def fmt(t: int) -> str:
-        minutes = t * 10
-        if minutes >= 24 * 60:
-            return "24:00"
-        return f"{minutes // 60}:{minutes % 60:02d}"
-
+    def fmt(j: int) -> str:
+        minutes = (j + 1) * 10
+        day, minute = divmod(minutes, 1440)
+        return f"{minute//60}:{minute%60:02d}" + ("+1" if day else "")
     return f"{fmt(lo)}-{fmt(hi)}"
 
 
@@ -189,9 +186,18 @@ def export_multiday(
             "discharge_delivered_kwh",
         ):
             arr = np.asarray(getattr(r, name), dtype=np.float64)
-            if arr.shape != (144,):
+            if arr.shape != (144,) or not np.isfinite(arr).all() or np.any(arr < -1e-6):
                 raise ValidationError(f"{r.day} 的 {name} 形状错误：{arr.shape}")
 
+    for r in rows:
+        if r.natural_start_minute not in (0, 10) or (r.natural_start_minute == 10 and r.day != date(2025, 1, 1)):
+            raise ValidationError("Invalid partial natural-day boundary")
+        if r.natural_start_minute == 0 and (r.charge_clock_start_kwh is None or r.discharge_clock_start_kwh is None):
+            raise ValidationError("Missing natural-midnight dispatch")
+        if not np.isfinite([r.soc_natural_start_kwh, r.soc_natural_end_kwh, r.execution_cost_yuan,
+                            r.reduce_cost_yuan,
+                            *([] if r.natural_start_minute else [r.charge_clock_start_kwh, r.discharge_clock_start_kwh])]).all():
+            raise ValidationError("Missing export boundaries/costs")
     wb = _load_template_copy(key, dest_dir / f"{key}.xlsx")
     _fill_daily_matrix(wb["计划购电量"], rows, "plan_initial_kwh")
     if with_adjust_sheet:
@@ -214,10 +220,7 @@ def _fill_daily_matrix(ws, rows: list[DailyExportRow], attr: str) -> None:
     intervals, column 146 '全天购电量', column 147 '全天购电费'.
     """
     needed = len(rows) + 1
-    if ws.max_row < needed:
-        raise ValidationError(
-            f"模板行数不足：需要 {needed} 行，模板只有 {ws.max_row} 行"
-        )
+    # openpyxl expands the template when new date rows are written.
     for i, r in enumerate(rows):
         excel_row = i + 2
         ws.cell(row=excel_row, column=1).value = r.day
@@ -235,7 +238,7 @@ def _fill_daily_matrix(ws, rows: list[DailyExportRow], attr: str) -> None:
         _clear_row(ws, excel_row, 147)
 
 
-def _clock_order(values: np.ndarray, first_clock: float | None = None) -> np.ndarray:
+def _clock_order(values: np.ndarray, first_clock: float | None = None, start_minute: int = 0) -> np.ndarray:
     """Result-row order -> natural-day clock order (exact re-indexing).
 
     The template labels its blocks ``0:00-4:00 … 20:00-24:00``, so a block is
@@ -246,10 +249,13 @@ def _clock_order(values: np.ndarray, first_clock: float | None = None) -> np.nda
     cell ``j`` belongs to clock ``j + 1`` of that date, and ``j = 143`` reaches
     into the *next* day (clock 0 of the following date). Two consequences:
 
+    Jan 1 alone may start at 00:10: its clock[0] stays NaN and is excluded
+    from the first block, which is explicitly labelled 00:10-04:00.
+
     * clock 0 of this date (its own 00:00) is **not in its own row** — it is the
       last cell of the *previous* date's row. It must be supplied by the caller
       via ``first_clock``; without it the block cannot be reconstructed.
-    * the orders are permutations of the same 144 values but **not** a cyclic
+    * these windows cover different sets of intervals; there is no cyclic
       rotation of the row array (rotating would pull the next day's interval
       into the last block and the wrong value into the first).
 
@@ -258,13 +264,13 @@ def _clock_order(values: np.ndarray, first_clock: float | None = None) -> np.nda
     arr = np.asarray(values, dtype=np.float64)
     if arr.size != N_INTERVAL:
         raise ValidationError(f"分块需要 {N_INTERVAL} 段，收到 {arr.size}")
-    if first_clock is None:
+    if first_clock is None and start_minute != 10:
         raise ValidationError(
             "缺少该自然日 00:00 的数值：result 行首格是 00:10，当日 00:00 落在前一日"
             " result 行的最后一格，无法由本行自身还原"
         )
     out = np.empty(N_INTERVAL, dtype=np.float64)
-    out[0] = float(first_clock)
+    out[0] = np.nan if start_minute == 10 else float(first_clock)
     out[1:] = arr[: N_INTERVAL - 1]
     return out
 
@@ -278,16 +284,16 @@ def _fill_charge_discharge(ws, rows: list[DailyExportRow]) -> None:
     for r in rows:
         # Re-align to the natural-day clock before slicing the blocks. The day's
         # own 00:00 value is not in its result row, so it is carried explicitly.
-        charge = _clock_order(r.charge_stored_kwh, r.charge_clock_start_kwh)
-        discharge = _clock_order(r.discharge_delivered_kwh, r.discharge_clock_start_kwh)
+        charge = _clock_order(r.charge_stored_kwh, r.charge_clock_start_kwh, r.natural_start_minute)
+        discharge = _clock_order(r.discharge_delivered_kwh, r.discharge_clock_start_kwh, r.natural_start_minute)
         for b in range(6):
             ws.cell(row=excel_row, column=1).value = r.day if b == 0 else None
-            ws.cell(row=excel_row, column=2).value = BLOCK_LABELS[b]
-            lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
+            ws.cell(row=excel_row, column=2).value = "0:10-4:00" if b == 0 and r.natural_start_minute else BLOCK_LABELS[b]
+            lo, hi = max(b * BLOCK_INTERVALS, r.natural_start_minute // 10), (b + 1) * BLOCK_INTERVALS
             ws.cell(row=excel_row, column=3).value = round(float(charge[lo:hi].sum()), 6)
             ws.cell(row=excel_row, column=4).value = round(float(discharge[lo:hi].sum()), 6)
             if b == 0:
-                ws.cell(row=excel_row, column=5).value = "0:00"
+                ws.cell(row=excel_row, column=5).value = "0:10" if r.natural_start_minute else "0:00"
                 ws.cell(row=excel_row, column=6).value = round(r.soc_natural_start_kwh, 6)
             elif b == 5:
                 ws.cell(row=excel_row, column=5).value = "24:00"
@@ -359,14 +365,14 @@ def paper_table1(rows: list[DailyExportRow]) -> list[dict[str, object]]:
 def paper_table2(rows: list[DailyExportRow]) -> list[dict[str, object]]:
     out: list[dict[str, object]] = []
     for r in rows:
-        charge = np.asarray(r.charge_stored_kwh, dtype=np.float64)
-        discharge = np.asarray(r.discharge_delivered_kwh, dtype=np.float64)
+        charge = _clock_order(r.charge_stored_kwh, r.charge_clock_start_kwh, r.natural_start_minute)
+        discharge = _clock_order(r.discharge_delivered_kwh, r.discharge_clock_start_kwh, r.natural_start_minute)
         for b, label in enumerate(BLOCK_LABELS):
-            lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
+            lo, hi = max(b * BLOCK_INTERVALS, r.natural_start_minute // 10), (b + 1) * BLOCK_INTERVALS
             out.append(
                 {
                     "日期": r.day.isoformat(),
-                    "时间段": label,
+                    "时间段": "0:10-4:00" if b == 0 and r.natural_start_minute else label,
                     "充电量": round(float(charge[lo:hi].sum()), 6),
                     "放电量": round(float(discharge[lo:hi].sum()), 6),
                 }
@@ -374,7 +380,7 @@ def paper_table2(rows: list[DailyExportRow]) -> list[dict[str, object]]:
         out.append(
             {
                 "日期": r.day.isoformat(),
-                "时间段": "0:00储电量",
+                "时间段": "0:10储电量" if r.natural_start_minute else "0:00储电量",
                 "充电量": round(r.soc_natural_start_kwh, 6),
             }
         )
@@ -412,10 +418,12 @@ def paper_table3(rows: list[DailyExportRow]) -> list[dict[str, object]]:
 def build_daily_rows(result) -> list[DailyExportRow]:
     """Convert an AbsoluteRun into result-row records for every output day.
 
-    ``result`` is a :class:`microgrid.absolute_run.RunResult`. January is the
-    warm-up period and is not exported.
+    ``result`` is a :class:`microgrid.absolute_run.RunResult`. Its row_bills
+    already select the report dates; short initialization runs may include January.
     """
     from .constants import OUTPUT_START
+    from .absolute_run import validate_result
+    validate_result(result)
 
     step_index = {s.abs_minute: s for s in result.run.steps}
     soc_index = _soc_lookup(result.run)
@@ -423,8 +431,6 @@ def build_daily_rows(result) -> list[DailyExportRow]:
 
     out: list[DailyExportRow] = []
     for day in [d for d, _ in result.row_bills]:
-        if day < date(*OUTPUT_START):
-            continue
         base = (day - date(2025, 1, 1)).days * MINUTES_PER_DAY
         plan = np.zeros(144)
         final = np.zeros(144)
@@ -436,6 +442,8 @@ def build_daily_rows(result) -> list[DailyExportRow]:
         for j in range(144):
             abs_minute = base + result_interval_clock_index(j) * 10
             step = step_index.get(abs_minute)
+            if step is None or abs_minute not in events or abs_minute not in result.run.initial_plans:
+                raise ValidationError(f"Missing execution/initial plan at {abs_minute}")
             if step is not None:
                 grid[j] = step.grid_kwh
                 emg[j] = step.emergency_kwh
@@ -443,18 +451,14 @@ def build_daily_rows(result) -> list[DailyExportRow]:
                 dis[j] = step.discharge_kwh
             ev = events.get(abs_minute)
             if ev is not None:
-                # "计划购电量" is the signed normal purchase O; "调整购电量" is the
-                # effective purchase after the intra-day revision, i.e. O + A.
-                # Setting both to O + A (as an earlier version did) made the
-                # adjustment sheet an exact copy of the plan sheet.
-                plan[j] = ev.o_exec_kwh
+                # Preserve the midnight archive separately from executed O/A labels.
+                plan[j] = result.run.initial_plans[abs_minute]
                 final[j] = ev.o_exec_kwh + ev.a_exec_kwh
                 exec_cost += ev.cost_yuan
         row_bill = dict(result.row_bills)[day]
-        # The day's own 00:00 interval is not in its result row; look it up by
-        # absolute minute (and on the very first day of a run it may be absent,
-        # in which case the block is filled zero rather than a wrong value).
+        # Natural-day blocks need this date's own midnight interval.
         step0 = step_index.get(base)
+        start_minute = 10 if base == 0 and result.run.abs_minutes[0] == 10 else 0
         out.append(
             DailyExportRow(
                 day=day,
@@ -464,7 +468,8 @@ def build_daily_rows(result) -> list[DailyExportRow]:
                 emergency_actual_kwh=emg,
                 charge_stored_kwh=ch,
                 discharge_delivered_kwh=dis,
-                soc_natural_start_kwh=soc_index.get(base, float("nan")),
+                soc_natural_start_kwh=soc_index.get(base + start_minute, float("nan")),
+                natural_start_minute=start_minute,
                 soc_natural_end_kwh=soc_index.get(base + MINUTES_PER_DAY, float("nan")),
                 execution_cost_yuan=exec_cost,
                 reduce_cost_yuan=row_bill.reduce_cost_yuan,

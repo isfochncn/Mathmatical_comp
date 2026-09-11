@@ -1,168 +1,100 @@
-"""Causal execution: per-interval feedback plus the rolling-window driver.
-
-Two layers live here.
-
-1. :func:`execute_interval` - the **reproducible execution interface** fixed by
-   the memo. It uses only the current state, the current supply/demand
-   observation and the committed charge/discharge target; never future data.
-   Priority order:
-
-       1. minimise the absolute deviation from this interval's charge target,
-       2. among equally-deviating actions, minimise this interval's emergency
-          purchase,
-       3. among those, minimise throughput.
-
-   The ordinary purchase quantity is fixed and must not be modified; curtailment
-   applies to PV only; emergency purchase fills the remaining gap. Everything is
-   solved analytically, which is exact for this scalar problem and much faster
-   than an LP per ten minutes.
-
-2. :func:`run_absolute` - walks the absolute timeline. At *every* interval it
-   refreshes the point forecast, re-solves the window ``[a, T)`` to obtain the
-   storage target, commits a plan revision only at legal nodes, executes the
-   current interval, and books the realised quantities. Predicted SOC is never
-   reused as measured SOC: the next step restarts from the realised state.
-"""
-
+"""Execute only legal commitments, with explicit charge/discharge feedback."""
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass, field
-from datetime import date
-
 import numpy as np
+from scipy.optimize import linprog
 
-from .constants import (
-    CHARGE_BUS_FACTOR,
-    DISCHARGE_BATTERY_FACTOR,
-    E_MAX,
-    E_MIN,
-    Q_DIS_MAX,
-    Q_MAX,
-    TOL_ENERGY_KWH,
-)
+from .constants import E_MIN, E_MAX, Q_MAX, Q_DIS_MAX, ETA_CHARGE, ETA_DISCHARGE
+from .constants import ROLLING_START_ABS_MINUTE
 from .forecast import Forecaster
-from .planning import FeeMode, WindowForecast, WindowResult, solve_window
-from .schemas import (
-    AbsoluteRun,
-    AbsoluteStep,
-    CommittedBalances,
-    DispatchEvent,
-    PenaltyEvent,
-)
+from .planning import FeeMode, solve_window
+from .schemas import AbsoluteRun, AbsoluteStep, CommittedBalances, DispatchEvent
 from .settlement import revise_commitment
-from .timeline import INTERVALS_PER_DAY, MINUTES_PER_DAY, Timeline
+from .timeline import Timeline, MINUTES_PER_DAY
 
 
 class InfeasibleInterval(RuntimeError):
-    """No legal feedback action exists for this interval."""
-
     def __init__(self, abs_minute: int, message: str, context: dict[str, float]) -> None:
-        self.abs_minute = abs_minute
-        self.context = context
-        super().__init__(f"[abs={abs_minute}] {message}；上下文：{context}")
-
-
-# ==========================================================================
-# 1. Per-interval feedback
-# ==========================================================================
+        self.abs_minute, self.context = abs_minute, context
+        super().__init__(f"[abs={abs_minute}] {message}; {context}")
 
 
 @dataclass(frozen=True)
 class IntervalAction:
-    """The executed action of one interval."""
-
     charge_kwh: float
     discharge_kwh: float
     emergency_kwh: float
     spill_kwh: float
     soc_end_kwh: float
-    target_gap_kwh: float          # achieved |E_target - E_end|
+    target_gap_kwh: float
+    curtail_kwh: float = 0.0
 
 
-def execute_interval(
-    *,
-    abs_minute: int,
-    grid_committed_kwh: float,
-    demand_kwh: float,
-    pv_kwh: float,
-    soc_now_kwh: float,
-    soc_target_kwh: float,
-    allow_spill: bool = True,
-) -> IntervalAction:
-    """One interval of causal feedback, in the memo's lexicographic order.
+def execute_interval(*, abs_minute: int, grid_committed_kwh: float,
+                     demand_kwh: float, pv_kwh: float, soc_now_kwh: float,
+                     charge_target_kwh: float | None = None,
+                     discharge_target_kwh: float | None = None,
+                     soc_target_kwh: float | None = None,
+                     allow_spill: bool = True) -> IntervalAction:
+    """Revised feedback: disposal, emergency, target deviations, then throughput.
 
-    ``grid_committed_kwh`` is what the frozen/effective plan delivers and it may
-    not be changed here. ``spill_kwh`` is the disclosed surplus: power that was
-    committed, cannot be rejected, and has nowhere to go because the battery is
-    full. It is reported, never hidden.
+    Variables are stored charge, delivered discharge, emergency, PV curtailment,
+    paid disposal and the two absolute deviations. Disposal never cancels a bill.
+    The SOC-only argument is retained for callers; the rolling driver passes both
+    targets, preserving a simultaneous charge/discharge schedule.
     """
-    imbalance = demand_kwh - grid_committed_kwh - pv_kwh
-    # "want" is the energy the plan asks the battery to absorb this interval.
-    want = soc_target_kwh - soc_now_kwh
-
-    headroom = max(0.0, (E_MAX - soc_now_kwh) * CHARGE_BUS_FACTOR)
-    charge_cap = min(Q_MAX, headroom)
-    discharge_cap = min(Q_DIS_MAX, max(0.0, (soc_now_kwh - E_MIN) / DISCHARGE_BATTERY_FACTOR))
-
-    charge = discharge = emergency = spill = 0.0
-
-    if imbalance <= 0.0 and want >= 0.0:
-        # Surplus available and the plan asks to store: 1 means "use it all".
-        charge = min(want, charge_cap)
-    elif imbalance > 0.0 and want <= 0.0:
-        # Deficit and the plan asks to release: 1 means "stop at the target".
-        discharge = min(-want, discharge_cap)
-    # Mixed cases (surplus but the plan wants to discharge; deficit but the plan
-    # wants to charge) are physically impossible actions, so the battery does
-    # nothing and the residual is settled below.
-
-    residual = imbalance - discharge + charge * CHARGE_BUS_FACTOR
-    if residual > TOL_ENERGY_KWH:
-        # Deficit: level 2 -> emergency purchase covers it (grid is committed).
-        emergency = residual
-    elif residual < -TOL_ENERGY_KWH:
-        surplus = -residual
-        if allow_spill:
-            spill = surplus
-        else:
-            raise InfeasibleInterval(
-                abs_minute,
-                "计划购电过量且储能已满，没有合法消纳路径（不得拒收外购电）",
-                {
-                    "grid_kwh": float(grid_committed_kwh),
-                    "demand_kwh": float(demand_kwh),
-                    "pv_kwh": float(pv_kwh),
-                    "soc_kwh": float(soc_now_kwh),
-                    "surplus_kwh": float(surplus),
-                },
-            )
-
-    soc_end = soc_now_kwh + charge - discharge * DISCHARGE_BATTERY_FACTOR
-    return IntervalAction(
-        charge_kwh=charge,
-        discharge_kwh=discharge,
-        emergency_kwh=emergency,
-        spill_kwh=spill,
-        soc_end_kwh=soc_end,
-        target_gap_kwh=abs(soc_target_kwh - soc_end),
-    )
+    values = [grid_committed_kwh, demand_kwh, pv_kwh, soc_now_kwh]
+    if not np.isfinite(values).all() or min(values[:3]) < 0 or not E_MIN <= soc_now_kwh <= E_MAX:
+        raise ValueError("Invalid actual interval inputs")
+    if charge_target_kwh is None and discharge_target_kwh is None and soc_target_kwh is not None:
+        delta = soc_target_kwh - soc_now_kwh
+        charge_target_kwh = max(delta, 0)
+        discharge_target_kwh = max(-delta, 0) * ETA_DISCHARGE
+    if charge_target_kwh is None or discharge_target_kwh is None:
+        raise ValueError("Both dispatch targets are required")
+    if not np.isfinite([charge_target_kwh, discharge_target_kwh]).all() or min(charge_target_kwh, discharge_target_kwh) < -1e-6:
+        raise ValueError("Invalid dispatch targets")
+    tc, td = max(0, charge_target_kwh), max(0, discharge_target_kwh)
+    # ch, dis, emergency, PV curtailment, paid disposal, charge/discharge deviations.
+    eq = [[1 / ETA_CHARGE, -1, -1, 1, 1, 0, 0]]
+    rhs = [grid_committed_kwh + pv_kwh - demand_kwh]
+    aub = [[1, -1 / ETA_DISCHARGE, 0, 0, 0, 0, 0],
+           [-1, 1 / ETA_DISCHARGE, 0, 0, 0, 0, 0],
+           [1, 0, 0, 0, 0, -1, 0], [-1, 0, 0, 0, 0, -1, 0],
+           [0, 1, 0, 0, 0, 0, -1], [0, -1, 0, 0, 0, 0, -1]]
+    bub = [E_MAX - soc_now_kwh, soc_now_kwh - E_MIN, tc, -tc, td, -td]
+    max_dis = min(Q_DIS_MAX, max(demand_kwh-grid_committed_kwh, 0)) if allow_spill else Q_DIS_MAX
+    bounds = [(0, Q_MAX), (0, max_dis), (0, None), (0, pv_kwh),
+              (0, grid_committed_kwh if allow_spill else 0), (0, None), (0, None)]
+    objectives = ([[0, 0, 0, 0, 1, 0, 0], [0, 0, 1, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 1, 1], [1, 1, 0, 0, 0, 0, 0]] if allow_spill else
+                  [[0, 0, 0, 0, 0, 1, 1], [0, 0, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 0, 0]])
+    for objective in objectives:
+        result = linprog(objective, A_ub=aub, b_ub=bub, A_eq=eq, b_eq=rhs,
+                         bounds=bounds, method="highs")
+        if not result.success:
+            raise InfeasibleInterval(abs_minute, "No legal feedback action",
+                                     dict(grid_kwh=grid_committed_kwh, demand_kwh=demand_kwh,
+                                          pv_kwh=pv_kwh, soc_kwh=soc_now_kwh))
+        aub.append(objective)
+        bub.append(float(result.fun) + 1e-8)
+    ch, dis, emergency, curtail, spill = np.where(np.abs(result.x[:5]) < 1e-7, 0., result.x[:5])
+    end = soc_now_kwh + ch - dis / ETA_DISCHARGE
+    if not E_MIN - 1e-6 <= end <= E_MAX + 1e-6:
+        raise RuntimeError("Feedback SOC validation failed")
+    end = float(np.clip(end, E_MIN, E_MAX))
+    return IntervalAction(float(ch), float(dis), float(emergency), float(spill), end,
+                          float(abs(ch - tc) + abs(dis - td)), float(curtail))
 
 
-# ==========================================================================
-# 2. Rolling driver
-# ==========================================================================
-
-
-@dataclass
+@dataclass(frozen=True)
 class Policy:
-    """Static description of one branch's permissions."""
-
     name: str
-    can_adjust_plan: bool                 # legal plan revisions inside the day
-    use_published_pv: bool                # attachment-3 permission
-    price_mode: str                       # "repeated" | "historical"
-    adjust_nodes_abs: tuple[int, ...] = ()  # clock intervals 36/72/108
+    can_adjust_plan: bool
+    use_published_pv: bool
+    price_mode: str
+    adjust_nodes_abs: tuple[int, ...] = ()
 
     @property
     def is_adjustment_branch(self) -> bool:
@@ -171,24 +103,19 @@ class Policy:
 
 @dataclass
 class RunOptions:
-    """Numeric options of a run (all technical approximations, item A1)."""
-
     absorption_safety_kwh: float = 0.0
     commitment_floor_kwh: float = 0.0
     allow_spill: bool = True
-    plan_every_interval: bool = True
     plan_refresh_intervals: int = 1
     progress_every_days: int = 0
     total_days: int = 0
-    min_charge_floor: bool = True
     max_infeasible_intervals: int = 0
     solver_name: str = "appsi_highs"
+    experiment: str = "main"
 
 
 @dataclass
 class AbsoluteRunResult:
-    """Everything a run produces, on the absolute timeline."""
-
     policy: str
     run: AbsoluteRun
     window_solves: int = 0
@@ -196,449 +123,116 @@ class AbsoluteRunResult:
     notes: list[str] = field(default_factory=list)
     infeasible_abs: list[int] = field(default_factory=list)
     released_abs: list[int] = field(default_factory=list)
-
-
-def run_absolute(
-    *,
-    timeline: Timeline,
-    forecaster: Forecaster,
-    policy: Policy,
-    options: RunOptions,
-    abs_from: int,
-    abs_to: int,
-    soc_start_kwh: float,
-    current_price_lookup=None,
-) -> AbsoluteRunResult:
-    """Execute the absolute timeline over [abs_from, abs_to).
-
-    ``current_price_lookup(abs_minute) -> float | None`` returns the actual
-    price only when that price is *already revealed* at decision time; it is
-    used for the current-adjustment and current-quote terms. The realised price
-    used for bookkeeping always comes from the timeline.
-    """
-    notes: list[str] = []
-    steps: list[AbsoluteStep] = []
-    events: list[DispatchEvent] = []
-    penalties: list[PenaltyEvent] = []
-    soc_boundary = [float(soc_start_kwh)]
-    n_windows = 0
-    n_revisions = 0
-    infeasible: list[int] = []
-    released_intervals: list[int] = []
-
-    _t_start = time.perf_counter()
-    soc_now = float(soc_start_kwh)
-    commitment: CommittedBalances | None = None
-    last_result: WindowResult | None = None
-    last_solve_abs: int | None = None
-
-    abs_minute = abs_from
-    while abs_minute < abs_to:
-        day_index = abs_minute // MINUTES_PER_DAY
-        b_abs = (day_index + 1) * MINUTES_PER_DAY
-        T_abs = b_abs + MINUTES_PER_DAY
-        horizon_end = max(min(T_abs, abs_to), abs_minute + 10)
-        is_day_start = abs_minute % MINUTES_PER_DAY == 0
-        at_node = _is_adjust_node(abs_minute, policy)
-        need_solve = (
-            last_result is None
-            or last_solve_abs is None
-            or is_day_start
-            or (policy.can_adjust_plan and at_node)
-            or (abs_minute - last_solve_abs) >= max(1, options.plan_refresh_intervals) * 10
-        )
-        if not need_solve:
-            # Reuse the previously solved schedule for this interval. The
-            # execution feedback below still runs every ten minutes.
-            shift = (last_solve_abs and (abs_minute - last_solve_abs) // 10) or 0
-            result = last_result
-            target_soc = float(result.soc_boundary_kwh[min(shift + 1, result.soc_boundary_kwh.size - 1)])
-            grid_now = float(commitment.effective_kwh[0]) if commitment is not None and commitment.abs_minutes.size else 0.0
-            action = execute_interval(
-                abs_minute=abs_minute,
-                grid_committed_kwh=grid_now,
-                demand_kwh=float(timeline.demand_kwh.value_at(abs_minute)),
-                pv_kwh=float(timeline.pv_kwh.value_at(abs_minute)),
-                soc_now_kwh=soc_now,
-                soc_target_kwh=target_soc,
-                allow_spill=options.allow_spill,
-            )
-            o_exec, a_exec = commitment.take(abs_minute) if commitment is not None else (0.0, 0.0)
-            steps.append(
-                AbsoluteStep(
-                    abs_minute=abs_minute,
-                    grid_kwh=o_exec + a_exec,
-                    emergency_kwh=action.emergency_kwh,
-                    charge_kwh=action.charge_kwh,
-                    discharge_kwh=action.discharge_kwh,
-                    curtail_kwh=_pv_curtailment(
-                        demand_kwh=float(timeline.demand_kwh.value_at(abs_minute)),
-                        pv_kwh=float(timeline.pv_kwh.value_at(abs_minute)),
-                        grid_kwh=o_exec + a_exec,
-                        charge_kwh=action.charge_kwh,
-                        discharge_kwh=action.discharge_kwh,
-                    ),
-                    surplus_kwh=action.spill_kwh,
-                    soc_end_kwh=action.soc_end_kwh,
-                    price_actual_yuan_per_kwh=float(
-                        timeline.price_yuan_per_kwh.value_at(abs_minute)
-                    ),
-                )
-            )
-            events.append(
-                DispatchEvent(
-                    at_abs=abs_minute,
-                    o_exec_kwh=o_exec,
-                    a_exec_kwh=a_exec,
-                    emergency_kwh=action.emergency_kwh,
-                    price_actual_yuan_per_kwh=float(
-                        timeline.price_yuan_per_kwh.value_at(abs_minute)
-                    ),
-                )
-            )
-            soc_now = action.soc_end_kwh
-            soc_boundary.append(soc_now)
-            abs_minute += 10
-            # NOTE: `last_solve_abs` is deliberately NOT advanced here. It marks
-            # the last interval at which the window was actually re-solved, so
-            # the configured cadence keeps firing; advancing it would suppress
-            # every later re-solve.
-            continue
-
-        current_price = None
-        if current_price_lookup is not None:
-            current_price = current_price_lookup(abs_minute)
-
-        forecast: WindowForecast = forecaster.window_forecast(
-            abs_minute,
-            abs_minute,
-            horizon_end,
-            use_published_pv=policy.use_published_pv,
-            current_price=current_price,
-            price_mode=policy.price_mode,
-        )
-
-        n = forecast.n
-        minutes = forecast.abs_minutes
-
-        # Carry-over: the previous natural day's plan still covers every interval
-        # of the new window that belongs to that day (in particular the next
-        # day's first ten minutes, which a result row reaches into).
-        o_arr = np.zeros(n, dtype=np.float64)
-        a_arr = np.zeros(n, dtype=np.float64)
-        mask = np.zeros(n, dtype=bool)
-        fixed_values = np.zeros(n, dtype=np.float64)
-        if commitment is not None:
-            pos = np.searchsorted(minutes, commitment.abs_minutes)
-            valid = (pos < n) & (minutes[np.clip(pos, 0, n - 1)] == commitment.abs_minutes)
-            idx = pos[valid]
-            o_arr[idx] = commitment.o_kwh[valid]
-            a_arr[idx] = commitment.a_kwh[valid]
-            mask[idx] = True
-            fixed_values[idx] = commitment.o_kwh[valid] + commitment.a_kwh[valid]
-
-        can_revise = policy.can_adjust_plan and at_node and not is_day_start
-        if mask.any() and not is_day_start:
-            # Already covered by a previous commitment: only the intervals the
-            # revision may touch are freed (and only on adjustment branches).
-            if can_revise:
-                o_arr = np.where(mask, o_arr, 0.0)
-                a_arr = np.where(mask, a_arr, 0.0)
-                mask = np.zeros(n, dtype=bool)
-                fee_mode = FeeMode.ADJUSTABLE
-            else:
-                fee_mode = FeeMode.FROZEN
-        elif mask.any() and is_day_start:
-            # Start of a new natural day: form today's plan afresh. The whole
-            # solved window is committed below, so the next day boundary is
-            # covered without another solve.
-            fee_mode = FeeMode.FIRST_PLAN
-            o_arr = np.zeros(n, dtype=np.float64)
-            a_arr = np.zeros(n, dtype=np.float64)
-            mask = np.zeros(n, dtype=bool)
-            fixed_values = np.zeros(n, dtype=np.float64)
-        else:
-            fee_mode = FeeMode.FIRST_PLAN
-
-        absorption = forecaster.absorption_upper_kwh(
-            abs_minute,
-            minutes,
-            safety_kwh=options.absorption_safety_kwh,
-        )
-        # Commitment floor: the plan may not assume PV that has not happened, so
-        # each interval must buy at least the historical same-clock minimum net
-        # load. Without it a high-PV forecast makes the plan buy nothing at noon,
-        # and a realised PV shortfall then needs far more than the 750 kWh the
-        # battery can deliver - while the rules forbid raising the frozen
-        # quantity, leaving only 5x emergency purchase.
-        commitment_floor = forecaster.commitment_floor_kwh(
-            abs_minute,
-            minutes,
-            safety_kwh=options.commitment_floor_kwh,
-        )
-
-        result: WindowResult = solve_window(
-            forecast=forecast,
-            soc_start_kwh=soc_now,
-            fee_mode=fee_mode,
-            o_kwh=o_arr,
-            a_kwh=a_arr,
-            price_now_yuan_per_kwh=current_price,
-            absorption_upper_kwh=absorption,
-            commitment_lower_kwh=commitment_floor,
-            committed_grid_kwh=fixed_values if mask.any() else None,
-            committed_mask=mask if mask.any() else None,
-            solver_name=options.solver_name,
-            problem_name=f"{policy.name}@{abs_minute}",
-        )
-        if not result.report.feasible and mask.any():
-            # A committed purchase turned out impossible given the realised state
-            # of charge (a forecast deviation: the plan relied on PV that did not
-            # materialise). The rules forbid raising the frozen quantity to cover
-            # the gap, so the only remaining legal reading is that this interval's
-            # commitment cannot be honoured. Record it explicitly and release the
-            # commitment for that interval; nothing is hidden.
-            release = mask & (minutes <= abs_minute)
-            if not release.any():
-                release = np.zeros(n, dtype=bool)
-                release[int(np.argmax(mask))] = True
-            remaining_mask = mask & ~release
-            result = solve_window(
-                forecast=forecast,
-                soc_start_kwh=soc_now,
-                fee_mode=FeeMode.FROZEN if remaining_mask.any() else FeeMode.FIRST_PLAN,
-                o_kwh=np.where(remaining_mask, o_arr, 0.0),
-                a_kwh=np.where(remaining_mask, a_arr, 0.0),
-                price_now_yuan_per_kwh=current_price,
-                absorption_upper_kwh=absorption,
-                commitment_lower_kwh=commitment_floor,
-                committed_grid_kwh=fixed_values if remaining_mask.any() else None,
-                committed_mask=remaining_mask if remaining_mask.any() else None,
-                solver_name=options.solver_name,
-                problem_name=f"{policy.name}@{abs_minute}-release",
-            )
-            if result.report.feasible:
-                released_qty = float(np.sum(fixed_values[release]))
-                notes.append(
-                    f"区间 {abs_minute}：承诺购电量 {released_qty:.1f} kWh 在实测条件下无法交付/消纳，"
-                    "该区间承诺已解除并按重解结果执行（不可行承诺，如实记录）"
-                )
-                released_intervals.append(abs_minute)
-                o_arr = np.where(remaining_mask, o_arr, 0.0)
-                a_arr = np.where(remaining_mask, a_arr, 0.0)
-                mask = remaining_mask
-                if commitment is not None:
-                    drop = np.isin(commitment.abs_minutes, minutes[release])
-                    commitment = CommittedBalances(
-                        commitment.abs_minutes[~drop],
-                        commitment.o_kwh[~drop],
-                        commitment.a_kwh[~drop],
-                    )
-                if fee_mode != FeeMode.FIRST_PLAN:
-                    fee_mode = FeeMode.FROZEN if remaining_mask.any() else FeeMode.FIRST_PLAN
-        n_windows += 1
-        if not result.report.feasible:
-            infeasible.append(abs_minute)
-            if len(infeasible) > options.max_infeasible_intervals:
-                raise RuntimeError(
-                    f"{policy.name}: 区间 {abs_minute} 窗口 LP 不可行"
-                    f"（{result.report.status}/{result.report.termination}）"
-                )
-            abs_minute += 10
-            continue
-        last_result = result
-        last_solve_abs = abs_minute
-
-        if can_revise:
-            # A revision may only touch this natural day's remaining plan; the
-            # part already committed for the next day is left untouched, which
-            # is why the O/A state is compared only on the freed intervals.
-            new_y = np.zeros(commitment.abs_minutes.size, dtype=np.float64)
-            pos = np.searchsorted(minutes, commitment.abs_minutes)
-            inside = pos < n
-            new_y[~inside] = commitment.effective_kwh[~inside]
-            if inside.any():
-                new_y[inside] = np.where(
-                    minutes[pos[inside]] <= _natural_day_end(abs_minute),
-                    result.grid_kwh[pos[inside]],
-                    commitment.effective_kwh[inside],
-                )
-            new_state, penalty = revise_commitment(
-                commitment,
-                new_y,
-                at_abs=abs_minute,
-                price_at_yuan_per_kwh=float(current_price if current_price is not None else 0.0),
-            )
-            if penalty is not None:
-                penalties.append(penalty)
-                n_revisions += 1
-            commitment = new_state
-        elif fee_mode == FeeMode.FIRST_PLAN:
-            # Only THIS natural day's part of the solved plan is a commitment.
-            # The next-day lookahead inside [b, T) is a forecast, not a signed
-            # deal (the memo: "次日的 x~ 只是前瞻，不预先成交、不写入正式计划").
-            # Committing it would turn the forward outlook into a hard constraint
-            # and make the whole window infeasible as soon as the realised SOC
-            # drifts away from the plan - which is exactly what a forecast error
-            # does. The next 00:00 forms that day's own plan.
-            boundary = _natural_day_end(abs_minute)
-            day_mask = minutes < boundary
-            commitment = CommittedBalances(
-                minutes[day_mask].copy(),
-                result.grid_kwh[day_mask].copy(),
-                np.zeros(int(day_mask.sum())),
-            )
-            n_revisions += 1
-
-        # ---- execute the current interval ------------------------------------
-        grid_now = float(commitment.effective_kwh[0]) if commitment.abs_minutes.size else 0.0
-        demand_now = float(timeline.demand_kwh.value_at(abs_minute))
-        pv_now = float(timeline.pv_kwh.value_at(abs_minute))
-        price_now_actual = float(timeline.price_yuan_per_kwh.value_at(abs_minute))
-        target_soc = float(result.soc_boundary_kwh[1])
-
-        action = execute_interval(
-            abs_minute=abs_minute,
-            grid_committed_kwh=grid_now,
-            demand_kwh=demand_now,
-            pv_kwh=pv_now,
-            soc_now_kwh=soc_now,
-            soc_target_kwh=target_soc,
-            allow_spill=options.allow_spill,
-        )
-
-        o_exec, a_exec = commitment.take(abs_minute)
-        curtail_now = _pv_curtailment(
-            demand_kwh=demand_now,
-            pv_kwh=pv_now,
-            grid_kwh=o_exec + a_exec,
-            charge_kwh=action.charge_kwh,
-            discharge_kwh=action.discharge_kwh,
-        )
-        steps.append(
-            AbsoluteStep(
-                abs_minute=abs_minute,
-                grid_kwh=o_exec + a_exec,
-                emergency_kwh=action.emergency_kwh,
-                charge_kwh=action.charge_kwh,
-                discharge_kwh=action.discharge_kwh,
-                curtail_kwh=curtail_now,
-                surplus_kwh=action.spill_kwh,
-                soc_end_kwh=action.soc_end_kwh,
-                price_actual_yuan_per_kwh=price_now_actual,
-            )
-        )
-        events.append(
-            DispatchEvent(
-                at_abs=abs_minute,
-                o_exec_kwh=o_exec,
-                a_exec_kwh=a_exec,
-                emergency_kwh=action.emergency_kwh,
-                price_actual_yuan_per_kwh=price_now_actual,
-            )
-        )
-        soc_now = action.soc_end_kwh
-        soc_boundary.append(soc_now)
-        abs_minute += 10
-
-        if options.progress_every_days and abs_minute % MINUTES_PER_DAY == 0:
-            day_index = abs_minute // MINUTES_PER_DAY
-            if day_index % options.progress_every_days == 0:
-                elapsed = time.perf_counter() - _t_start
-                print(
-                    f"    [进度] 第 {day_index} 天 / {options.total_days} "
-                    f"| 已用 {elapsed / 60:.1f} min | 窗口求解 {n_windows} 次 "
-                    f"| SOC {soc_now:,.0f} kWh | 不可行 {len(infeasible)} 段",
-                    flush=True,
-                )
-
-    notes.extend(timeline.bridge_notes())
-    notes.append(f"窗口求解 {n_windows} 次，计划成文/修订 {n_revisions} 次")
-    if penalties:
-        notes.append(
-            f"违约事件 {len(penalties)} 次，合计 {sum(p.penalty_yuan for p in penalties):.4f} 元"
-        )
-    steps.sort(key=lambda s: s.abs_minute)
-    return AbsoluteRunResult(
-        policy=policy.name,
-        run=AbsoluteRun(
-            abs_minutes=np.array([s.abs_minute for s in steps], dtype=np.int64),
-            steps=steps,
-            soc_boundary_kwh=np.asarray(soc_boundary, dtype=np.float64),
-            events=events,
-            penalties=penalties,
-        ),
-        window_solves=n_windows,
-        revisions=n_revisions,
-        notes=notes,
-        infeasible_abs=infeasible,
-        released_abs=released_intervals,
-    )
-
-    notes.extend(timeline.bridge_notes())
-    notes.append(f"窗口求解 {n_windows} 次，计划修订/首次成文 {n_revisions} 次")
-    if penalties:
-        notes.append(
-            f"违约事件 {len(penalties)} 次，合计 {sum(p.penalty_yuan for p in penalties):.4f} 元"
-        )
-    steps.sort(key=lambda s: s.abs_minute)
-    return AbsoluteRunResult(
-        policy=policy.name,
-        run=AbsoluteRun(
-            abs_minutes=np.array([s.abs_minute for s in steps], dtype=np.int64),
-            steps=steps,
-            soc_boundary_kwh=np.asarray(soc_boundary, dtype=np.float64),
-            events=events,
-            penalties=penalties,
-        ),
-        window_solves=n_windows,
-        revisions=n_revisions,
-        notes=notes,
-        infeasible_abs=infeasible,
-        released_abs=released_intervals,
-    )
-
-
-def _is_adjust_node(abs_minute: int, policy: Policy) -> bool:
-    """True when this interval starts an allowed adjustment node (06/12/18)."""
-    clock = (abs_minute % MINUTES_PER_DAY) // 10
-    return clock in policy.adjust_nodes_abs
+    forecast_audits: list[dict] = field(default_factory=list)
 
 
 def _natural_day_end(abs_minute: int) -> int:
-    """Absolute minute of the next natural day 00:00 (exclusive day end)."""
     return (abs_minute // MINUTES_PER_DAY + 1) * MINUTES_PER_DAY
 
 
-def _pv_curtailment(
-    *,
-    demand_kwh: float,
-    pv_kwh: float,
-    grid_kwh: float,
-    charge_kwh: float,
-    discharge_kwh: float,
-) -> float:
-    """Surplus PV that the load, the battery and the committed purchase cannot take.
-
-    Curtailment applies to PV only (never to purchased power), so it is bounded
-    by the available PV itself.
-    """
-    absorbable = (
-        demand_kwh
-        - grid_kwh
-        - discharge_kwh
-        + charge_kwh * CHARGE_BUS_FACTOR
-    )
-    surplus = pv_kwh - max(absorbable, 0.0)
-    return float(min(max(surplus, 0.0), pv_kwh))
+def _is_adjust_node(abs_minute: int, policy: Policy) -> bool:
+    return (abs_minute % MINUTES_PER_DAY) // 10 in policy.adjust_nodes_abs
 
 
-__all__ = [
-    "InfeasibleInterval",
-    "IntervalAction",
-    "execute_interval",
-    "Policy",
-    "RunOptions",
-    "AbsoluteRunResult",
-    "run_absolute",
-]
+def run_absolute(*, timeline: Timeline, forecaster: Forecaster, policy: Policy,
+                 options: RunOptions, abs_from: int, abs_to: int,
+                 soc_start_kwh: float, current_price_lookup=None) -> AbsoluteRunResult:
+    if abs_to <= abs_from or abs_from != ROLLING_START_ABS_MINUTE or abs_to % 10:
+        raise ValueError("Rolling run must start at January 1 00:10 and contain complete intervals")
+    if options.max_infeasible_intervals:
+        raise ValueError("Failed intervals cannot be skipped")
+    if options.experiment == "main" and (
+        not options.allow_spill or options.plan_refresh_intervals != 1 or options.absorption_safety_kwh or options.commitment_floor_kwh
+    ):
+        raise ValueError("Main model requires every-interval replanning without purchase guards")
+    if options.plan_refresh_intervals < 1:
+        raise ValueError("Refresh cadence must be positive")
+    steps, events, penalties, audits = [], [], [], []
+    initial_plans = {}
+    socs = [float(soc_start_kwh)]
+    commitment = None
+    result = None
+    solved_at = None
+    n_solves = revisions = 0
+    repeated_price = np.roll(forecaster.bundle.attachment1.price_yuan_per_kwh, 1)
+    for now in range(abs_from, abs_to, 10):
+        b = _natural_day_end(now)
+        is_start = now == abs_from or now % 1440 == 0
+        can_revise = policy.can_adjust_plan and _is_adjust_node(now, policy) and not is_start
+        needs_solve = (result is None or is_start or can_revise
+                       or now - solved_at >= options.plan_refresh_intervals * 10)
+        quote = current_price_lookup(now) if current_price_lookup is not None else None
+        pending = None
+        if needs_solve:
+            forecast = forecaster.window_forecast(now, now, b + 1440,
+                use_published_pv=policy.use_published_pv, current_price=quote, price_mode=policy.price_mode)
+            today = forecast.abs_minutes < b
+            o, a = np.zeros(forecast.n), np.zeros(forecast.n)
+            if is_start:
+                if commitment is not None and commitment.abs_minutes.size:
+                    raise RuntimeError("Unexecuted prior-day commitments at midnight")
+                mode = FeeMode.FIRST_PLAN
+            else:
+                if commitment is None or not np.array_equal(commitment.abs_minutes, forecast.abs_minutes[today]):
+                    raise RuntimeError("Commitment coverage gap")
+                o[today], a[today] = commitment.o_kwh, commitment.a_kwh
+                mode = FeeMode.ADJUSTABLE if can_revise else FeeMode.FROZEN
+            planning_price = float(quote) if quote is not None else float(forecast.price_yuan_per_kwh[0])
+            extra = {}
+            if options.experiment != "main":
+                if options.absorption_safety_kwh:
+                    extra["absorption_upper_kwh"] = forecaster.absorption_upper_kwh(
+                        now, forecast.abs_minutes, safety_kwh=options.absorption_safety_kwh)
+                if options.commitment_floor_kwh:
+                    extra["commitment_lower_kwh"] = forecaster.commitment_floor_kwh(
+                        now, forecast.abs_minutes, safety_kwh=options.commitment_floor_kwh)
+            result = solve_window(forecast=forecast, soc_start_kwh=socs[-1], fee_mode=mode,
+                o_kwh=o, a_kwh=a, price_now_yuan_per_kwh=planning_price,
+                committed_mask=today if mode == FeeMode.FROZEN else None,
+                committed_grid_kwh=o+a if mode == FeeMode.FROZEN else None,
+                adjustable_mask=today if can_revise else None,
+                allow_spill=options.allow_spill,
+                solver_name=options.solver_name, problem_name=f"{policy.name}@{now}", **extra).require_ok()
+            solved_at = now
+            n_solves += 1
+            audits.append(dict(formed_at=now, observed_end=now, window_end=b+1440,
+                               source=str(forecast.provenance[0]), forecast_cost=result.objective_yuan,
+                               forecast_spill_kwh=float(np.sum(getattr(result, "spill_kwh", 0)))))
+            if is_start:
+                commitment = CommittedBalances.from_initial_plan(
+                    forecast.abs_minutes[today], result.grid_kwh[today])
+                initial_plans.update(zip(map(int, commitment.abs_minutes), map(float, commitment.o_kwh)))
+                revisions += 1
+            elif can_revise:
+                changed = not np.allclose(commitment.effective_kwh, result.grid_kwh[today], atol=1e-7, rtol=0)
+                commitment, pending = revise_commitment(
+                    commitment, result.grid_kwh[today], at_abs=now,
+                    price_at_yuan_per_kwh=planning_price)
+                revisions += int(changed)
+        offset = (now - solved_at) // 10
+        o_exec, a_exec = commitment.take(now)
+        demand, pv = timeline.demand_kwh.value_at(now), timeline.pv_kwh.value_at(now)
+        action = execute_interval(abs_minute=now, grid_committed_kwh=o_exec+a_exec,
+            demand_kwh=demand, pv_kwh=pv, soc_now_kwh=socs[-1],
+            charge_target_kwh=result.charge_kwh[offset], discharge_target_kwh=result.discharge_kwh[offset],
+            allow_spill=options.allow_spill)
+        # Execution/settlement may read the completed interval's actual values;
+        # these are never passed back into the decision that was already made.
+        actual_price = (float(repeated_price[now % 1440 // 10]) if policy.price_mode == "repeated"
+                        else timeline.price_yuan_per_kwh.value_at(now))
+        if not np.isfinite(actual_price) or actual_price < 0:
+            raise ValueError(f"Missing/invalid execution price at {now}")
+        if pending is not None:
+            pending.price_at_yuan_per_kwh = actual_price
+            penalties.append(pending)
+        steps.append(AbsoluteStep(now, o_exec+a_exec, action.emergency_kwh,
+            action.charge_kwh, action.discharge_kwh, action.curtail_kwh, action.spill_kwh,
+            action.soc_end_kwh, actual_price))
+        events.append(DispatchEvent(now, o_exec, a_exec, action.emergency_kwh, actual_price))
+        socs.append(action.soc_end_kwh)
+        if options.progress_every_days and (now+10) % (1440*options.progress_every_days) == 0:
+            print(f"{policy.name}: {(now+10)//1440} days; {n_solves} solves", flush=True)
+    run = AbsoluteRun(np.array([s.abs_minute for s in steps]), steps, np.array(socs),
+                      events, penalties, initial_plans)
+    return AbsoluteRunResult(policy.name, run, n_solves, revisions,
+                             timeline.bridge_notes(), forecast_audits=audits)

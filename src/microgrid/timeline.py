@@ -26,7 +26,7 @@ from datetime import date, timedelta
 import numpy as np
 
 from .constants import DELTA_T_HOURS, N_INTERVAL
-from .data_io import Attachment1, Attachment2, Attachment4, DataBundle, DataError
+from .data_io import Attachment2, Attachment4, DataBundle, DataError
 from .timeaxis import (
     DATE_2025_01_01,
     DATE_2025_12_31,
@@ -55,6 +55,8 @@ class Series:
 
     def window(self, abs_from: int, abs_to: int) -> np.ndarray:
         """Half-open window [abs_from, abs_to) in absolute minutes."""
+        if abs_from % 10 or abs_to % 10:
+            raise DataError("Window endpoints must align to ten minutes")
         lo = (abs_from - self.abs_minute0) // 10
         hi = (abs_to - self.abs_minute0) // 10
         if lo < 0 or hi > self.values.size or hi < lo:
@@ -70,7 +72,10 @@ class Series:
         return self.provenance[lo:hi]
 
     def value_at(self, abs_minute: int) -> float:
-        return float(self.values[(abs_minute - self.abs_minute0) // 10])
+        value = float(self.window(abs_minute, abs_minute + 10)[0])
+        if not np.isfinite(value):
+            raise DataError(f"{self.name}: actual observation unavailable at {abs_minute}")
+        return value
 
 
 @dataclass(frozen=True)
@@ -145,8 +150,8 @@ class Timeline:
         n_ext = int(np.sum(self.demand_kwh.provenance == SOURCE_EXTENDED))
         return [
             f"首段桥接：{n_carry} 个区间由上一源日尾值提供（自然日 t=0）",
-            f"首段缺失（无上一源日）：{n_missing} 个区间，用同钟点历史均值冷启动估计",
-            f"源外延伸：{n_ext} 个区间，超出附件范围，以历史同钟点均值标记为 {SOURCE_EXTENDED}",
+            f"首段缺失（无上一源日）：{n_missing} 个区间，跳过年初00:00—00:10，不填补、不计算",
+            f"源外延伸：{n_ext} 个区间，超出附件范围，实际值缺失，标记为 {SOURCE_EXTENDED}",
         ]
 
 
@@ -160,7 +165,7 @@ def _shift_series(values: np.ndarray, name: str) -> tuple[np.ndarray, np.ndarray
 
     ``D_{d,0} = seq(d-1, 143)`` and ``D_{d,t} = seq(d, t-1)`` for t = 1..143.
     The first natural day has no previous source row, so its first interval is
-    flagged ``bridge-missing`` and estimated afterwards from history.
+    flagged ``bridge-missing`` and left unavailable; execution starts at 00:10.
     """
     n_days, n_seq = values.shape
     if n_seq != N_SEQ:
@@ -168,7 +173,7 @@ def _shift_series(values: np.ndarray, name: str) -> tuple[np.ndarray, np.ndarray
     out = np.zeros((n_days, INTERVALS_PER_DAY), dtype=np.float64)
     prov = np.empty((n_days, INTERVALS_PER_DAY), dtype=object)
     # t = 0 is carried over from the previous source row's last column
-    out[0, 0] = 0.0
+    out[0, 0] = np.nan
     prov[0, 0] = SOURCE_BRIDGE_MISSING
     if n_days > 1:
         out[1:, 0] = values[:-1, N_SEQ - 1]
@@ -177,23 +182,6 @@ def _shift_series(values: np.ndarray, name: str) -> tuple[np.ndarray, np.ndarray
     out[:, 1:] = values[:, : N_SEQ - 1]
     prov[:, 1:] = SOURCE_ATTACHMENT
     return out, prov
-
-
-def _fill_first_bridge_estimate(
-    values: np.ndarray, prov: np.ndarray, history: np.ndarray, name: str
-) -> None:
-    """Estimate the missing first interval of the very first natural day.
-
-    Source: the mean of the same clock interval over the **later** available
-    source rows (a documented cold-start estimate). We must not shift the same
-    day's measured 00:10 value forward, and we must not leave a silent zero.
-    """
-    mask = prov == SOURCE_BRIDGE_MISSING
-    if not mask.any():
-        return
-    same_clock = history[:, 0]
-    estimate = float(np.mean(same_clock))
-    values[mask] = estimate
 
 
 def build_timeline(
@@ -207,12 +195,11 @@ def build_timeline(
     ----------
     extension_hours : hours of extra absolute intervals appended after the last
         source day, so that a window opened on 12-31 can look one day ahead
-        without inventing measured data. Extended intervals use the historical
-        same-clock mean and are flagged ``extended``.
+        without inventing measured data. Unknown future actuals are NaN and flagged ``extended``; the final source
+        tail is preserved as an actual observation.
     """
     a2: Attachment2 = bundle.attachment2
     a4: Attachment4 = bundle.attachment4
-    a1: Attachment1 = bundle.attachment1
 
     n_days = len(a2.days)
     if n_days != len(a4.days) or a2.days != a4.days:
@@ -223,12 +210,6 @@ def build_timeline(
     price_clock, price_prov = _shift_series(a4.price_yuan_per_kwh, "附件4 电价")
 
     notes: list[str] = []
-    _fill_first_bridge_estimate(load_clock, load_prov, a2.load_kw, "负载")
-    _fill_first_bridge_estimate(pv_clock, pv_prov, a2.pv_actual_kw, "光伏")
-    _fill_first_bridge_estimate(
-        price_clock, price_prov, a4.price_yuan_per_kwh, "电价"
-    )
-
     # ---- extension beyond the last source day -------------------------------
     n_ext = int(round(extension_hours * 60 / 10))
     if n_ext < 0:
@@ -239,10 +220,14 @@ def build_timeline(
             flat_v = values.reshape(-1)
             flat_p = prov.reshape(-1)
             return flat_v, flat_p
-        # Same-clock mean over the whole source year, per clock interval.
-        clock_mean = values.mean(axis=0)
-        ext_v = np.tile(clock_mean, n_ext // INTERVALS_PER_DAY + 1)[:n_ext]
+        # Only the last source tail is an actual observation beyond Dec 31.
+        # All later actuals remain unavailable; planning creates its own forecast.
+        ext_v = np.full(n_ext, np.nan)
+        tail = {"负载": a2.load_kw[-1, -1], "光伏": a2.pv_actual_kw[-1, -1],
+                "电价": a4.price_yuan_per_kwh[-1, -1]}[name]
+        ext_v[0] = tail
         ext_p = np.full(n_ext, SOURCE_EXTENDED, dtype=object)
+        ext_p[0] = SOURCE_CARRY_OVER
         flat_v = np.concatenate([values.reshape(-1), ext_v])
         flat_p = np.concatenate([prov.reshape(-1), ext_p])
         return flat_v, flat_p
@@ -279,7 +264,7 @@ def build_timeline(
 
 def source_horizon_last_abs(timeline: Timeline) -> int:
     """Absolute minute of the end of the last fully measured source interval."""
-    return timeline.n_days_clock * MINUTES_PER_DAY
+    return timeline.n_days_clock * MINUTES_PER_DAY + 10
 
 
 __all__ = [
