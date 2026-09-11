@@ -26,6 +26,7 @@ Two layers live here.
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from datetime import date
 
@@ -177,6 +178,8 @@ class RunOptions:
     allow_spill: bool = True
     plan_every_interval: bool = True
     plan_refresh_intervals: int = 1
+    progress_every_days: int = 0
+    total_days: int = 0
     min_charge_floor: bool = True
     max_infeasible_intervals: int = 0
     solver_name: str = "appsi_highs"
@@ -223,6 +226,7 @@ def run_absolute(
     infeasible: list[int] = []
     released_intervals: list[int] = []
 
+    _t_start = time.perf_counter()
     soc_now = float(soc_start_kwh)
     commitment: CommittedBalances | None = None
     last_result: WindowResult | None = None
@@ -536,6 +540,17 @@ def run_absolute(
         soc_now = action.soc_end_kwh
         soc_boundary.append(soc_now)
         abs_minute += 10
+
+        if options.progress_every_days and abs_minute % MINUTES_PER_DAY == 0:
+            day_index = abs_minute // MINUTES_PER_DAY
+            if day_index % options.progress_every_days == 0:
+                elapsed = time.perf_counter() - _t_start
+                print(
+                    f"    [进度] 第 {day_index} 天 / {options.total_days} "
+                    f"| 已用 {elapsed / 60:.1f} min | 窗口求解 {n_windows} 次 "
+                    f"| SOC {soc_now:,.0f} kWh | 不可行 {len(infeasible)} 段",
+                    flush=True,
+                )
 
     notes.extend(timeline.bridge_notes())
     notes.append(f"窗口求解 {n_windows} 次，计划成文/修订 {n_revisions} 次")

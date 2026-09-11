@@ -110,17 +110,33 @@ def _add_frozen_fee(
     price: np.ndarray,
     o_kwh: np.ndarray,
     a_kwh: np.ndarray,
+    committed_mask: np.ndarray | None = None,
 ) -> None:
-    """Frozen segment: O and A are constants, so the fee is a linear function."""
+    """Frozen segment: O and A are constants, so the fee is a linear function.
+
+    ``committed_mask``
+        Which intervals are actually under commitment. Only those get
+        ``grid == O + 1.5*A``; the rest of the window is still free and buys at
+        the normal rate. Forcing the whole window to the committed quantity
+        would pin the uncommitted tail to zero and make the model infeasible
+        whenever that tail has to serve load.
+    """
+    if committed_mask is None:
+        committed_mask = np.ones(np.asarray(o_kwh).size, dtype=bool)
+    mask = np.asarray(committed_mask, dtype=bool)
 
     def _rule(m, t):
-        return price[t] * (float(o_kwh[t]) + FEE_ADJUST_UP * float(a_kwh[t]))
+        if mask[t]:
+            return price[t] * (float(o_kwh[t]) + FEE_ADJUST_UP * float(a_kwh[t]))
+        return price[t] * m.grid[t]
 
     m.fee_fixed = pyo.Expression(m.T, rule=_rule)
-    # The grid variable must equal the committed effective quantity.
-    m.commit = pyo.Constraint(
-        m.T, rule=lambda m, t: m.grid[t] == float(o_kwh[t] + a_kwh[t])
-    )
+
+    fixed = [t for t in m.T if mask[t]]
+    if fixed:
+        m.commit = pyo.Constraint(
+            fixed, rule=lambda m, t: m.grid[t] == float(o_kwh[t] + a_kwh[t])
+        )
 
 
 def _add_adjustable_fee(
@@ -246,13 +262,13 @@ def solve_window(
     m.curtail_limit = pyo.Constraint(m.T, rule=lambda m, t: m.curtail[t] <= m.pv[t])
     m.soc_start = pyo.Constraint(expr=m.soc[0] == float(soc_start_kwh))
 
-    if absorption_upper_kwh is not None:
+    if absorption_upper_kwh is not None and committed_mask is None:
         cap = np.asarray(absorption_upper_kwh, dtype=np.float64)
         if cap.size != n:
             raise ValueError(f"absorption_upper_kwh shape should be ({n},), got {cap.shape}")
         m.absorption = pyo.Constraint(m.T, rule=lambda m, t: m.grid[t] <= float(cap[t]))
 
-    if commitment_lower_kwh is not None:
+    if commitment_lower_kwh is not None and committed_mask is None:
         lo = np.asarray(commitment_lower_kwh, dtype=np.float64)
         if lo.size != n:
             raise ValueError(f"commitment_lower_kwh shape should be ({n},), got {lo.shape}")
@@ -282,10 +298,19 @@ def solve_window(
             )
 
     # ---- fee expression ------------------------------------------------------
+    #
+    # The robust purchase bounds (absorption cap / commitment floor) are guards on
+    # the *decision* of how much to buy. They must NOT be applied to intervals
+    # whose quantity is already committed: those are equality-fixed and re-testing
+    # them against a bound computed from a different forecast is what made the
+    # frozen window come out infeasible.
     if fee_mode == FeeMode.FIRST_PLAN:
         _add_first_plan_fee(m, forecast.price_yuan_per_kwh)
     elif fee_mode == FeeMode.FROZEN:
-        _add_frozen_fee(m, forecast.price_yuan_per_kwh, o_eff, a_eff)
+        if committed_mask is None:
+            _add_frozen_fee(m, forecast.price_yuan_per_kwh, o_eff, a_eff)
+        else:
+            _add_frozen_fee(m, forecast.price_yuan_per_kwh, o_eff, a_eff, committed_mask)
     elif fee_mode == FeeMode.ADJUSTABLE:
         if price_now_yuan_per_kwh is None:
             raise ValueError("ADJUSTABLE mode needs the current adjustment price p_a")

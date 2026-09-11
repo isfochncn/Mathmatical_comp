@@ -60,6 +60,7 @@ def main(argv: list[str]) -> int:
             solver_name=args.solver,
             run_from=date.fromisoformat(run_from) if run_from else None,
             run_to=date.fromisoformat(run_to) if run_to else None,
+            progress_every_days=getattr(args, "progress_every_days", 0),
         )
         t0 = time.perf_counter()
         print(f"\n--- {problem} 开始 {time.strftime('%H:%M:%S')} ---")

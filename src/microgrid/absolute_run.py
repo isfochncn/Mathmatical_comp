@@ -88,6 +88,11 @@ class RunConfig:
     run_to: date | None = None
     warmup_days: int = 0
 
+    #: Optional progress hook: called as ``progress(days_done, days_total)``.
+    #: A multi-hour run without observability is not acceptable, so the CLI
+    #: passes a printer here.
+    progress_every_days: int = 0
+
     def problem_dir(self) -> Path:
         return self.out_dir / self.problem
 
@@ -366,6 +371,8 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
             commitment_floor_kwh=config.commitment_floor_kwh,
             allow_spill=config.allow_spill,
             plan_refresh_intervals=config.plan_refresh_intervals,
+            progress_every_days=config.progress_every_days,
+            total_days=len(days),
             max_infeasible_intervals=config.max_infeasible_intervals,
             solver_name=config.solver_name,
         ),

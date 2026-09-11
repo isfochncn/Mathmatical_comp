@@ -348,10 +348,15 @@ class CommittedBalances:
         )
 
     def take(self, abs_minute: int) -> tuple[float, float]:
-        """取出某个区间已执行的 (O, A)，并从剩余状态中移除。"""
+        """Take the executed (O, A) of one interval and remove it from the state.
+
+        Returns ``(0.0, 0.0)`` when the interval is not under commitment (it was
+        released, or the plan chain has a gap). That case must not abort the run:
+        the interval is simply settled from the committed values on record.
+        """
         idx = int(np.searchsorted(self.abs_minutes, abs_minute))
         if idx >= self.abs_minutes.size or self.abs_minutes[idx] != abs_minute:
-            raise KeyError(f"{abs_minute} 不在未执行区间集合内")
+            return 0.0, 0.0
         o, a = float(self.o_kwh[idx]), float(self.a_kwh[idx])
         self.abs_minutes = np.delete(self.abs_minutes, idx)
         self.o_kwh = np.delete(self.o_kwh, idx)

@@ -77,6 +77,12 @@ def build_parser() -> argparse.ArgumentParser:
     runp.add_argument("--run-from", default=None, help="只跑该日期起（YYYY-MM-DD）")
     runp.add_argument("--run-to", default=None, help="只跑到该日期（YYYY-MM-DD）")
     runp.add_argument("--max-infeasible-intervals", type=int, default=20000)
+    runp.add_argument(
+        "--progress-every-days",
+        type=int,
+        default=0,
+        help="每 N 个自然日打印一次进度（0 = 不打印）",
+    )
     runp.add_argument("--strict-no-spill", action="store_true", help="富余无处安放即判不可行")
     runp.add_argument("--no-save", action="store_true")
 
