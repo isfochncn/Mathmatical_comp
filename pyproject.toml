@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "microgrid-2026c"
+version = "0.1.0"
+description = "2026 高教社杯 C 题：微网与外部电网电力调控策略（问题一至问题四）"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "openpyxl",
+    "scipy",
+    "pyomo",
+    "highspy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "matplotlib"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
