@@ -104,7 +104,9 @@ def export_result1(trajectory, dest_dir: Path) -> Path:
     ws2 = wb["充放电量"]
     charge = np.asarray(trajectory["charge_kwh"], dtype=np.float64)
     discharge = np.asarray(trajectory["discharge_kwh"], dtype=np.float64)
-    soc = np.asarray(trajectory["soc_kwh"], dtype=np.float64)
+    soc = np.asarray(
+        trajectory.get("soc_boundary_kwh", trajectory.get("soc_kwh")), dtype=np.float64
+    )
     for b in range(6):
         lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
         row = b + 2

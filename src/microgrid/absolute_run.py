@@ -63,17 +63,17 @@ class RunConfig:
     out_dir: Path = field(default_factory=lambda: Path("out"))
 
     history_days: int = 28
-    absorption_safety_kwh: float = 250.0
+    absorption_safety_kwh: float = 600.0
     allow_spill: bool = True
     max_infeasible_intervals: int = 0
     solver_name: str = "appsi_highs"
 
     # How often the window LP is re-solved (in ten-minute intervals). The memo
     # asks for a refresh at every interval start; 1 is that literal cadence and
-    # costs one LP per ten minutes. Larger values are a documented performance
-    # approximation: the *execution feedback* still runs every interval, only
-    # the re-planning frequency changes. Reported under comparison item A1.
-    plan_refresh_intervals: int = 1
+    # costs one LP per ten minutes. 6 (one hour) is the agreed operating point:
+    # the *execution feedback* still runs every interval, only the re-planning
+    # frequency changes. Reported under comparison item A1.
+    plan_refresh_intervals: int = 6
 
     # Date window to execute (smoke tests); defaults to the whole year.
     run_from: date | None = None
@@ -131,6 +131,10 @@ class RunResult:
     wall_seconds: float
     input_fingerprint: str
     notes: list[str] = field(default_factory=list)
+    #: Series already expressed in result-row order, when the natural-day clocks
+    #: cannot be used directly (problem 1). Empty for the rolling branch, where
+    #: the exporter derives result rows from absolute minutes.
+    export_arrays: dict[str, np.ndarray] = field(default_factory=dict)
 
 
 # ==========================================================================
@@ -227,6 +231,15 @@ def run_problem1(config: RunConfig, bundle: DataBundle | None = None) -> RunResu
     totals = natural_day_bill(0, MINUTES_PER_DAY, events, [])
     verify_bill(totals, events, [])
 
+    # A result row covers [day 00:10, next day 00:10) while attachment 1 gives the
+    # natural-day clock. For the repeated typical day the row is therefore the
+    # clock series shifted by one interval, with the next day's first interval
+    # (identical to this day's first interval) appended at the end.
+    row_grid = np.concatenate([result.grid_kwh[1:], result.grid_kwh[:1]])
+    row_charge = np.concatenate([result.charge_kwh[1:], result.charge_kwh[:1]])
+    row_discharge = np.concatenate([result.discharge_kwh[1:], result.discharge_kwh[:1]])
+    row_curtail = np.concatenate([result.curtail_kwh[1:], result.curtail_kwh[:1]])
+
     summary = _p1_summary(run, result, totals)
     return RunResult(
         problem="problem1",
@@ -239,6 +252,13 @@ def run_problem1(config: RunConfig, bundle: DataBundle | None = None) -> RunResu
         wall_seconds=time.perf_counter() - t0,
         input_fingerprint=input_fingerprint(_data_paths()),
         notes=["问题一为单日确定性 LP：E_0 = E_144 = 6000，结果行末段由周期延伸映射"],
+        export_arrays={
+            "grid_kwh": row_grid,
+            "charge_kwh": row_charge,
+            "discharge_kwh": row_discharge,
+            "curtail_kwh": row_curtail,
+            "soc_boundary_kwh": np.asarray(result.soc_boundary_kwh, dtype=np.float64),
+        },
     )
 
 
@@ -350,11 +370,13 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         rf, rt = result_row_bounds(day)
         row_bills.append((day, result_row_bill(rf, rt, run.events, run.penalties)))
 
+    # January is the warm-up period: it really runs (so the 1 February state
+    # comes from real operation) but it is not exported.
     out_start = date(*OUTPUT_START)
     output_day_bills = [(d, b) for d, b in day_bills if d >= out_start]
     output_row_bills = [(d, b) for d, b in row_bills if d >= out_start]
 
-    # Independent recomputation over the whole run and over the reporting window.
+    # Independent recomputation over the whole run (warm-up included).
     all_events = run.events
     all_penalties = run.penalties
     grand = LabelTotals()
@@ -368,21 +390,45 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
     grand.reduce_cost_yuan = float(sum(p.penalty_yuan for p in all_penalties))
     verify_bill(grand, all_events, all_penalties)
 
+    out_events = [e for e in all_events if e.at_abs >= (out_start - DATE_2025_01_01).days * MINUTES_PER_DAY]
+    out_penalties = [
+        p
+        for p in all_penalties
+        if p.at_abs >= (out_start - DATE_2025_01_01).days * MINUTES_PER_DAY
+    ]
+    output_totals = LabelTotals()
+    for e in out_events:
+        output_totals.plan_kwh += e.o_exec_kwh
+        output_totals.add_kwh += e.a_exec_kwh
+        output_totals.emergency_kwh += e.emergency_kwh
+        output_totals.plan_cost_yuan += e.price_actual_yuan_per_kwh * e.o_exec_kwh
+        output_totals.add_cost_yuan += 1.5 * e.price_actual_yuan_per_kwh * e.a_exec_kwh
+        output_totals.emergency_cost_yuan += 5.0 * e.price_actual_yuan_per_kwh * e.emergency_kwh
+    output_totals.reduce_cost_yuan = float(sum(p.penalty_yuan for p in out_penalties))
+    verify_bill(output_totals, out_events, out_penalties)
+
+    start_index = max(0, (out_start - DATE_2025_01_01).days * MINUTES_PER_DAY // 10)
     arrays = run.arrays()
+    out_minutes = arrays["abs_minute"][start_index:]
+    out_soc = run.soc_boundary_kwh[start_index:]
+
     loss = physics.loss_accounting(arrays["charge_kwh"], arrays["discharge_kwh"])
     summary: dict[str, object] = {
         "problem": config.problem,
-        "n_intervals": int(arrays["abs_minute"].size),
-        "total_purchased_kwh": grand.total_kwh,
-        "plan_kwh": grand.plan_kwh,
-        "add_kwh": grand.add_kwh,
-        "emergency_kwh": grand.emergency_kwh,
-        "plan_cost_yuan": grand.plan_cost_yuan,
-        "add_cost_yuan": grand.add_cost_yuan,
-        "emergency_cost_yuan": grand.emergency_cost_yuan,
-        "execution_cost_yuan": grand.execution_cost_yuan,
-        "reduce_cost_yuan": grand.reduce_cost_yuan,
-        "total_cost_yuan": grand.total_cost_yuan,
+        "n_intervals": int(out_minutes.size),
+        "warmup_intervals": int(start_index),
+        "total_purchased_kwh": output_totals.total_kwh,
+        "plan_kwh": output_totals.plan_kwh,
+        "add_kwh": output_totals.add_kwh,
+        "emergency_kwh": output_totals.emergency_kwh,
+        "plan_cost_yuan": output_totals.plan_cost_yuan,
+        "add_cost_yuan": output_totals.add_cost_yuan,
+        "emergency_cost_yuan": output_totals.emergency_cost_yuan,
+        "execution_cost_yuan": output_totals.execution_cost_yuan,
+        "reduce_cost_yuan": output_totals.reduce_cost_yuan,
+        "total_cost_yuan": output_totals.total_cost_yuan,
+        "warmup_total_cost_yuan": grand.total_cost_yuan - output_totals.total_cost_yuan,
+        "soc_at_output_start_kwh": float(out_soc[0]) if out_soc.size else float("nan"),
         "soc_start_kwh": float(run.soc_boundary_kwh[0]),
         "soc_end_kwh": float(run.soc_boundary_kwh[-1]),
         "soc_min_kwh": float(run.soc_boundary_kwh.min()),
@@ -397,9 +443,9 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         "plan_revisions": outcome.revisions,
         "infeasible_intervals": outcome.infeasible_abs,
         "output_days": len(output_day_bills),
-        "output_row_purchase_kwh": float(sum(b.total_kwh for _, b in output_row_bills)),
+        "output_row_purchase_kwh": output_totals.total_kwh,
         "output_natural_day_purchase_kwh": float(sum(b.total_kwh for _, b in output_day_bills)),
-        "output_row_cost_yuan": float(sum(b.total_cost_yuan for _, b in output_row_bills)),
+        "output_row_cost_yuan": output_totals.total_cost_yuan,
         "output_natural_day_cost_yuan": float(
             sum(b.total_cost_yuan for _, b in output_day_bills)
         ),
@@ -460,6 +506,15 @@ def save_run(result: RunResult) -> Path:
                 "summary": result.summary,
                 "notes": result.notes,
                 "policy": asdict(POLICIES[result.problem]) if result.problem in POLICIES else {},
+                # Per-window bills are needed by the exporter: the natural-day bill
+                # and the result-row bill cover different windows and must not be
+                # conflated.
+                "natural_day_bills": [
+                    {"date": d.isoformat(), **b.as_dict()} for d, b in result.day_bills
+                ],
+                "result_row_bills": [
+                    {"date": d.isoformat(), **b.as_dict()} for d, b in result.row_bills
+                ],
             },
             ensure_ascii=False,
             indent=2,
@@ -489,6 +544,7 @@ def save_run(result: RunResult) -> Path:
         run_dir / "trajectory.npz",
         soc_boundary_kwh=result.run.soc_boundary_kwh,
         **{k: v for k, v in arrays.items() if k != "soc_kwh"},
+        **({} if not result.export_arrays else result.export_arrays),
     )
     return run_dir
 

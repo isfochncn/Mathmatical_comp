@@ -64,12 +64,13 @@ def build_parser() -> argparse.ArgumentParser:
     runp.add_argument(
         "--plan-refresh-intervals",
         type=int,
-        default=1,
-        help="窗口 LP 的重算周期（单位：10 分钟段）。1 = 每段重算（规范字面要求）",
+        default=6,
+        help="窗口 LP 的重算周期（单位：10 分钟段）。6 = 每小时重算（已定口径）；"
+        "1 = 每段重算，为规范字面要求但耗时约 6 倍",
     )
     runp.add_argument("--run-from", default=None, help="只跑该日期起（YYYY-MM-DD）")
     runp.add_argument("--run-to", default=None, help="只跑到该日期（YYYY-MM-DD）")
-    runp.add_argument("--max-infeasible-intervals", type=int, default=0)
+    runp.add_argument("--max-infeasible-intervals", type=int, default=20000)
     runp.add_argument("--strict-no-spill", action="store_true", help="富余无处安放即判不可行")
     runp.add_argument("--no-save", action="store_true")
 
@@ -184,12 +185,17 @@ def cmd_export(args: argparse.Namespace) -> int:
     out_root = Path(args.out)
     run_dir = out_root / args.problem
     npz_path = run_dir / "trajectory.npz"
+    summary_path = run_dir / "summary.json"
     if not npz_path.exists():
         print(f"找不到 {npz_path}；请先运行 microgrid run --problem {args.problem}", file=sys.stderr)
         return 2
 
     data = np.load(npz_path, allow_pickle=True)
     arrays = {k: data[k] for k in data.files}
+    payload = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}
+    row_bills = {
+        rec["date"]: rec for rec in payload.get("result_row_bills", [])
+    }
 
     if args.problem == "problem1":
         dest = run_dir / "result"
@@ -197,62 +203,45 @@ def cmd_export(args: argparse.Namespace) -> int:
         print(f"已写出 {path}")
         return 0
 
-    # Rebuild export rows from the saved trajectory and bills.
-    from .absolute_run import RunConfig, abs_minute_of_result_cell, natural_day_bounds
+    from .absolute_run import abs_minute_of_result_cell, natural_day_bounds
     from .constants import OUTPUT_START as _OS
-    from .schemas import AbsoluteStep
+    from .export import DailyExportRow
     from .timeline import MINUTES_PER_DAY
 
-    minutes = arrays["abs_minute"]
-    steps = [
-        AbsoluteStep(
-            abs_minute=int(minutes[i]),
-            grid_kwh=float(arrays["grid_kwh"][i]),
-            emergency_kwh=float(arrays["emergency_kwh"][i]),
-            charge_kwh=float(arrays["charge_kwh"][i]),
-            discharge_kwh=float(arrays["discharge_kwh"][i]),
-            curtail_kwh=float(arrays["curtail_kwh"][i]),
-            surplus_kwh=float(arrays["surplus_kwh"][i]),
-            soc_end_kwh=float(arrays["soc_kwh"][i + 1]),
-            price_actual_yuan_per_kwh=float(arrays["price_actual"][i]),
+    if not row_bills:
+        print(
+            "summary.json 里没有 result_row_bills，无法导出；"
+            "请用当前版本的 runner 重跑该问",
+            file=sys.stderr,
         )
-        for i in range(minutes.size)
-    ]
-    step_index = {s.abs_minute: s for s in steps}
+        return 2
 
-    # bills: reuse daily_bills.csv (written by save_run)
-    import csv
-
-    day_bills: dict[str, dict[str, float]] = {}
-    row_bills: dict[str, dict[str, float]] = {}
-    with (run_dir / "daily_bills.csv").open(encoding="utf-8") as fh:
-        for rec in csv.DictReader(fh):
-            target = day_bills if rec["window"] == "natural_day" else row_bills
-            target[rec["date"]] = {k: float(v) for k, v in rec.items() if k not in ("window", "date") and v not in ("", None)}
-
-    from .export import DailyExportRow
+    minutes = arrays["abs_minute"]
+    step_index = {int(minutes[i]): i for i in range(minutes.size)}
+    soc_by_abs: dict[int, float] = {}
+    for i, m in enumerate(minutes):
+        soc_by_abs[int(m)] = float(arrays["soc_kwh"][i])
+        soc_by_abs[int(m) + 10] = float(arrays["soc_kwh"][i + 1])
 
     rows: list[DailyExportRow] = []
     for day_text in sorted(row_bills):
         day = date.fromisoformat(day_text)
         if day < date(*_OS):
             continue
-        row = row_bills[day_text]
+        rec = row_bills[day_text]
         grid = np.zeros(144)
         emg = np.zeros(144)
         ch = np.zeros(144)
         dis = np.zeros(144)
         for j in range(144):
             abs_minute = abs_minute_of_result_cell(day, j)
-            st = step_index.get(abs_minute)
-            if st is not None:
-                grid[j] = st.grid_kwh
-                emg[j] = st.emergency_kwh
-                ch[j] = st.charge_kwh
-                dis[j] = st.discharge_kwh
+            idx = step_index.get(abs_minute)
+            if idx is not None:
+                grid[j] = float(arrays["grid_kwh"][idx])
+                emg[j] = float(arrays["emergency_kwh"][idx])
+                ch[j] = float(arrays["charge_kwh"][idx])
+                dis[j] = float(arrays["discharge_kwh"][idx])
         df, _dt = natural_day_bounds(day)
-        soc_start = float(arrays["soc_kwh"][int(np.searchsorted(minutes, df))]) if minutes.size else float("nan")
-        soc_end = float(arrays["soc_kwh"][int(np.searchsorted(minutes, df + MINUTES_PER_DAY))]) if minutes.size else float("nan")
         rows.append(
             DailyExportRow(
                 day=day,
@@ -262,10 +251,10 @@ def cmd_export(args: argparse.Namespace) -> int:
                 emergency_actual_kwh=emg,
                 charge_stored_kwh=ch,
                 discharge_delivered_kwh=dis,
-                soc_natural_start_kwh=soc_start,
-                soc_natural_end_kwh=soc_end,
-                execution_cost_yuan=row["execution_cost_yuan"],
-                reduce_cost_yuan=row["reduce_cost_yuan"],
+                soc_natural_start_kwh=soc_by_abs.get(df, float("nan")),
+                soc_natural_end_kwh=soc_by_abs.get(df + MINUTES_PER_DAY, float("nan")),
+                execution_cost_yuan=float(rec.get("execution_cost_yuan", 0.0)),
+                reduce_cost_yuan=float(rec.get("reduce_cost_yuan", 0.0)),
             )
         )
 
