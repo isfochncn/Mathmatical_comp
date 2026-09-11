@@ -393,8 +393,11 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         row_bills.append((day, result_row_bill(rf, rt, run.events, run.penalties)))
 
     # January is the warm-up period: it really runs (so the 1 February state
-    # comes from real operation) but it is not exported.
-    out_start = date(*OUTPUT_START)
+    # comes from real operation) but it is not exported. A partial run
+    # (``--run-from`` after 1 February) has no warm-up of its own, so its own
+    # first day becomes the reporting window; the exporter must not then claim a
+    # warm-up span that was never simulated.
+    out_start = max(date(*OUTPUT_START), days[0])
     output_day_bills = [(d, b) for d, b in day_bills if d >= out_start]
     output_row_bills = [(d, b) for d, b in row_bills if d >= out_start]
 
@@ -431,6 +434,12 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
 
     start_index = max(0, (out_start - DATE_2025_01_01).days * MINUTES_PER_DAY // 10)
     arrays = run.arrays()
+    if start_index > arrays["abs_minute"].size:
+        # A partial run (``--run-from`` after 1 February) has no warm-up span of
+        # its own, so the nominal trim point lies past the end of the trajectory.
+        # Clamp it: otherwise every warm-up figure silently reads zero and the
+        # CLI reports "执行段数 0" for a run that clearly executed intervals.
+        start_index = 0
     out_minutes = arrays["abs_minute"][start_index:]
     out_soc = run.soc_boundary_kwh[start_index:]
 
