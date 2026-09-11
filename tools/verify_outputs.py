@@ -124,7 +124,13 @@ if Path(EXPORTS["result1.xlsx"]).exists():
     cd = list(ws2.iter_rows(min_row=1, max_row=7, max_col=6, values_only=True))
     check(cd[1][0] == "0:00-4:00", f"block 1 label = {cd[1][0]!r}")
     check(cd[6][0] == "20:00-24:00", f"block 6 label = {cd[6][0]!r}")
-    check(cd[1][4] == "0:00" and cd[2][4] == "24:00", "SOC columns use natural-day 0:00 / 24:00")
+    # The template's 6th column is '时刻' (index 3) and '储电量' is column 5
+    # (index 4). An earlier version of this check read index 4 for the label,
+    # which is the SOC value itself.
+    check(cd[0][3] == "时刻" and cd[0][4] == "储电量",
+          f"SOC columns are 时刻/储电量 ({cd[0][3]!r}/{cd[0][4]!r})")
+    check(cd[1][3] == "0:00" and cd[2][3] == "24:00",
+          f"SOC row labels use natural-day 0:00 / 24:00 ({cd[1][3]!r}/{cd[2][3]!r})")
     wb.close()
 
 matrix_header_checked = False
