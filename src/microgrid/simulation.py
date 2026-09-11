@@ -177,7 +177,6 @@ class RunOptions:
     allow_spill: bool = True
     plan_every_interval: bool = True
     plan_refresh_intervals: int = 1
-    debug_trace: bool = False
     min_charge_floor: bool = True
     max_infeasible_intervals: int = 0
     solver_name: str = "appsi_highs"
