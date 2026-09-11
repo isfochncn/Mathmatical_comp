@@ -178,6 +178,7 @@ def solve_window(
     price_now_yuan_per_kwh: float | None = None,
     soc_end_fixed_kwh: float | None = None,
     absorption_upper_kwh: np.ndarray | None = None,
+    commitment_lower_kwh: np.ndarray | None = None,
     committed_grid_kwh: np.ndarray | None = None,
     committed_mask: np.ndarray | None = None,
     solver_name: str = DEFAULT_SOLVER,
@@ -250,6 +251,14 @@ def solve_window(
         if cap.size != n:
             raise ValueError(f"absorption_upper_kwh shape should be ({n},), got {cap.shape}")
         m.absorption = pyo.Constraint(m.T, rule=lambda m, t: m.grid[t] <= float(cap[t]))
+
+    if commitment_lower_kwh is not None:
+        lo = np.asarray(commitment_lower_kwh, dtype=np.float64)
+        if lo.size != n:
+            raise ValueError(f"commitment_lower_kwh shape should be ({n},), got {lo.shape}")
+        m.commitment_floor = pyo.Constraint(
+            m.T, rule=lambda m, t: m.grid[t] >= float(lo[t])
+        )
 
     # ---- carry-over of already committed quantities -------------------------
     o_eff = np.zeros(n, dtype=np.float64)

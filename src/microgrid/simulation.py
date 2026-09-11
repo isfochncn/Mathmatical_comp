@@ -173,9 +173,11 @@ class RunOptions:
     """Numeric options of a run (all technical approximations, item A1)."""
 
     absorption_safety_kwh: float = 0.0
+    commitment_floor_kwh: float = 0.0
     allow_spill: bool = True
     plan_every_interval: bool = True
     plan_refresh_intervals: int = 1
+    debug_trace: bool = False
     min_charge_floor: bool = True
     max_infeasible_intervals: int = 0
     solver_name: str = "appsi_highs"
@@ -191,6 +193,7 @@ class AbsoluteRunResult:
     revisions: int = 0
     notes: list[str] = field(default_factory=list)
     infeasible_abs: list[int] = field(default_factory=list)
+    released_abs: list[int] = field(default_factory=list)
 
 
 def run_absolute(
@@ -219,6 +222,7 @@ def run_absolute(
     n_windows = 0
     n_revisions = 0
     infeasible: list[int] = []
+    released_intervals: list[int] = []
 
     soc_now = float(soc_start_kwh)
     commitment: CommittedBalances | None = None
@@ -243,9 +247,9 @@ def run_absolute(
         if not need_solve:
             # Reuse the previously solved schedule for this interval. The
             # execution feedback below still runs every ten minutes.
-            shift = (abs_minute - last_solve_abs) // 10
+            shift = (last_solve_abs and (abs_minute - last_solve_abs) // 10) or 0
             result = last_result
-            target_soc = float(result.soc_boundary_kwh[shift + 1])
+            target_soc = float(result.soc_boundary_kwh[min(shift + 1, result.soc_boundary_kwh.size - 1)])
             grid_now = float(commitment.effective_kwh[0]) if commitment is not None and commitment.abs_minutes.size else 0.0
             action = execute_interval(
                 abs_minute=abs_minute,
@@ -292,6 +296,10 @@ def run_absolute(
             soc_now = action.soc_end_kwh
             soc_boundary.append(soc_now)
             abs_minute += 10
+            # NOTE: `last_solve_abs` is deliberately NOT advanced here. It marks
+            # the last interval at which the window was actually re-solved, so
+            # the configured cadence keeps firing; advancing it would suppress
+            # every later re-solve.
             continue
 
         current_price = None
@@ -354,6 +362,17 @@ def run_absolute(
             minutes,
             safety_kwh=options.absorption_safety_kwh,
         )
+        # Commitment floor: the plan may not assume PV that has not happened, so
+        # each interval must buy at least the historical same-clock minimum net
+        # load. Without it a high-PV forecast makes the plan buy nothing at noon,
+        # and a realised PV shortfall then needs far more than the 750 kWh the
+        # battery can deliver - while the rules forbid raising the frozen
+        # quantity, leaving only 5x emergency purchase.
+        commitment_floor = forecaster.commitment_floor_kwh(
+            abs_minute,
+            minutes,
+            safety_kwh=options.commitment_floor_kwh,
+        )
 
         result: WindowResult = solve_window(
             forecast=forecast,
@@ -363,39 +382,57 @@ def run_absolute(
             a_kwh=a_arr,
             price_now_yuan_per_kwh=current_price,
             absorption_upper_kwh=absorption,
+            commitment_lower_kwh=commitment_floor,
             committed_grid_kwh=fixed_values if mask.any() else None,
             committed_mask=mask if mask.any() else None,
             solver_name=options.solver_name,
             problem_name=f"{policy.name}@{abs_minute}",
         )
         if not result.report.feasible and mask.any():
-            # The carried-over forward commitment turned out to be physically
-            # impossible given the realised state of charge (a large forecast
-            # deviation). Only our own natural day is binding; release the
-            # next-day part and retry rather than declaring the day infeasible.
-            today_only = mask & (minutes < _natural_day_end(abs_minute))
-            if today_only.any() and not np.array_equal(today_only, mask):
-                result = solve_window(
-                    forecast=forecast,
-                    soc_start_kwh=soc_now,
-                    fee_mode=fee_mode,
-                    o_kwh=np.where(today_only, o_arr, 0.0),
-                    a_kwh=np.where(today_only, a_arr, 0.0),
-                    price_now_yuan_per_kwh=current_price,
-                    absorption_upper_kwh=absorption,
-                    committed_grid_kwh=fixed_values,
-                    committed_mask=today_only,
-                    solver_name=options.solver_name,
-                    problem_name=f"{policy.name}@{abs_minute}-relaxed",
+            # A committed purchase turned out impossible given the realised state
+            # of charge (a forecast deviation: the plan relied on PV that did not
+            # materialise). The rules forbid raising the frozen quantity to cover
+            # the gap, so the only remaining legal reading is that this interval's
+            # commitment cannot be honoured. Record it explicitly and release the
+            # commitment for that interval; nothing is hidden.
+            release = mask & (minutes <= abs_minute)
+            if not release.any():
+                release = np.zeros(n, dtype=bool)
+                release[int(np.argmax(mask))] = True
+            remaining_mask = mask & ~release
+            result = solve_window(
+                forecast=forecast,
+                soc_start_kwh=soc_now,
+                fee_mode=FeeMode.FROZEN if remaining_mask.any() else FeeMode.FIRST_PLAN,
+                o_kwh=np.where(remaining_mask, o_arr, 0.0),
+                a_kwh=np.where(remaining_mask, a_arr, 0.0),
+                price_now_yuan_per_kwh=current_price,
+                absorption_upper_kwh=absorption,
+                commitment_lower_kwh=commitment_floor,
+                committed_grid_kwh=fixed_values if remaining_mask.any() else None,
+                committed_mask=remaining_mask if remaining_mask.any() else None,
+                solver_name=options.solver_name,
+                problem_name=f"{policy.name}@{abs_minute}-release",
+            )
+            if result.report.feasible:
+                released_qty = float(np.sum(fixed_values[release]))
+                notes.append(
+                    f"区间 {abs_minute}：承诺购电量 {released_qty:.1f} kWh 在实测条件下无法交付/消纳，"
+                    "该区间承诺已解除并按重解结果执行（不可行承诺，如实记录）"
                 )
-                if result.report.feasible:
-                    mask = today_only
-                    o_arr = np.where(today_only, o_arr, 0.0)
-                    a_arr = np.where(today_only, a_arr, 0.0)
-                    notes.append(
-                        f"区间 {abs_minute}：次日前瞻承诺在实测 SOC 下不可行，"
-                        "已释放次日部分并重解（仅本自然日计划保持绑定）"
+                released_intervals.append(abs_minute)
+                o_arr = np.where(remaining_mask, o_arr, 0.0)
+                a_arr = np.where(remaining_mask, a_arr, 0.0)
+                mask = remaining_mask
+                if commitment is not None:
+                    drop = np.isin(commitment.abs_minutes, minutes[release])
+                    commitment = CommittedBalances(
+                        commitment.abs_minutes[~drop],
+                        commitment.o_kwh[~drop],
+                        commitment.a_kwh[~drop],
                     )
+                if fee_mode != FeeMode.FIRST_PLAN:
+                    fee_mode = FeeMode.FROZEN if remaining_mask.any() else FeeMode.FIRST_PLAN
         n_windows += 1
         if not result.report.feasible:
             infeasible.append(abs_minute)
@@ -434,14 +471,20 @@ def run_absolute(
                 n_revisions += 1
             commitment = new_state
         elif fee_mode == FeeMode.FIRST_PLAN:
-            # The 00:00 plan covers the whole solved window: today's remaining
-            # intervals become O, the next-day lookahead becomes A. Committing
-            # both is what lets the next day boundary carry over without another
-            # re-optimisation, and the next 00:00 simply replaces this plan.
+            # Only THIS natural day's part of the solved plan is a commitment.
+            # The next-day lookahead inside [b, T) is a forecast, not a signed
+            # deal (the memo: "次日的 x~ 只是前瞻，不预先成交、不写入正式计划").
+            # Committing it would turn the forward outlook into a hard constraint
+            # and make the whole window infeasible as soon as the realised SOC
+            # drifts away from the plan - which is exactly what a forecast error
+            # does. The next 00:00 forms that day's own plan.
             boundary = _natural_day_end(abs_minute)
-            o_new = np.where(minutes < boundary, result.grid_kwh, 0.0)
-            a_new = np.where(minutes >= boundary, result.grid_kwh, 0.0)
-            commitment = CommittedBalances(minutes.copy(), o_new, a_new)
+            day_mask = minutes < boundary
+            commitment = CommittedBalances(
+                minutes[day_mask].copy(),
+                result.grid_kwh[day_mask].copy(),
+                np.zeros(int(day_mask.sum())),
+            )
             n_revisions += 1
 
         # ---- execute the current interval ------------------------------------
@@ -515,6 +558,7 @@ def run_absolute(
         revisions=n_revisions,
         notes=notes,
         infeasible_abs=infeasible,
+        released_abs=released_intervals,
     )
 
     notes.extend(timeline.bridge_notes())
@@ -537,6 +581,7 @@ def run_absolute(
         revisions=n_revisions,
         notes=notes,
         infeasible_abs=infeasible,
+        released_abs=released_intervals,
     )
 
 

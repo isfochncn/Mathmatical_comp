@@ -199,6 +199,9 @@ def cmd_export(args: argparse.Namespace) -> int:
 
     data = np.load(npz_path, allow_pickle=True)
     arrays = {k: data[k] for k in data.files}
+    # save_run stores the SOC boundary series under its own key.
+    if "soc_kwh" not in arrays and "soc_boundary_kwh" in arrays:
+        arrays["soc_kwh"] = arrays["soc_boundary_kwh"]
     payload = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}
     row_bills = {
         rec["date"]: rec for rec in payload.get("result_row_bills", [])

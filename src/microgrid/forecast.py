@@ -430,5 +430,45 @@ class Forecaster:
             )
         return cap
 
+    def commitment_floor_kwh(
+        self,
+        now_abs: int,
+        abs_minutes: np.ndarray,
+        *,
+        safety_kwh: float,
+    ) -> np.ndarray:
+        """Lower bound on the normal purchase quantity per interval.
+
+        This is what keeps a signed plan **executable**. The purchase quantity is
+        frozen for the day, but the load and the PV are not: the plan may not
+        assume solar output that has not happened. If the plan buys almost
+        nothing at noon because the PV forecast is high and the actual PV then
+        falls short, the deficit at that single interval can far exceed the
+        750 kWh the battery can deliver, and the rules explicitly forbid raising
+        the committed quantity to cover it - only 5x emergency purchase is left.
+
+        The guard therefore requires each interval's commitment to cover at least
+        the historical same-clock **minimum** net load (load minus PV), which is
+        the smallest net demand actually observed at that time of day::
+
+            grid >= max(0, min(D - G)_same_clock + safety)
+
+        Recorded as a technical approximation (comparison item A1).
+        """
+        clock_intervals = (abs_minutes % MINUTES_PER_DAY) // 10
+        load_samples, n_days = self._same_clock_samples(now_abs, self.timeline.load_kw.values)
+        pv_samples, _ = self._same_clock_samples(now_abs, self.timeline.pv_kw.values)
+        floor = np.zeros(abs_minutes.size, dtype=np.float64)
+        for i, t in enumerate(clock_intervals):
+            if n_days > 0:
+                net_kw = load_samples[:, t] - pv_samples[:, t]
+                floor_kw = float(np.min(net_kw))
+            else:
+                load_kw = float(self.timeline.load_kw.values[:INTERVALS_PER_DAY][t]) * 0.75
+                pv_kw = float(self.timeline.pv_kw.values[:INTERVALS_PER_DAY][t])
+                floor_kw = load_kw - pv_kw
+            floor[i] = max(0.0, floor_kw * DELTA_T_HOURS + float(safety_kwh))
+        return floor
+
 
 __all__ = ["Forecaster", "ForecastRecord", "HISTORY_DAYS", "FALLBACK_HOURS"]

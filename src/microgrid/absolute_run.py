@@ -68,6 +68,10 @@ class RunConfig:
     #: silently, so the choice is recorded in the run summary.
     load_method: str = "same_clock_mean"
     absorption_safety_kwh: float = 600.0
+    #: Lower bound added to the historical same-clock minimum net demand when
+    #: forming a commitment. This is what keeps a frozen plan executable when the
+    #: realised PV falls short; recorded under comparison item A1.
+    commitment_floor_kwh: float = 0.0
     allow_spill: bool = True
     max_infeasible_intervals: int = 0
     solver_name: str = "appsi_highs"
@@ -355,6 +359,7 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         policy=policy,
         options=RunOptions(
             absorption_safety_kwh=config.absorption_safety_kwh,
+            commitment_floor_kwh=config.commitment_floor_kwh,
             allow_spill=config.allow_spill,
             plan_refresh_intervals=config.plan_refresh_intervals,
             max_infeasible_intervals=config.max_infeasible_intervals,
