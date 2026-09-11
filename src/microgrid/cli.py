@@ -1,6 +1,6 @@
-"""统一命令入口。
+"""Unified command entry point.
 
-保留"先审计、后运行、再验证/导出"的顺序（指南第 14 节）。
+Order preserved from the guide: audit first, then run, then validate/export.
 """
 
 from __future__ import annotations
@@ -13,57 +13,38 @@ from pathlib import Path
 
 import numpy as np
 
+from .absolute_run import (
+    POLICIES,
+    RunConfig,
+    run,
+    save_run,
+)
 from .constants import OUTPUT_END, OUTPUT_START, SPECIAL_DATES
 from .data_io import load_all
 from .export import (
-    daily_export_rows,
+    build_daily_rows,
     export_multiday,
     export_result1,
     paper_table1,
     paper_table2,
     paper_table3,
 )
-from .runner import RunConfig, run, save_run
 from .solver import solver_available
 from .timeaxis import calendar_days
 
 
-def _add_common(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--out", default="out", help="输出根目录（默认 out/）")
-    parser.add_argument("--solver", default="appsi_highs", help="Pyomo 求解器名")
-    parser.add_argument("--lookahead-days", type=int, default=2, help="滚动时域天数（含当日）")
-    parser.add_argument(
-        "--terminal-value",
-        choices=("water", "zero"),
-        default="water",
-        help="跨日终端价值口径：water（次日预测价中位数）/ zero（短视对照）",
-    )
-    parser.add_argument("--history-days", type=int, default=28, help="预测回看天数")
-    parser.add_argument(
-        "--demand-bias",
-        type=float,
-        default=1.0,
-        help="规划用负载安全系数（>1 偏保守，降低计划过量风险）",
-    )
-    parser.add_argument("--dispatch-window", type=int, default=24, help="滚动调度窗口（段）")
-    parser.add_argument("--dispatch-lookahead", type=int, default=48, help="滚动调度 LP 视界（段）")
-    parser.add_argument(
-        "--strict-no-surplus",
-        action="store_true",
-        help="禁止把无处安放的富余作为安全阀：出现即判不可行日（规范严格要求）",
-    )
-    parser.add_argument(
-        "--max-infeasible-days", type=int, default=0, help="允许的不可行天数上限，超过即失败"
-    )
+def _parse_date(text: str | None) -> date | None:
+    if not text:
+        return None
+    return date.fromisoformat(text)
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="microgrid", description="2026 C 题微网调控求解器")
     sub = p.add_subparsers(dest="command", required=True)
 
-    audit = sub.add_parser("audit", help="只读审计数据结构与求解器可用性")
-    audit.add_argument("--out", default="out")
-    audit.add_argument("--solver", default="appsi_highs", help="Pyomo 求解器名")
+    audit = sub.add_parser("audit", help="只读审计数据结构、时间映射与求解器可用性")
+    audit.add_argument("--solver", default="appsi_highs")
 
     runp = sub.add_parser("run", help="运行某一问")
     runp.add_argument(
@@ -71,8 +52,26 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         choices=("problem1", "problem2", "problem3", "problem4-2", "problem4-3"),
     )
-    _add_common(runp)
-    runp.add_argument("--no-save", action="store_true", help="不写 out/ 目录")
+    runp.add_argument("--out", default="out")
+    runp.add_argument("--solver", default="appsi_highs")
+    runp.add_argument("--history-days", type=int, default=28)
+    runp.add_argument(
+        "--absorption-safety-kwh",
+        type=float,
+        default=600.0,
+        help="可消纳上限的安全裕度（技术近似，比较事项 A1）",
+    )
+    runp.add_argument(
+        "--plan-refresh-intervals",
+        type=int,
+        default=1,
+        help="窗口 LP 的重算周期（单位：10 分钟段）。1 = 每段重算（规范字面要求）",
+    )
+    runp.add_argument("--run-from", default=None, help="只跑该日期起（YYYY-MM-DD）")
+    runp.add_argument("--run-to", default=None, help="只跑到该日期（YYYY-MM-DD）")
+    runp.add_argument("--max-infeasible-intervals", type=int, default=0)
+    runp.add_argument("--strict-no-spill", action="store_true", help="富余无处安放即判不可行")
+    runp.add_argument("--no-save", action="store_true")
 
     exp = sub.add_parser("export", help="由已保存的运行结果生成结果文件与论文用表")
     exp.add_argument(
@@ -81,7 +80,6 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("problem1", "problem2", "problem3", "problem4-2", "problem4-3"),
     )
     exp.add_argument("--out", default="out")
-
     return p
 
 
@@ -91,24 +89,38 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
-    print("=" * 72)
-    print("数据审计（只读：不修改 data/ 与 Pr/ 下任何文件）")
-    print("=" * 72)
+    print("=" * 78)
+    print("数据与时间轴审计（只读：不修改 data/ 与 Pr/ 下任何文件）")
+    print("=" * 78)
     bundle = load_all()
     a1, a2, a3, a4 = bundle.attachment1, bundle.attachment2, bundle.attachment3, bundle.attachment4
-    print(f"附件1  典型日      144 段：电价 {a1.price_yuan_per_kwh.min():.4f}~{a1.price_yuan_per_kwh.max():.4f} 元/kWh，"
-          f"负载均值 {a1.load_kw.mean():.1f} kW，光伏峰值 {a1.pv_forecast_kw.max():.1f} kW")
-    print(f"附件2  {len(a2.days)} 天 × 144 段：负载 {a2.load_kw.min():.1f}~{a2.load_kw.max():.1f} kW，"
-          f"光伏 {a2.pv_actual_kw.min():.1f}~{a2.pv_actual_kw.max():.1f} kW")
+    print(f"附件1  典型日      144 段：电价 {a1.price_yuan_per_kwh.min():.4f}~{a1.price_yuan_per_kwh.max():.4f} 元/kWh")
+    print(f"附件2  {len(a2.days)} 天 × 144 段：负载 {a2.load_kw.min():.1f}~{a2.load_kw.max():.1f} kW")
     print(f"附件3  {len(a3.blocks)} 条发布块（每天 0/6/12/18），每条 24 小时预报")
     print(f"附件4  {len(a4.days)} 天 × 144 段：电价 {a4.price_yuan_per_kwh.min():.4f}~"
-          f"{a4.price_yuan_per_kwh.max():.4f} 元/kWh，非正价 {int((a4.price_yuan_per_kwh <= 0).sum())} 个")
-    print(f"输出窗口：{OUTPUT_START} .. {OUTPUT_END}（{len(calendar_days(date(*OUTPUT_START), date(*OUTPUT_END)))} 天）+ 1 月预热")
+          f"{a4.price_yuan_per_kwh.max():.4f} 元/kWh")
+
+    from .timeline import build_timeline
+
+    tl = build_timeline(bundle)
+    print()
+    print("绝对时间线：")
+    for n in tl.notes:
+        print("  -", n)
+    for n in tl.bridge_notes():
+        print("  *", n)
+    print()
+    print("时间轴口径（2026-09-11 定稿）：源标签=区间起点；")
+    print("  result 行覆盖 [当日 00:10, 次日 00:10)；自然日时钟 t=0 由上一源日尾值桥接")
+    print("  B_{d,j} = E_{d,j+1}；B_{d,144} = E_{d+1,1} ≠ B_{d+1,0}（相差次日首段一个区间）")
+    print()
+    print(f"输出窗口：{OUTPUT_START} .. {OUTPUT_END}（"
+          f"{len(calendar_days(date(*OUTPUT_START), date(*OUTPUT_END)))} 天）+ 1 月预热")
     print(f"重点日：{', '.join(SPECIAL_DATES)}")
     print(f"求解器 {args.solver}: {'可用' if solver_available(args.solver) else '不可用'}")
     print()
-    print("已确认口径：η_c = η_d = 0.9；每段 q_ch, q_dis ≤ 750 kWh；1200 ≤ E ≤ 10800；")
-    print("            两向电池内部交换功率均不超过 5000 kW 额定；初始 6000 kWh（仅 2025-01-01 0:00）。")
+    print("已冻结口径：η_c = η_d = 0.9；每段 q_ch, q_dis ≤ 750 kWh；1200 ≤ E ≤ 10800；")
+    print("            允许同时充放电（正常损耗核算）；初始 6000 仅 2025-01-01 00:00。")
     return 0
 
 
@@ -121,36 +133,45 @@ def cmd_run(args: argparse.Namespace) -> int:
     config = RunConfig(
         problem=args.problem,
         out_dir=Path(args.out),
-        lookahead_days=args.lookahead_days,
-        terminal_value_mode=args.terminal_value,
         history_days=args.history_days,
+        absorption_safety_kwh=args.absorption_safety_kwh,
+        plan_refresh_intervals=args.plan_refresh_intervals,
+        allow_spill=not args.strict_no_spill,
+        max_infeasible_intervals=args.max_infeasible_intervals,
         solver_name=args.solver,
-        demand_bias=args.demand_bias,
-        dispatch_window=args.dispatch_window,
-        dispatch_lookahead=args.dispatch_lookahead,
-        allow_surplus_safety_valve=not args.strict_no_surplus,
-        max_infeasible_days=args.max_infeasible_days,
+        run_from=_parse_date(args.run_from),
+        run_to=_parse_date(args.run_to),
     )
     result = run(config)
-    print(f"[{args.problem}] 用时 {result.wall_seconds:.1f}s，共 {len(result.days)} 天（含 1 月预热）")
     s = result.summary
-    print(f"  输出天数        {s.n_days}")
-    print(f"  总购电量        {s.total_purchased_kwh:,.3f} kWh")
-    print(f"  紧急购电量      {s.total_emergency_kwh:,.3f} kWh")
-    print(f"  违约金          {s.total_penalty_yuan:,.3f} 元")
-    print(f"  总费用          {s.total_cost_yuan:,.3f} 元")
-    print(f"  期末 SOC        {s.soc_end_kwh:,.3f} kWh")
-    print(f"  最大守恒残差    {s.max_bus_residual_kwh:.3e} kWh")
-    print(f"  最大 SOC 递推误差 {s.max_soc_transition_error_kwh:.3e} kWh")
-    print(f"  同时充放段数    {s.n_simultaneous_intervals}")
-    print(f"  最大母线功率    充 {s.max_bus_charge_kw:,.1f} kW / 放 {s.max_bus_discharge_kw:,.1f} kW")
-    if s.warnings:
-        print("  警告：")
-        for w in s.warnings[:10]:
-            print(f"    - {w}")
+    g = lambda k, d=0.0: float(s.get(k, d))  # noqa: E731
+    print(f"[{args.problem}] 用时 {result.wall_seconds:.1f}s")
+    print(f"  策略              {POLICIES[args.problem].name}"
+          f"（可调计划={POLICIES[args.problem].can_adjust_plan}, "
+          f"用已发布光伏={POLICIES[args.problem].use_published_pv}, "
+          f"价格={POLICIES[args.problem].price_mode}）")
+    print(f"  执行段数          {int(g('n_intervals'))}")
+    print(f"  普通购电          {g('plan_kwh'):,.3f} kWh（原计划）")
+    print(f"  调整增购          {g('add_kwh'):,.3f} kWh")
+    print(f"  紧急购电          {g('emergency_kwh'):,.3f} kWh")
+    print(f"  执行费用          {g('execution_cost_yuan'):,.3f} 元")
+    print(f"  违约金            {g('reduce_cost_yuan'):,.3f} 元")
+    print(f"  总费用            {g('total_cost_yuan'):,.3f} 元")
+    print(f"  SOC 起/末/最小/最大  {g('soc_start_kwh'):,.0f} / {g('soc_end_kwh'):,.0f} / "
+          f"{g('soc_min_kwh'):,.0f} / {g('soc_max_kwh'):,.0f}")
+    print(f"  充电/放电/弃光     {g('charge_total_kwh'):,.0f} / {g('discharge_total_kwh'):,.0f} / "
+          f"{g('curtail_total_kwh'):,.0f} kWh")
+    print(f"  损耗              {g('total_loss_kwh'):,.3f} kWh"
+          f"（同时充放 {int(g('n_simultaneous_intervals'))} 段，属合法运行状态）")
+    print(f"  富余无处安放      {g('surplus_disposed_kwh'):,.3f} kWh（已披露安全阀）")
+    print(f"  窗口求解/计划成文  {int(g('window_solves'))} / {int(g('plan_revisions'))}")
+    infeasible = s.get("infeasible_intervals") or []
+    if infeasible:
+        print(f"  不可行区间        {len(infeasible)} 个")
+    for n in result.notes[:4]:
+        print("  -", n)
     if not args.no_save:
-        run_dir = save_run(result)
-        print(f"  结果目录        {run_dir}")
+        print(f"  结果目录          {save_run(result)}")
     return 0
 
 
@@ -160,74 +181,91 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 
 def cmd_export(args: argparse.Namespace) -> int:
-    from .runner import RunResult, DayRecord  # noqa: F401  (仅用于类型说明)
-
     out_root = Path(args.out)
     run_dir = out_root / args.problem
-    npz_path = run_dir / "trajectories.npz"
+    npz_path = run_dir / "trajectory.npz"
     if not npz_path.exists():
         print(f"找不到 {npz_path}；请先运行 microgrid run --problem {args.problem}", file=sys.stderr)
         return 2
 
-    data = np.load(npz_path)
-    days = [date.fromordinal(int(o)) for o in data["days"]]
-    first = date(*OUTPUT_START)
-
-    from .schemas import Trajectory
-
-    records = []
-    for i, day in enumerate(days):
-        # 1 月是预热期，不进入结果文件；但问题一是典型日，本身标在 1 月 1 日
-        if day < first and args.problem != "problem1":
-            continue
-        traj = Trajectory(
-            day=day,
-            grid_actual_kwh=data["grid"][i],
-            emergency_actual_kwh=data["emergency"][i],
-            charge_stored_kwh=data["charge"][i],
-            discharge_delivered_kwh=data["discharge"][i],
-            curtail_kwh=data["curtail"][i],
-            soc_kwh=data["soc"][i],
-            price_actual=data["price"][i],
-        )
-        records.append((day, traj, data["plan_initial"][i], data["final_plan"][i]))
+    data = np.load(npz_path, allow_pickle=True)
+    arrays = {k: data[k] for k in data.files}
 
     if args.problem == "problem1":
-        if not records:
-            print("运行结果里没有可导出的日期", file=sys.stderr)
-            return 2
-
-        class _Rec:
-            """仅承载导出所需字段的轻量容器。"""
-
-        rec = _Rec()
-        rec.trajectory = records[0][1]
-        rec.day = records[0][0]
         dest = run_dir / "result"
-        path = export_result1(rec, dest)
+        path = export_result1(arrays, dest)
         print(f"已写出 {path}")
         return 0
 
-    # 多日结果：重建账单后导出
+    # Rebuild export rows from the saved trajectory and bills.
+    from .absolute_run import RunConfig, abs_minute_of_result_cell, natural_day_bounds
+    from .constants import OUTPUT_START as _OS
+    from .schemas import AbsoluteStep
+    from .timeline import MINUTES_PER_DAY
+
+    minutes = arrays["abs_minute"]
+    steps = [
+        AbsoluteStep(
+            abs_minute=int(minutes[i]),
+            grid_kwh=float(arrays["grid_kwh"][i]),
+            emergency_kwh=float(arrays["emergency_kwh"][i]),
+            charge_kwh=float(arrays["charge_kwh"][i]),
+            discharge_kwh=float(arrays["discharge_kwh"][i]),
+            curtail_kwh=float(arrays["curtail_kwh"][i]),
+            surplus_kwh=float(arrays["surplus_kwh"][i]),
+            soc_end_kwh=float(arrays["soc_kwh"][i + 1]),
+            price_actual_yuan_per_kwh=float(arrays["price_actual"][i]),
+        )
+        for i in range(minutes.size)
+    ]
+    step_index = {s.abs_minute: s for s in steps}
+
+    # bills: reuse daily_bills.csv (written by save_run)
+    import csv
+
+    day_bills: dict[str, dict[str, float]] = {}
+    row_bills: dict[str, dict[str, float]] = {}
+    with (run_dir / "daily_bills.csv").open(encoding="utf-8") as fh:
+        for rec in csv.DictReader(fh):
+            target = day_bills if rec["window"] == "natural_day" else row_bills
+            target[rec["date"]] = {k: float(v) for k, v in rec.items() if k not in ("window", "date") and v not in ("", None)}
+
     from .export import DailyExportRow
-    from .settlement import settle_trajectory
 
     rows: list[DailyExportRow] = []
-    for day, traj, plan_initial, final_plan in records:
-        bill = settle_trajectory(traj, initial_plan_kwh=plan_initial)
+    for day_text in sorted(row_bills):
+        day = date.fromisoformat(day_text)
+        if day < date(*_OS):
+            continue
+        row = row_bills[day_text]
+        grid = np.zeros(144)
+        emg = np.zeros(144)
+        ch = np.zeros(144)
+        dis = np.zeros(144)
+        for j in range(144):
+            abs_minute = abs_minute_of_result_cell(day, j)
+            st = step_index.get(abs_minute)
+            if st is not None:
+                grid[j] = st.grid_kwh
+                emg[j] = st.emergency_kwh
+                ch[j] = st.charge_kwh
+                dis[j] = st.discharge_kwh
+        df, _dt = natural_day_bounds(day)
+        soc_start = float(arrays["soc_kwh"][int(np.searchsorted(minutes, df))]) if minutes.size else float("nan")
+        soc_end = float(arrays["soc_kwh"][int(np.searchsorted(minutes, df + MINUTES_PER_DAY))]) if minutes.size else float("nan")
         rows.append(
             DailyExportRow(
                 day=day,
-                plan_initial_kwh=plan_initial,
-                final_plan_kwh=final_plan,
-                grid_actual_kwh=traj.grid_actual_kwh,
-                emergency_actual_kwh=traj.emergency_actual_kwh,
-                charge_stored_kwh=traj.charge_stored_kwh,
-                discharge_delivered_kwh=traj.discharge_delivered_kwh,
-                soc_start_kwh=float(traj.soc_kwh[0]),
-                soc_end_kwh=float(traj.soc_kwh[-1]),
-                purchase_cost_yuan=float(bill.purchase_cost_yuan),
-                penalty_yuan=float(bill.penalty_yuan),
+                plan_initial_kwh=grid.copy(),
+                final_plan_kwh=grid.copy(),
+                grid_actual_kwh=grid,
+                emergency_actual_kwh=emg,
+                charge_stored_kwh=ch,
+                discharge_delivered_kwh=dis,
+                soc_natural_start_kwh=soc_start,
+                soc_natural_end_kwh=soc_end,
+                execution_cost_yuan=row["execution_cost_yuan"],
+                reduce_cost_yuan=row["reduce_cost_yuan"],
             )
         )
 
@@ -240,7 +278,6 @@ def cmd_export(args: argparse.Namespace) -> int:
     )
     print(f"已写出 {path}（{len(rows)} 天）")
 
-    # 论文用表
     specials = [r for r in rows if r.day.isoformat() in SPECIAL_DATES]
     tables = {
         "paper_table1.csv": paper_table1(specials),
@@ -249,10 +286,10 @@ def cmd_export(args: argparse.Namespace) -> int:
     }
     for name, tbl in tables.items():
         p = run_dir / name
-        keys = sorted({k for row in tbl for k in row})
+        keys = sorted({k for row_ in tbl for k in row_})
         lines = [",".join(keys)]
-        for row in tbl:
-            lines.append(",".join(str(row.get(k, "")) for k in keys))
+        for row_ in tbl:
+            lines.append(",".join(str(row_.get(k, "")) for k in keys))
         p.write_text("\n".join(lines) + "\n", encoding="utf-8-sig")
         print(f"已写出 {p}（{len(tbl)} 行）")
     return 0
