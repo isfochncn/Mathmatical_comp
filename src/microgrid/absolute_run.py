@@ -483,6 +483,21 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         "max_bus_charge_kw": float(np.max(arrays["charge_kwh"]) * 6 / 0.9),
         "max_bus_discharge_kw": float(np.max(arrays["discharge_kwh"]) * 6),
     }
+    # ``grid_kwh`` stores the delivered normal purchase O + A, which loses the
+    # split the settlement needs: the plan fee applies to O at the normal rate
+    # while the adjustment fee applies to A at 1.5x. Problem 3 / 4-3 must also
+    # export an "adjustment" sheet, so the two components are kept separately
+    # instead of being inferred from a total that cannot be decomposed.
+    minutes_all = arrays["abs_minute"]
+    plan_exec = np.zeros(minutes_all.size, dtype=np.float64)
+    add_exec = np.zeros(minutes_all.size, dtype=np.float64)
+    exec_index = {int(m): i for i, m in enumerate(minutes_all)}
+    for e in all_events:
+        i = exec_index.get(int(e.at_abs))
+        if i is not None:
+            plan_exec[i] = float(e.o_exec_kwh)
+            add_exec[i] = float(e.a_exec_kwh)
+
     return RunResult(
         problem=config.problem,
         config=config,
@@ -494,6 +509,7 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         wall_seconds=wall,
         input_fingerprint=input_fingerprint(_data_paths()),
         notes=outcome.notes,
+        export_arrays={"plan_exec_kwh": plan_exec, "add_exec_kwh": add_exec},
     )
 
 

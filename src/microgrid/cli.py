@@ -239,6 +239,19 @@ def cmd_export(args: argparse.Namespace) -> int:
         soc_by_abs[int(m)] = float(arrays["soc_kwh"][i])
         soc_by_abs[int(m) + 10] = float(arrays["soc_kwh"][i + 1])
 
+    # The two plan sheets are different objects and must not be conflated:
+    #   * "计划购电量"    = the normal purchase O that the signed plan delivers;
+    #   * "调整购电量"    = the effective purchase after intra-day revisions,
+    #                      i.e. O + A, whose excess over the plan sheet is the
+    #                      adjustment A charged at the 1.5x rate.
+    # For problem 3 / 4-3 the adjustment sheet must actually differ from the plan
+    # sheet, so O and A are read separately from the saved execution arrays. When
+    # those arrays are absent (older artifacts) the two sheets would be identical,
+    # which would silently claim "no adjustment ever happened" — so say so.
+    plan_exec = arrays.get("plan_exec_kwh")
+    add_exec = arrays.get("add_exec_kwh")
+    has_split = plan_exec is not None and add_exec is not None
+
     rows: list[DailyExportRow] = []
     for day_text in sorted(row_bills):
         day = date.fromisoformat(day_text)
@@ -249,6 +262,8 @@ def cmd_export(args: argparse.Namespace) -> int:
         emg = np.zeros(144)
         ch = np.zeros(144)
         dis = np.zeros(144)
+        plan = np.zeros(144)
+        adjust = np.zeros(144)
         for j in range(144):
             abs_minute = abs_minute_of_result_cell(day, j)
             idx = step_index.get(abs_minute)
@@ -257,12 +272,19 @@ def cmd_export(args: argparse.Namespace) -> int:
                 emg[j] = float(arrays["emergency_kwh"][idx])
                 ch[j] = float(arrays["charge_kwh"][idx])
                 dis[j] = float(arrays["discharge_kwh"][idx])
+                if has_split:
+                    plan[j] = float(plan_exec[idx])
+                    adjust[j] = float(add_exec[idx])
         df, _dt = natural_day_bounds(day)
         rows.append(
             DailyExportRow(
                 day=day,
-                plan_initial_kwh=grid.copy(),
-                final_plan_kwh=grid.copy(),
+                # "00:00 plan" is the signed commitment effective at midnight,
+                # which for every interval of day d is the plan formed then; the
+                # intra-day revisions are the deltas.
+                plan_initial_kwh=plan if has_split else grid.copy(),
+                # effective purchase = O + (intra-day revisions)
+                final_plan_kwh=(plan + adjust) if has_split else grid.copy(),
                 grid_actual_kwh=grid,
                 emergency_actual_kwh=emg,
                 charge_stored_kwh=ch,
@@ -275,11 +297,18 @@ def cmd_export(args: argparse.Namespace) -> int:
         )
 
     dest = run_dir / "result"
+    wants_adjust = args.problem in ("problem3", "problem4-3")
+    if wants_adjust and not has_split:
+        print(
+            "警告：轨迹里没有 O/A 拆分（plan_exec_kwh / add_exec_kwh），"
+            "无法还原日内调整量，调整购电量表将留空；请用当前版本重跑该问。",
+            file=sys.stderr,
+        )
     path = export_multiday(
         args.problem,
         rows,
         dest,
-        with_adjust_sheet=args.problem in ("problem3", "problem4-3"),
+        with_adjust_sheet=wants_adjust,
     )
     print(f"已写出 {path}（{len(rows)} 天）")
 

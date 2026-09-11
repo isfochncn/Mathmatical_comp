@@ -209,6 +209,63 @@ for name, run_dir in RUNS.items():
             f"{delta_q:+.3f} kWh (expected non-zero: different windows)"
         )
 
+    # Problem 3 / 4-3 declare an adjustment sheet. It must carry the effective
+    # purchase O + A, NOT a copy of the plan sheet: a copy would silently report
+    # that no adjustment ever happened. Compare against the O/A arrays the run
+    # saved, restricted to exactly the cells the two sheets cover.
+    if name in ("result3.xlsx", "result4-3.xlsx"):
+        npz_path = Path(run_dir) / "trajectory.npz"
+        data = np.load(npz_path, allow_pickle=True)
+        keys = set(data.files)
+        check(
+            {"plan_exec_kwh", "add_exec_kwh"} <= keys,
+            f"{name} 轨迹保存了 O/A 拆分（plan_exec_kwh / add_exec_kwh）",
+        )
+        if {"plan_exec_kwh", "add_exec_kwh"} <= keys:
+            minutes_all = data["abs_minute"].astype(np.int64)
+            idx_of = {int(m): i for i, m in enumerate(minutes_all)}
+            plan_exec, add_exec = data["plan_exec_kwh"], data["add_exec_kwh"]
+            wb = load_workbook(Path(run_dir) / "result" / name, read_only=True, data_only=True)
+            ws_plan = wb["计划购电量"]
+            ws_adj = wb["调整购电量"]
+            plan_cells = list(
+                ws_plan.iter_rows(min_row=2, max_row=335, min_col=2, max_col=145, values_only=True)
+            )
+            adj_cells = list(
+                ws_adj.iter_rows(min_row=2, max_row=335, min_col=2, max_col=145, values_only=True)
+            )
+            wb.close()
+
+            bad_plan = bad_adj = 0
+            exp_plan = exp_adj = 0.0
+            n_diff = 0
+            for i, day_text in enumerate(out_dates):
+                day = date.fromisoformat(day_text)
+                for j in range(144):
+                    base = (day - date(2025, 1, 1)).days * MINUTES_PER_DAY
+                    o = idx_of.get(base + (j + 1) * 10)
+                    if o is None:
+                        continue
+                    o_kwh = float(plan_exec[o])
+                    a_kwh = float(add_exec[o])
+                    exp_plan += o_kwh
+                    exp_adj += o_kwh + a_kwh
+                    vp = float(plan_cells[i][j] or 0.0)
+                    va = float(adj_cells[i][j] or 0.0)
+                    if abs(vp - o_kwh) > 1e-6:
+                        bad_plan += 1
+                    if abs(va - (o_kwh + a_kwh)) > 1e-6:
+                        bad_adj += 1
+                    if abs(vp - va) > 1e-6:
+                        n_diff += 1
+            check(bad_plan == 0, f"{name} 计划购电量表 = O^exec（{bad_plan} 个单元格不符）")
+            check(bad_adj == 0, f"{name} 调整购电量表 = O^exec + A^exec（{bad_adj} 个单元格不符）")
+            check(
+                n_diff > 0 or exp_adj - exp_plan <= 1e-6,
+                f"{name} 调整表与计划表确有差异（{n_diff} 个单元格不同；"
+                f"两表差额合计 {exp_adj - exp_plan:,.3f} kWh = A^exec 之和）",
+            )
+
 # ---------------------------------------------------------------------------
 section("6) charge/discharge blocks and SOC vs the 10-minute trajectory")
 for name, run_dir in RUNS.items():

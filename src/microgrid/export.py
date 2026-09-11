@@ -392,7 +392,11 @@ def build_daily_rows(result) -> list[DailyExportRow]:
                 dis[j] = step.discharge_kwh
             ev = events.get(abs_minute)
             if ev is not None:
-                plan[j] = ev.o_exec_kwh + ev.a_exec_kwh
+                # "计划购电量" is the signed normal purchase O; "调整购电量" is the
+                # effective purchase after the intra-day revision, i.e. O + A.
+                # Setting both to O + A (as an earlier version did) made the
+                # adjustment sheet an exact copy of the plan sheet.
+                plan[j] = ev.o_exec_kwh
                 final[j] = ev.o_exec_kwh + ev.a_exec_kwh
                 exec_cost += ev.cost_yuan
         row_bill = dict(result.row_bills)[day]
