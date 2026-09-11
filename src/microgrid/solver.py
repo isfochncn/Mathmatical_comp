@@ -15,6 +15,14 @@ HiGHS 通过 Pyomo 有两条接口，两者对"不可行"和"取解"的行为不
 
 本模块优先用 1；若该后端不可用则退回 2。**任何取解失败都判为失败并返回
 不可行报告，绝不允许把变量初值当成最优解。**
+
+结构复用（2026 版新增）
+------------------------
+``solve_model`` 接受一个可选的既有求解器实例 ``solver``。同一个 Pyomo 模型
+对象 + 同一个 appsi 实例时，``opt.solve()`` 走 appsi 的 ``update()`` 增量路径
+（只把改动的参数、约束边界、目标系数推给 HiGHS），而不是 ``set_instance()``
+重新翻译整个模型；这正是滚动窗口逐次重解时的主要开销来源。
+默认 ``solver=None`` 的行为与改动前完全一致。
 """
 
 from __future__ import annotations
@@ -57,6 +65,17 @@ def _fail(problem: str, solver_name: str, wall: float, message: str) -> SolveRep
     )
 
 
+def make_appsi_solver(solver_name: str = DEFAULT_SOLVER):
+    """取得一个可复用的原生 appsi 求解器实例（非 appsi 名称返回 None）。
+
+    复用同一个求解器实例的意义：appsi 的 ``solve(model)`` 会先比较
+    ``model is self._model``——相同则走 ``update()`` 增量路径，只把改动的
+    参数/边界推给 HiGHS；不同则 ``set_instance()`` 把整个模型重新翻译一遍。
+    结构复用的场景（同一个 Pyomo 模型只改参数取值）因此必须复用实例。
+    """
+    return _appsi_solver(solver_name)
+
+
 def solve_model(
     model: pyo.ConcreteModel,
     problem: str,
@@ -65,8 +84,15 @@ def solve_model(
     tee: bool = False,
     time_limit_s: float | None = None,
     mip_gap: float | None = None,
+    solver: object | None = None,
 ) -> SolveReport:
-    """求解并返回 :class:`SolveReport`。不吞异常、不伪造成功。"""
+    """求解并返回 :class:`SolveReport`。不吞异常、不伪造成功。
+
+    ``solver``
+        可选的既有求解器实例。传入与 ``model`` 绑定的同一实例时，appsi 只做
+        增量更新，不再把模型重新传给 HiGHS；传 None（默认）时行为与改动前
+        完全一致——每次新建实例、整模型传输。
+    """
     if not solver_available(solver_name):
         raise RuntimeError(
             f"求解器 {solver_name} 不可用。请先安装 highspy（pip install highspy）。"
@@ -77,7 +103,7 @@ def solve_model(
         t0 = time.perf_counter()
         if solver_name.startswith("appsi"):
             report = _solve_appsi(
-                model, problem, solver_name, tee, time_limit_s, mip_gap, t0
+                model, problem, solver_name, tee, time_limit_s, mip_gap, t0, solver
             )
         else:
             report = _solve_legacy(
@@ -132,6 +158,28 @@ def _appsi_solver(solver_name: str):
     return None
 
 
+def _reset_solver_state(opt: object) -> bool:
+    """丢掉 HiGHS 上一轮求解留下的基/解状态，使下一次 ``run()`` 是冷启动。
+
+    为什么复用实例必须做这一步：模型对象不变时 appsi 走 ``update()`` 增量路径，
+    HiGHS 会拿上一次的单纯形基做热启动；在退化的 LP 上热启动可能收敛到另一个
+    最优顶点，解向量会差几个 ULP。滚动仿真要求"复用结构"与"每次重建"逐位一致
+    （每次重建时 HiGHS 本来也是冷启动），所以复用路径强制冷启动。
+    这不会削弱求解：模型、变量、约束、目标、边界一字未改，只是丢弃基。
+
+    返回 False 表示该 highspy 版本没有 ``clearSolver``，无法保证冷启动。
+    """
+    model = getattr(opt, "_solver_model", None)
+    if model is None:
+        # 还没绑定任何模型，本来就没有上一轮的基要清。
+        return True
+    clear = getattr(model, "clearSolver", None)
+    if clear is None:
+        return False
+    clear()
+    return True
+
+
 def _solve_appsi(
     model: pyo.ConcreteModel,
     problem: str,
@@ -140,10 +188,14 @@ def _solve_appsi(
     time_limit_s: float | None,
     mip_gap: float | None,
     t0: float,
+    solver: object | None = None,
 ) -> SolveReport:
-    opt = _appsi_solver(solver_name)
+    opt = solver if solver is not None else _appsi_solver(solver_name)
     if opt is None:
         return _fail(problem, solver_name, time.perf_counter() - t0, "非 appsi 求解器名")
+    if solver is not None and not _reset_solver_state(opt):
+        # 清不掉上一轮的基就不能保证与冷启动一致，退回"每次新建实例"的老路子。
+        opt = _appsi_solver(solver_name)
     # 关键：不要自动加载。不可行时原生接口不会抛异常，而是给出终止条件。
     opt.config.load_solution = False
     if tee:
@@ -253,4 +305,4 @@ def _solve_legacy(
     )
 
 
-__all__ = ["solve_model", "solver_available", "DEFAULT_SOLVER"]
+__all__ = ["solve_model", "solver_available", "make_appsi_solver", "DEFAULT_SOLVER"]
