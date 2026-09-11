@@ -1,46 +1,47 @@
-"""结算层：实际执行计费、费率分类与违约累计。
+"""Settlement: three fee labels, O/A recursion and independent recomputation.
 
-本模块**必须先于优化器实现**（备忘录第 4 节）。
+Rules fixed on 2026-09-11 (memo section 6)
+------------------------------------------
+Every not-yet-executed interval carries two committed remainders:
 
-结算口径（备忘录第 5 节，已冻结）
---------------------------------
-1. ``x`` 为 0 点策略，``y^(k)`` 为允许节点更新后的策略，最终普通实际购电记 ``h``，
-   紧急实际购电记 ``u``。以每天 0 点为统计起点：:math:`Q_d^{act}=\\sum_t(h_{d,t}+u_{d,t})`。
-2. 被修改放弃的**未执行**计划量不计入 Q，不计其电费，**也不要求在最终购电表中列出**。
-   已执行量不可追溯取消。
-3. 违约费保留：在调整时刻 a，针对允许修改的未执行区间
-   :math:`K_a = 0.5\\,p_a\\sum_t [y^{old}_t-y^{new}_t]_+`，``p_a`` 为**调整当时**的实时电价。
-   后来恢复计划不抹掉该违约金。
-4. 最终费用
-   :math:`C_d^{act}=\\sum_{e\\in\\mathcal E_d}\\alpha_e c_e q_e^{act}+\\sum_a K_a`，
-   费率 α 为 普通 1 / 实际调整增购 1.5 / 紧急 5。
-   事件类别由**当时真实执行动作**确定，不用最终相对 0 点的净差额重新分类。
+* ``O`` - the original day plan remainder,
+* ``A`` - the adjustment-purchase remainder,
 
-三条不变量（规范第 16 节）
---------------------------
-* 实际执行即计费；未来候选策略不是已购买量，不得把每轮预测购电费用重复累计；
-* 被放弃的未执行方案电费净额为零；
-* 相同最终购电量不保证费用相同——最终费用还包含已发生违约金。
+with effective quantity ``y = O + A``; at the start of the day ``O = x``, ``A = 0``.
+A revision at an allowed node ``a`` choosing new value ``y'`` gives
+
+    O' = min(O, y'),  A' = [y' - O]_+,  delta^- = [O + A - y']_+
+
+and each revision charges ``0.5 * p_a^act * delta^-`` at the **real moment** it
+happens. The bookkeeping convention is "reduce A first then O; restored quantity
+counts as A" - it is a stated convention, not a contract-batch model.
+
+Executed fees:
+
+    L_plan   = p_s^act * O^exec
+    L_add    = 1.5 * p_s^act * A^exec
+    L_reduce = sum_a 0.5 * p_a^act * delta^-_{a,s}
+    L_emg    = 5 * p_s^act * u_s
+
+The 1.5 multiplier therefore applies to the **executed adjustment quantity
+A^exec**, not to "whatever exceeds the 00:00 plan". Those two differ whenever a
+plan has been revised, and the gold cases below pin the difference down.
 """
 
 from __future__ import annotations
 
-from datetime import date
+from dataclasses import dataclass, field
 
 import numpy as np
 
 from .constants import (
     FEE_ADJUST_UP,
     FEE_EMERGENCY,
-    FEE_NORMAL,
     FEE_PENALTY_DOWN,
-    FEE_RATE_BY_CLASS,
-    N_INTERVAL,
     TOL_COST_YUAN,
     TOL_ENERGY_KWH,
-    FeeClass,
 )
-from .schemas import ActivePlan, Bill, ExecutedEvent, PlanUpdate, Trajectory
+from .schemas import CommittedBalances, DispatchEvent, PenaltyEvent
 
 
 class SettlementError(RuntimeError):
@@ -48,275 +49,302 @@ class SettlementError(RuntimeError):
 
 
 # ==========================================================================
-# 1. 违约累计
+# 1. Fee labels
 # ==========================================================================
 
 
-def plan_reduction(
-    old_plan: ActivePlan, new_plan: ActivePlan, new_created_at_interval: int
+def fee_label_costs(
+    o_exec_kwh: float, a_exec_kwh: float, emergency_kwh: float, price: float
+) -> dict[str, float]:
+    """The three executed labels plus the emergency label, at one moment."""
+    return {
+        "plan": price * o_exec_kwh,
+        "add": FEE_ADJUST_UP * price * a_exec_kwh,
+        "emergency": FEE_EMERGENCY * price * emergency_kwh,
+    }
+
+
+def event_cost_yuan(event: DispatchEvent) -> float:
+    return event.cost_yuan
+
+
+def penalty_cost_yuan(events: list[PenaltyEvent]) -> float:
+    return float(sum(e.penalty_yuan for e in events))
+
+
+# ==========================================================================
+# 2. Revision and penalty
+# ==========================================================================
+
+
+def revise_commitment(
+    state: CommittedBalances,
+    new_y_kwh: np.ndarray,
+    *,
+    at_abs: int,
+    price_at_yuan_per_kwh: float,
+) -> tuple[CommittedBalances, PenaltyEvent | None]:
+    """Apply one allowed revision and record its penalty event.
+
+    Returns the new O/A state and the penalty event (None when nothing was cut).
+    """
+    new_state, delta_minus = state.revise(new_y_kwh)
+    if float(np.sum(delta_minus)) <= TOL_ENERGY_KWH:
+        return new_state, None
+    event = PenaltyEvent(
+        at_abs=at_abs,
+        price_at_yuan_per_kwh=float(price_at_yuan_per_kwh),
+        reduced_kwh=delta_minus,
+        reduced_abs=state.abs_minutes.copy(),
+    )
+    return new_state, event
+
+
+def reduce_quantity_for_event(
+    o_kwh: np.ndarray, a_kwh: np.ndarray, y_new_kwh: np.ndarray
 ) -> np.ndarray:
-    """计算 δ^-_{a,t} = [y^old_t - y^new_t]_+。
-
-    只有**尚未执行**的区间可修改；已执行区间 a 之前的部分不计减少量
-    （已执行量不可追溯取消）。
-    """
-    a = new_created_at_interval
-    old = np.asarray(old_plan.grid_kwh, dtype=np.float64)
-    new = np.asarray(new_plan.grid_kwh, dtype=np.float64)
-    delta = np.zeros(N_INTERVAL, dtype=np.float64)
-    if a < N_INTERVAL:
-        delta[a:] = np.maximum(old[a:] - new[a:], 0.0)
-    return delta
-
-
-def penalty_for_adjustment(
-    old_plan: ActivePlan, new_plan: ActivePlan, price_at_interval: float
-) -> PlanUpdate:
-    """一次调整产生的违约金记录。
-
-    ``price_at_interval`` 是**调整当时**的实时电价 p_a，不是目标交付区间的价格。
-    """
-    a = new_plan.created_at_interval
-    reduced = plan_reduction(old_plan, new_plan, a)
-    penalty = FEE_PENALTY_DOWN * float(price_at_interval) * float(reduced.sum())
-    return PlanUpdate(
-        at_interval=a,
-        price_at_interval_yuan_per_kwh=float(price_at_interval),
-        reduced_kwh=reduced,
-        penalty_yuan=penalty,
+    """``delta^- = [O + A - y']_+`` - the quantity that incurs the 0.5 penalty."""
+    return np.maximum(
+        np.asarray(o_kwh, dtype=np.float64)
+        + np.asarray(a_kwh, dtype=np.float64)
+        - np.asarray(y_new_kwh, dtype=np.float64),
+        0.0,
     )
 
 
-def accumulate_penalty(updates: list[PlanUpdate]) -> float:
-    """已发生违约金合计。后来恢复计划不抹掉已发生的 K_a。"""
-    return float(sum(u.penalty_yuan for u in updates))
-
-
 # ==========================================================================
-# 2. 实际执行事件的费率分类
+# 3. Bills
 # ==========================================================================
 
 
-def classify_executed(
-    grid_actual_kwh: np.ndarray,
-    emergency_actual_kwh: np.ndarray,
-    price_actual: np.ndarray,
-    day: date,
-    initial_plan_kwh: np.ndarray | None = None,
-    adjust_events: dict[int, float] | None = None,
-) -> list[ExecutedEvent]:
-    """把实际执行轨迹翻译成计费事件。
+@dataclass
+class LabelTotals:
+    """Quantity and cost split by fee label, over one reporting window."""
 
-    Parameters
-    ----------
-    grid_actual_kwh : (144,) 普通实际购电 h_t
-    emergency_actual_kwh : (144,) 紧急实际购电 u_t
-    price_actual : (144,) 事件执行当时的价格 c_e
-    initial_plan_kwh : (144,) 0 点原计划 x_t。仅用于 4-3 的"实际调整增购"分类：
-        在某次调整生效之后执行的区间，超过**该次调整前有效计划**的部分按 1.5 倍计费。
-        传入 None（问题一/二/4-2，或分档模式）时，改用解释 (a)：
-        超过 0 点原计划的部分按 1.5 倍。
-    adjust_events : {调整段号: 调整前该段的有效计划量}。键是调整发生的段号，
-        值是**调整前**的有效计划值（用于计算超出量）。
+    plan_kwh: float = 0.0
+    add_kwh: float = 0.0
+    emergency_kwh: float = 0.0
+    plan_cost_yuan: float = 0.0
+    add_cost_yuan: float = 0.0
+    emergency_cost_yuan: float = 0.0
+    reduce_cost_yuan: float = 0.0
+
+    @property
+    def total_kwh(self) -> float:
+        return self.plan_kwh + self.add_kwh + self.emergency_kwh
+
+    @property
+    def execution_cost_yuan(self) -> float:
+        return self.plan_cost_yuan + self.add_cost_yuan + self.emergency_cost_yuan
+
+    @property
+    def total_cost_yuan(self) -> float:
+        return self.execution_cost_yuan + self.reduce_cost_yuan
+
+    def as_dict(self) -> dict[str, float]:
+        return {
+            "plan_kwh": self.plan_kwh,
+            "add_kwh": self.add_kwh,
+            "emergency_kwh": self.emergency_kwh,
+            "total_kwh": self.total_kwh,
+            "plan_cost_yuan": self.plan_cost_yuan,
+            "add_cost_yuan": self.add_cost_yuan,
+            "emergency_cost_yuan": self.emergency_cost_yuan,
+            "execution_cost_yuan": self.execution_cost_yuan,
+            "reduce_cost_yuan": self.reduce_cost_yuan,
+            "total_cost_yuan": self.total_cost_yuan,
+        }
+
+
+def _accumulate(event: DispatchEvent, into: LabelTotals) -> None:
+    c = fee_label_costs(event.o_exec_kwh, event.a_exec_kwh, event.emergency_kwh, event.price_actual_yuan_per_kwh)
+    into.plan_kwh += event.o_exec_kwh
+    into.add_kwh += event.a_exec_kwh
+    into.emergency_kwh += event.emergency_kwh
+    into.plan_cost_yuan += c["plan"]
+    into.add_cost_yuan += c["add"]
+    into.emergency_cost_yuan += c["emergency"]
+
+
+def natural_day_bill(
+    day_from_abs: int,
+    day_to_abs: int,
+    events: list[DispatchEvent],
+    penalties: list[PenaltyEvent],
+) -> LabelTotals:
+    """Natural-day bill over [day 00:00, day 24:00).
+
+    Events and penalties are attributed by the **real moment they happened**;
+    a penalty recorded while adjusting a later delivery interval still belongs
+    to the day it happened on.
     """
-    h = np.asarray(grid_actual_kwh, dtype=np.float64)
-    u = np.asarray(emergency_actual_kwh, dtype=np.float64)
-    c = np.asarray(price_actual, dtype=np.float64)
-    for name, arr in (("grid_actual_kwh", h), ("emergency_actual_kwh", u), ("price_actual", c)):
-        if arr.shape != (N_INTERVAL,):
-            raise SettlementError(f"{name} 应为 ({N_INTERVAL},)，得到 {arr.shape}")
+    out = LabelTotals()
+    for e in events:
+        if day_from_abs <= e.at_abs < day_to_abs:
+            _accumulate(e, out)
+    for p in penalties:
+        if day_from_abs <= p.at_abs < day_to_abs:
+            out.reduce_cost_yuan += p.penalty_yuan
+    return out
 
-    # 每个区间的 1.5 倍计费基准
-    #   未提供 0 点计划（问题一/二/4-2，或分档模式）时，基准取实际普通购电本身，
-    #   于是不会凭空产生"实际调整增购"，全部按普通 1 倍计费。
-    if initial_plan_kwh is None:
-        baseline = h.copy()
-    else:
-        baseline = np.asarray(initial_plan_kwh, dtype=np.float64).copy()
-        if adjust_events:
-            # 调整时刻 a 起，基准换成"调整前该次生效的有效计划"，而非 0 点原计划
-            for at_interval in sorted(adjust_events):
-                prev_plan = np.asarray(adjust_events[at_interval], dtype=np.float64)
-                if prev_plan.shape == ():
-                    baseline[at_interval:] = float(prev_plan)
-                else:
-                    if prev_plan.shape != (N_INTERVAL,):
-                        raise SettlementError("adjust_events 的值必须是标量或 (144,) 数组")
-                    baseline[at_interval:] = prev_plan[at_interval:]
 
-    events: list[ExecutedEvent] = []
-    for t in range(N_INTERVAL):
-        if h[t] > TOL_ENERGY_KWH:
-            up = min(h[t], max(h[t] - baseline[t], 0.0))
-            normal = h[t] - up
-            if normal > TOL_ENERGY_KWH:
-                events.append(
-                    ExecutedEvent(day, t, normal, float(c[t]), FeeClass.NORMAL)
-                )
-            if up > TOL_ENERGY_KWH:
-                events.append(
-                    ExecutedEvent(day, t, up, float(c[t]), FeeClass.ADJUST_UP)
-                )
-        if u[t] > TOL_ENERGY_KWH:
-            events.append(ExecutedEvent(day, t, float(u[t]), float(c[t]), FeeClass.EMERGENCY))
-    return events
+def result_row_bill(
+    row_from_abs: int,
+    row_to_abs: int,
+    events: list[DispatchEvent],
+    penalties: list[PenaltyEvent],
+) -> LabelTotals:
+    """Result-row bill over [day 00:10, next day 00:10).
+
+    Explicitly different from the natural-day window; the two totals are not
+    expected to be equal without the boundary conversion.
+    """
+    out = LabelTotals()
+    for e in events:
+        if row_from_abs <= e.at_abs < row_to_abs:
+            _accumulate(e, out)
+    for p in penalties:
+        if row_from_abs <= p.at_abs < row_to_abs:
+            out.reduce_cost_yuan += p.penalty_yuan
+    return out
 
 
 # ==========================================================================
-# 3. 账单
+# 4. Independent recomputation
 # ==========================================================================
 
 
-def events_cost_yuan(events: list[ExecutedEvent]) -> float:
-    """所有已执行事件的费用合计（不含违约金）。"""
+def recompute_execution_cost_yuan(events: list[DispatchEvent]) -> float:
+    """Deliberately naive re-derivation, used to cross-check the accumulators."""
     total = 0.0
     for e in events:
-        total += FEE_RATE_BY_CLASS[e.fee_class] * e.price_yuan_per_kwh * e.quantity_kwh
-    return float(total)
-
-
-def make_bill(
-    day: date,
-    events: list[ExecutedEvent],
-    updates: list[PlanUpdate] | None = None,
-) -> Bill:
-    """由执行事件与违约记录生成最终账单。
-
-    数量只来自实际轨迹；费用 = 执行事件费用 + 已发生违约金。
-    """
-    qty = {FeeClass.NORMAL: 0.0, FeeClass.ADJUST_UP: 0.0, FeeClass.EMERGENCY: 0.0}
-    cost = {FeeClass.NORMAL: 0.0, FeeClass.ADJUST_UP: 0.0, FeeClass.EMERGENCY: 0.0}
-    for e in events:
-        qty[e.fee_class] += e.quantity_kwh
-        cost[e.fee_class] += e.cost_yuan
-    penalty = accumulate_penalty(updates or [])
-    total_q = qty[FeeClass.NORMAL] + qty[FeeClass.ADJUST_UP] + qty[FeeClass.EMERGENCY]
-    purchase_cost = cost[FeeClass.NORMAL] + cost[FeeClass.ADJUST_UP] + cost[FeeClass.EMERGENCY]
-    return Bill(
-        day=day,
-        normal_kwh=qty[FeeClass.NORMAL],
-        adjust_up_kwh=qty[FeeClass.ADJUST_UP],
-        emergency_kwh=qty[FeeClass.EMERGENCY],
-        total_purchased_kwh=total_q,
-        purchase_cost_yuan=purchase_cost,
-        penalty_yuan=penalty,
-        total_cost_yuan=purchase_cost + penalty,
-        cost_by_class_yuan=dict(cost),
-    )
-
-
-def settle_trajectory(
-    trajectory: Trajectory,
-    initial_plan_kwh: np.ndarray | None = None,
-    adjust_events: dict[int, float] | None = None,
-) -> Bill:
-    """从完整实际轨迹独立复算账单（不依赖优化器内部目标值）。"""
-    events = classify_executed(
-        grid_actual_kwh=trajectory.grid_actual_kwh,
-        emergency_actual_kwh=trajectory.emergency_actual_kwh,
-        price_actual=trajectory.price_actual,
-        day=trajectory.day,
-        initial_plan_kwh=initial_plan_kwh,
-        adjust_events=adjust_events,
-    )
-    return make_bill(trajectory.day, events, trajectory.updates)
-
-
-# ==========================================================================
-# 4. 独立复算与一致性校验
-# ==========================================================================
-
-
-def recompute_cost_yuan(
-    quantities_kwh: np.ndarray,
-    prices_yuan_per_kwh: np.ndarray,
-    fee_classes: list[FeeClass] | np.ndarray,
-) -> float:
-    """最朴素的逐事件复算，用于与 :func:`events_cost_yuan` 交叉校验。
-
-    刻意写成与生产代码不同的路径（直接循环乘加、不做分类合并）。
-    """
-    q = np.asarray(quantities_kwh, dtype=np.float64)
-    p = np.asarray(prices_yuan_per_kwh, dtype=np.float64)
-    if q.shape != p.shape:
-        raise SettlementError("复算输入形状不一致")
-    classes = list(fee_classes)
-    if len(classes) != q.size:
-        raise SettlementError("复算输入长度不一致")
-    total = 0.0
-    for i in range(q.size):
-        total += q[i] * p[i] * FEE_RATE_BY_CLASS[FeeClass(int(classes[i]))]
+        total += (
+            e.price_actual_yuan_per_kwh * e.o_exec_kwh
+            + FEE_ADJUST_UP * e.price_actual_yuan_per_kwh * e.a_exec_kwh
+            + FEE_EMERGENCY * e.price_actual_yuan_per_kwh * e.emergency_kwh
+        )
     return float(total)
 
 
 def verify_bill(
-    bill: Bill,
-    events: list[ExecutedEvent],
-    updates: list[PlanUpdate] | None = None,
+    totals: LabelTotals,
+    events: list[DispatchEvent],
+    penalties: list[PenaltyEvent],
     tol: float = TOL_COST_YUAN,
 ) -> None:
-    """用与 :func:`make_bill` 不同的路径重算账单，任何不一致立即失败。"""
-    if events:
-        q = np.array([e.quantity_kwh for e in events], dtype=np.float64)
-        p = np.array([e.price_yuan_per_kwh for e in events], dtype=np.float64)
-        classes = np.array([int(e.fee_class) for e in events], dtype=np.int64)
-        recomputed = recompute_cost_yuan(q, p, classes)
-    else:
-        recomputed = 0.0
-    if abs(recomputed - bill.purchase_cost_yuan) > tol:
+    """Recompute by a different path; any disagreement is a hard failure."""
+    execution = recompute_execution_cost_yuan(events)
+    if abs(execution - totals.execution_cost_yuan) > tol:
         raise SettlementError(
-            f"购电费复算不一致：账单 {bill.purchase_cost_yuan:.6f}，复算 {recomputed:.6f}"
+            f"购电费复算不一致：账单 {totals.execution_cost_yuan:.6f}，复算 {execution:.6f}"
         )
-    penalty = accumulate_penalty(updates or [])
-    if abs(penalty - bill.penalty_yuan) > tol:
-        raise SettlementError(f"违约费复算不一致：账单 {bill.penalty_yuan:.6f}，复算 {penalty:.6f}")
-    total_q = float(sum(e.quantity_kwh for e in events))
-    if abs(total_q - bill.total_purchased_kwh) > TOL_ENERGY_KWH:
+    reduce_sum = float(sum(p.penalty_yuan for p in penalties))
+    if abs(reduce_sum - totals.reduce_cost_yuan) > tol:
         raise SettlementError(
-            f"实际购电量不一致：账单 {bill.total_purchased_kwh:.9f}，事件合计 {total_q:.9f}"
+            f"违约费复算不一致：账单 {totals.reduce_cost_yuan:.6f}，复算 {reduce_sum:.6f}"
         )
-    if abs(bill.total_cost_yuan - (bill.purchase_cost_yuan + bill.penalty_yuan)) > tol:
+    qty = sum(e.total_kwh for e in events)
+    if abs(qty - totals.total_kwh) > 1e-6:
+        raise SettlementError(
+            f"实际购电量不一致：账单 {totals.total_kwh:.9f}，事件合计 {qty:.9f}"
+        )
+    if abs(totals.total_cost_yuan - (totals.execution_cost_yuan + totals.reduce_cost_yuan)) > tol:
         raise SettlementError("费用分项与合计不符")
 
 
 # ==========================================================================
-# 5. 规范第 16 节的手算用例（供测试直接调用）
+# 5. Gold cases from the specification (used directly by the tests)
 # ==========================================================================
 
 
-def hand_case_price_flat_100_to_80() -> dict[str, float]:
-    """价格均 1：原策略 100 改为 80，最终量 80、电费 80、违约 10、合计 90。"""
-    old_arr = np.zeros(N_INTERVAL, dtype=np.float64)
-    old_arr[0] = 100.0
-    old = ActivePlan(created_at_interval=0, grid_kwh=old_arr)
-    new_arr = old_arr.copy()
-    new_arr[0] = 80.0
-    new = ActivePlan(created_at_interval=0, grid_kwh=new_arr, version=1)
-    update = penalty_for_adjustment(old, new, price_at_interval=1.0)
-    events = [ExecutedEvent(date(2025, 2, 1), 0, 80.0, 1.0, FeeClass.NORMAL)]
-    bill = make_bill(date(2025, 2, 1), events, [update])
+def gold_case_100_120_80() -> dict[str, float]:
+    """Flat price 1, all revisions before execution: 100 -> 120 -> 80.
+
+    Expected per the specification: O = 80, A = 0, penalty 20,
+    total quantity 80, total cost 100.
+    """
+    minutes = np.arange(2) * 10
+    state = CommittedBalances.from_initial_plan(minutes, np.array([100.0, 0.0]))
+    state, p1 = revise_commitment(state, np.array([120.0, 0.0]), at_abs=0, price_at_yuan_per_kwh=1.0)
+    state, p2 = revise_commitment(state, np.array([80.0, 0.0]), at_abs=0, price_at_yuan_per_kwh=1.0)
+    penalties = [p for p in (p1, p2) if p is not None]
+
+    # Both intervals execute; only the first carries the committed quantity.
+    events = [
+        DispatchEvent(0, o_exec_kwh=80.0, a_exec_kwh=0.0, emergency_kwh=0.0, price_actual_yuan_per_kwh=1.0),
+        DispatchEvent(10, o_exec_kwh=0.0, a_exec_kwh=0.0, emergency_kwh=0.0, price_actual_yuan_per_kwh=1.0),
+    ]
+    totals = result_row_bill(0, 20, events, penalties)
     return {
-        "quantity_kwh": bill.total_purchased_kwh,
-        "purchase_cost_yuan": bill.purchase_cost_yuan,
-        "penalty_yuan": bill.penalty_yuan,
-        "total_cost_yuan": bill.total_cost_yuan,
+        "o_kwh": float(state.o_kwh[0]),
+        "a_kwh": float(state.a_kwh[0]),
+        "penalty_yuan": totals.reduce_cost_yuan,
+        "total_kwh": totals.total_kwh,
+        "total_cost_yuan": totals.total_cost_yuan,
+    }
+
+
+def gold_case_100_80_100() -> dict[str, float]:
+    """Flat price 1, all revisions before execution: 100 -> 80 -> 100.
+
+    Expected per the specification: O = 80, A = 20, penalty 10,
+    total quantity 100, total cost 120.
+    """
+    minutes = np.arange(2) * 10
+    state = CommittedBalances.from_initial_plan(minutes, np.array([100.0, 0.0]))
+    state, p1 = revise_commitment(state, np.array([80.0, 0.0]), at_abs=0, price_at_yuan_per_kwh=1.0)
+    state, p2 = revise_commitment(state, np.array([100.0, 0.0]), at_abs=0, price_at_yuan_per_kwh=1.0)
+    penalties = [p for p in (p1, p2) if p is not None]
+
+    events = [
+        DispatchEvent(
+            0,
+            o_exec_kwh=float(state.o_kwh[0]),
+            a_exec_kwh=float(state.a_kwh[0]),
+            emergency_kwh=0.0,
+            price_actual_yuan_per_kwh=1.0,
+        ),
+        DispatchEvent(10, o_exec_kwh=0.0, a_exec_kwh=0.0, emergency_kwh=0.0, price_actual_yuan_per_kwh=1.0),
+    ]
+    totals = result_row_bill(0, 20, events, penalties)
+    return {
+        "o_kwh": float(state.o_kwh[0]),
+        "a_kwh": float(state.a_kwh[0]),
+        "penalty_yuan": totals.reduce_cost_yuan,
+        "total_kwh": totals.total_kwh,
+        "total_cost_yuan": totals.total_cost_yuan,
+    }
+
+
+def gold_case_execution_labels() -> dict[str, float]:
+    """Executed 10 kWh of O and 10 kWh of A at price 2 -> 20 + 30 = 50."""
+    events = [
+        DispatchEvent(0, o_exec_kwh=10.0, a_exec_kwh=0.0, emergency_kwh=0.0, price_actual_yuan_per_kwh=2.0),
+        DispatchEvent(10, o_exec_kwh=0.0, a_exec_kwh=10.0, emergency_kwh=0.0, price_actual_yuan_per_kwh=2.0),
+        DispatchEvent(20, o_exec_kwh=0.0, a_exec_kwh=0.0, emergency_kwh=10.0, price_actual_yuan_per_kwh=2.0),
+    ]
+    totals = result_row_bill(0, 30, events, [])
+    return {
+        "plan_cost_yuan": totals.plan_cost_yuan,
+        "add_cost_yuan": totals.add_cost_yuan,
+        "emergency_cost_yuan": totals.emergency_cost_yuan,
+        "execution_cost_yuan": totals.execution_cost_yuan,
     }
 
 
 __all__ = [
     "SettlementError",
-    "plan_reduction",
-    "penalty_for_adjustment",
-    "accumulate_penalty",
-    "classify_executed",
-    "events_cost_yuan",
-    "make_bill",
-    "settle_trajectory",
-    "recompute_cost_yuan",
+    "LabelTotals",
+    "fee_label_costs",
+    "event_cost_yuan",
+    "penalty_cost_yuan",
+    "revise_commitment",
+    "reduce_quantity_for_event",
+    "natural_day_bill",
+    "result_row_bill",
+    "recompute_execution_cost_yuan",
     "verify_bill",
-    "hand_case_price_flat_100_to_80",
-    "FEE_NORMAL",
-    "FEE_ADJUST_UP",
-    "FEE_EMERGENCY",
-    "FEE_PENALTY_DOWN",
+    "gold_case_100_120_80",
+    "gold_case_100_80_100",
+    "gold_case_execution_labels",
 ]

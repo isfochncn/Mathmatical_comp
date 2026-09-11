@@ -1,17 +1,39 @@
-"""时间轴映射：源标签 <-> 模型区间 <-> 输出模板格位。
+"""Time-axis mappings: source labels <-> clock intervals <-> result-row cells.
 
-**本模块是整个工程里唯一允许做时间换算的地方。**
-规范第 2 节与本文件共同定义映射；其它模块只许调用这里的函数，
-不得自行用字符串切片或浮点小时推算段号（这是 144/145 错位的主要来源）。
+**This module is the ONLY place in the project allowed to do time arithmetic.**
+Every other module must call these helpers; nobody may derive segment indices
+from string slicing or floating-point hours (that is how 144/145 misalignment,
+and the earlier "template is shifted" misreading, both happened).
 
-三个坐标系
-----------
-1. 模型区间  t = 0..143，表示 [t*10min, (t+1)*10min)。
-2. 模型边界  s = 0..144，表示时刻 s*10min 的瞬时状态。E_0 是 0:00，E_144 是 24:00。
-3. 源标签    附件里的 '0:10' … '23:50'、'0:00+1'，全部是**区间结束时刻**。
-   '0:10' -> t=0 ；'0:00+1' -> t=143。
+Four coordinate systems
+-----------------------
+1. ``seq`` (source sequence interval)  v = 0..143 for a source row of
+   144 values. Labels are **interval start times**:
+   ``00:10`` -> [00:10, 00:20) -> v = 0;  ``23:50`` -> [23:50, 00:00) -> v = 143.
+   A value labelled ``0:00+1`` or ``24:00`` is [next day 00:00, next day 00:10).
 
-4. 输出模板格位（源模板标签整体后移了一段，见下方 TEMPLATE_* 说明）。
+2. ``clock`` (natural-day clock)  t = 0..143 for a natural day, meaning
+   [day 00:00 + t*10min, day 00:00 + (t+1)*10min).  Boundaries ``E_{d,s}``
+   for s = 0..144 are instants, with ``E_{d,0}`` = day 00:00 and
+   ``E_{d,144}`` = next day 00:00.
+
+   Bridge rule: the source carries the value of the previous source day's LAST
+   10 minutes into the next day's FIRST interval, i.e.
+       ``D_{d,0} = seq_value(d-1, 143)``  (the ``0:00+1`` column),
+       ``D_{d,t} = seq_value(d, t-1)``    for t = 1..143.
+
+3. ``result`` (output row)  j = 0..143 with boundaries ``B_{d,j}``, j = 0..144.
+   ``B_{d,j} = E_{d, j+1}`` because result rows cover
+   ``[day 00:10, next day 00:10)``.
+   Consequently ``B_{d,0} = E_{d,1}``, ``B_{d,143} = E_{d,144} = E_{d+1,0}``,
+   and ``B_{d,144} = E_{d+1,1}`` -- which is **NOT** equal to ``B_{d+1,0}``:
+   they differ by exactly the next day's first interval of energy exchange.
+   Treating them as equal would execute that interval twice.
+
+4. Template cells: the template's 144 time columns ARE the result rows, so the
+   mapping ``result j -> template data slot j`` is the identity. The template
+   was never "shifted"; the earlier reading came from treating labels as
+   interval END times.
 """
 
 from __future__ import annotations
@@ -24,119 +46,182 @@ import numpy as np
 from .constants import MINUTES_PER_INTERVAL, N_BOUNDARY, N_INTERVAL
 
 # --------------------------------------------------------------------------
-# 源标签解析
+# Constants
 # --------------------------------------------------------------------------
 
-_END_OF_DAY_LABEL = "0:00+1"
-_TIME_LABEL_RE = re.compile(r"^(\d{1,2}):(\d{2})$")
+#: Sequence length of one source row (attachment 1/2/4) and of one result row.
+N_SEQ = N_INTERVAL                      # 144
+#: Boundaries of one natural day / one result row.
+N_SEQ_BOUNDARY = N_BOUNDARY             # 145
+
+#: Label of the last source column: [next day 00:00, next day 00:10).
+SEQ_START_LABEL = "0:00+1"
+#: The same instant written in the task statement's 24:00 notation.
+SEQ_TAIL_LABEL = "24:00"
+#: Task-statement notation for the start of a natural day (not a source label).
+NATURAL_DAY_ZERO_LABEL = "0:00"
+
+#: A source series may only extend this many hours past 2025-12-31 to serve as
+#: the next-day lookahead of the 12-31 optimisation window.
+MAX_EXTENSION_HOURS = 48
+
+_TIME_LABEL_RE = re.compile(r"^(\d{1,2}):(\d{2})(\+1)?$")
+
+#: Extension provenance markers (never present them as measured data).
+SOURCE_ATTACHMENT = "attachment"
+SOURCE_CARRY_OVER = "carry-over"        # first interval bridged from previous source day
+SOURCE_BRIDGE_MISSING = "bridge-missing"  # first interval of the very first day
+SOURCE_EXTENDED = "extended"            # beyond the source horizon (forecast only)
 
 
-def interval_index_from_label(label: str) -> int:
-    """把源时间标签（区间结束时刻）映射为模型区间号。
+# --------------------------------------------------------------------------
+# Source label parsing
+# --------------------------------------------------------------------------
 
-    >>> interval_index_from_label("0:10")
-    0
-    >>> interval_index_from_label("0:20")
-    1
-    >>> interval_index_from_label("0:00+1")
-    143
+
+def seq_index_from_label(label: object) -> int:
+    """Map one source label to its sequence interval index.
+
+    Labels are interval START times, so ``00:10`` -> 0 and ``23:50`` -> 143.
+    ``0:00+1`` / ``24:00`` denote [next day 00:00, next day 00:10) -> 143.
     """
+    if isinstance(label, time):
+        return _minutes_to_seq(label.hour * 60 + label.minute)
     text = str(label).strip()
-    if text == _END_OF_DAY_LABEL:
-        return N_INTERVAL - 1
+    if text in (SEQ_START_LABEL, SEQ_TAIL_LABEL):
+        return N_SEQ - 1
     m = _TIME_LABEL_RE.match(text)
     if not m:
-        # openpyxl 有时把 '0:10' 读成 datetime.time
-        if isinstance(label, time):
-            total = label.hour * 60 + label.minute
-            return _minutes_to_interval(total)
-        raise ValueError(f"无法解析时间标签：{label!r}")
-    hour, minute = int(m.group(1)), int(m.group(2))
-    return _minutes_to_interval(hour * 60 + minute)
+        raise ValueError(f"无法解析源时间标签：{label!r}")
+    # 'H:MM+1' other than 0:00+1 is out of contract.
+    if m.group(3) is not None:
+        raise ValueError(f"仅允许 '{SEQ_START_LABEL}' 使用 +1 后缀，收到 {label!r}")
+    return _minutes_to_seq(int(m.group(1)) * 60 + int(m.group(2)))
 
 
-def _minutes_to_interval(total_minutes: int) -> int:
-    # 严格口径：源标签是**区间结束时刻**，只允许 0:10 .. 23:50 与 '0:00+1'。
-    # '0:00' / '24:00' 是状态边界标签，不是交易标签，必须显式报错而不是静默取整。
-    if total_minutes <= 0 or total_minutes > 24 * 60 - MINUTES_PER_INTERVAL:
-        raise ValueError(f"不是合法的区间结束标签：{total_minutes} 分钟")
-    if total_minutes % MINUTES_PER_INTERVAL:
-        raise ValueError(f"时间标签不是 {MINUTES_PER_INTERVAL} 分钟整数倍：{total_minutes}")
-    return total_minutes // MINUTES_PER_INTERVAL - 1
+def _minutes_to_seq(minutes: int) -> int:
+    minutes %= 24 * 60
+    if minutes < MINUTES_PER_INTERVAL:
+        raise ValueError(
+            f"{minutes} 分钟不对应任何源交易标签：上一源日尾值承担次日 00:00—00:10"
+        )
+    if minutes % MINUTES_PER_INTERVAL:
+        raise ValueError(f"源标签不是 {MINUTES_PER_INTERVAL} 分钟整数倍：{minutes}")
+    return minutes // MINUTES_PER_INTERVAL - 1
 
 
-def interval_label_set() -> frozenset[str]:
-    """全部合法区间标签（含 '0:00+1'）。"""
-    return frozenset(interval_labels())
+def seq_label(v: int) -> str:
+    """Sequence interval index -> canonical start-time label."""
+    _check_seq(v)
+    if v == N_SEQ - 1:
+        return SEQ_START_LABEL
+    minutes = (v + 1) * MINUTES_PER_INTERVAL
+    return f"{minutes // 60}:{minutes % 60:02d}"
 
 
-def interval_labels() -> list[str]:
-    """模型区间 0..143 的规范标签（区间结束时刻）。"""
-    out = []
-    for t in range(N_INTERVAL):
-        out.append(_END_OF_DAY_LABEL if t == N_INTERVAL - 1 else _format_minutes((t + 1) * MINUTES_PER_INTERVAL))
-    return out
+def clock_label(t: int) -> str:
+    """Natural-day clock interval index -> 'HH:MM-HH:MM' (start-end)."""
+    _check_clock(t)
+    lo = t * MINUTES_PER_INTERVAL
+    hi = lo + MINUTES_PER_INTERVAL
+    return f"{_fmt_minutes(lo)}-{_fmt_minutes(hi)}"
 
 
-def boundary_labels() -> list[str]:
-    """模型边界 0..144 的规范标签。"""
-    out = []
-    for s in range(N_BOUNDARY):
-        if s == N_BOUNDARY - 1:
-            out.append(_END_OF_DAY_LABEL)
-        else:
-            out.append(_format_minutes(s * MINUTES_PER_INTERVAL))
-    return out
+def _fmt_minutes(minutes: int) -> str:
+    if minutes >= 24 * 60:
+        return SEQ_TAIL_LABEL
+    return f"{minutes // 60}:{minutes % 60:02d}"
 
 
-def _format_minutes(total_minutes: int, plus_one: bool = False) -> str:
-    hour, minute = divmod(total_minutes, 60)
-    return f"{hour}:{minute:02d}" + ("+1" if plus_one else "")
+def _check_seq(v: int) -> None:
+    if not 0 <= v < N_SEQ:
+        raise ValueError(f"源序列下标越界：{v}")
 
 
-def boundary_index(interval: int, side: str) -> int:
-    """区间 t 的起止边界号。side ∈ {'start', 'end'}。"""
-    if not 0 <= interval < N_INTERVAL:
-        raise ValueError(f"区间号越界：{interval}")
-    return interval if side == "start" else interval + 1
+def _check_clock(t: int) -> None:
+    if not 0 <= t < N_INTERVAL:
+        raise ValueError(f"自然日区间下标越界：{t}")
 
 
 # --------------------------------------------------------------------------
-# 输出模板格位
+# Coordinate conversions
 # --------------------------------------------------------------------------
-# 实测（只读检查 data/附件5/*.xlsx）：
-#   result1 "计划购电量"  A2 = '0:10-0:20' … A145 = '0:00+1-0:10+1'
-#   result2/3/4-2/4-3 "计划购电量"/"调整购电量"
-#       表头 B1 = '0:10-0:20'，第 1 行共 146 个时间列 + '全天购电量' + '全天购电费'
-#     两处模板的时间标签都比模型区间整体后移了一段：缺 '0:00-0:10'，
-#     却多出一个落在次日 00:00-00:10 的列。
-#   同一批模板的 "充放电量" 表却用标准口径 '0:00-4:00' … '20:00-24:00' + 0:00/24:00 储电量。
-#
-# 已确认口径（用户决定 2026-09-11）：**模板标签一字不动**，
-# 模型第 t 段写入第 t+1 个数据格。即 0:00-0:10 写在 '0:10-0:20' 标签下方，
-# 并在交付说明中声明这一映射。
-TEMPLATE_SHIFT_INTERVALS = 0
-
-#: 模板每天的时间列数（等于模型区间数，只是标签写法不同）
-TEMPLATE_TIME_COLUMNS = N_INTERVAL
 
 
-def template_column_of_interval(interval: int) -> int:
-    """模型区间号 -> 模板时间列序号（0-based，即数据区第几列）。"""
-    if not 0 <= interval < N_INTERVAL:
-        raise ValueError(f"区间号越界：{interval}")
-    return interval + TEMPLATE_SHIFT_INTERVALS
+def clock_to_abs_minute(day_index: int, t: int) -> int:
+    """(day index, clock interval) -> minutes since 2025-01-01 00:00."""
+    _check_clock(t)
+    return day_index * 24 * 60 + t * MINUTES_PER_INTERVAL
 
 
-def interval_of_template_column(col: int) -> int:
-    """模板时间列序号（0-based） -> 模型区间号。"""
+def boundary_abs_minute(day_index: int, s: int) -> int:
+    """(day index, boundary s in 0..144) -> minutes since 2025-01-01 00:00."""
+    if not 0 <= s <= N_BOUNDARY:
+        raise ValueError(f"边界下标越界：{s}")
+    return day_index * 24 * 60 + s * MINUTES_PER_INTERVAL
+
+
+def clock_index_of_abs(abs_minute: int) -> tuple[int, int]:
+    """Absolute minute -> (day index, clock interval)."""
+    if abs_minute % MINUTES_PER_INTERVAL:
+        raise ValueError(f"绝对时间不是 {MINUTES_PER_INTERVAL} 分钟整数倍：{abs_minute}")
+    day_index, rem = divmod(abs_minute, 24 * 60)
+    return day_index, rem // MINUTES_PER_INTERVAL
+
+
+#: Result row covers [day 00:10, next day 00:10): its boundaries sit at
+#: clock boundary index j+1.
+RESULT_BOUNDARY_OFFSET = 1
+
+
+def result_boundary_clock_index(j: int) -> int:
+    """Result-row boundary j -> natural-day clock boundary index."""
+    if not 0 <= j <= N_SEQ_BOUNDARY - 1:
+        raise ValueError(f"result 边界下标越界：{j}")
+    return j + RESULT_BOUNDARY_OFFSET
+
+
+def result_interval_clock_index(j: int) -> int:
+    """Result-row interval j covers clock interval j+1 of the same day.
+
+    For j = 143 this is clock interval 144, i.e. **the next day's first
+    interval** ([next day 00:00, next day 00:10)).
+    """
+    if not 0 <= j < N_SEQ:
+        raise ValueError(f"result 区间下标越界：{j}")
+    return j + RESULT_BOUNDARY_OFFSET
+
+
+def result_row_spans_next_day(j: int) -> bool:
+    """True if result interval j belongs to the next natural day."""
+    return result_interval_clock_index(j) >= N_INTERVAL
+
+
+# --------------------------------------------------------------------------
+# Template cells
+# --------------------------------------------------------------------------
+# The template's 144 time columns are exactly the 144 result intervals, so the
+# mapping is the identity. Kept as an explicit function so that any future
+# change has exactly one place to live.
+TEMPLATE_TIME_COLUMNS = N_SEQ
+
+
+def template_column_of_result(result_index: int) -> int:
+    """Result interval index -> template time-column ordinal (0-based)."""
+    if not 0 <= result_index < N_SEQ:
+        raise ValueError(f"result 区间下标越界：{result_index}")
+    return result_index
+
+
+def result_of_template_column(col: int) -> int:
+    """Template time-column ordinal (0-based) -> result interval index."""
     if not 0 <= col < TEMPLATE_TIME_COLUMNS:
         raise ValueError(f"模板列序号越界：{col}")
-    return col - TEMPLATE_SHIFT_INTERVALS
+    return col
 
 
 # --------------------------------------------------------------------------
-# 日期工具
+# Date helpers
 # --------------------------------------------------------------------------
 
 DATE_2025_01_01 = date(2025, 1, 1)
@@ -149,14 +234,14 @@ def calendar_days(start: date = DATE_2025_01_01, end: date = DATE_2025_12_31) ->
 
 
 def to_date(value: object) -> date:
-    """把 Excel 里的日期单元格规范成 datetime.date。"""
+    """Normalise an Excel date cell to datetime.date."""
     if isinstance(value, datetime):
         return value.date()
     if isinstance(value, date):
         return value
     if isinstance(value, str):
         text = value.strip().replace("/", "-")
-        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M"):
             try:
                 return datetime.strptime(text, fmt).date()
             except ValueError:
@@ -165,7 +250,7 @@ def to_date(value: object) -> date:
 
 
 # --------------------------------------------------------------------------
-# 数值工具
+# Numeric helpers
 # --------------------------------------------------------------------------
 
 
@@ -177,18 +262,32 @@ def require_shape(arr: np.ndarray, shape: tuple[int, ...], name: str) -> np.ndar
 
 
 __all__ = [
-    "interval_index_from_label",
-    "interval_labels",
-    "interval_label_set",
-    "boundary_labels",
-    "boundary_index",
-    "template_column_of_interval",
-    "interval_of_template_column",
+    "N_SEQ",
+    "N_SEQ_BOUNDARY",
+    "SEQ_START_LABEL",
+    "SEQ_TAIL_LABEL",
+    "NATURAL_DAY_ZERO_LABEL",
+    "MAX_EXTENSION_HOURS",
+    "SOURCE_ATTACHMENT",
+    "SOURCE_CARRY_OVER",
+    "SOURCE_BRIDGE_MISSING",
+    "SOURCE_EXTENDED",
+    "RESULT_BOUNDARY_OFFSET",
+    "TEMPLATE_TIME_COLUMNS",
+    "seq_index_from_label",
+    "seq_label",
+    "clock_label",
+    "clock_to_abs_minute",
+    "boundary_abs_minute",
+    "clock_index_of_abs",
+    "result_boundary_clock_index",
+    "result_interval_clock_index",
+    "result_row_spans_next_day",
+    "template_column_of_result",
+    "result_of_template_column",
     "calendar_days",
     "to_date",
     "require_shape",
     "DATE_2025_01_01",
     "DATE_2025_12_31",
-    "TEMPLATE_SHIFT_INTERVALS",
-    "TEMPLATE_TIME_COLUMNS",
 ]

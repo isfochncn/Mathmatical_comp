@@ -28,7 +28,7 @@ from .constants import (
 from .data_io import DataBundle
 from .schemas import Bill, DayInput, Trajectory
 from .settlement import SettlementError, settle_trajectory, verify_bill
-from .timeaxis import calendar_days, template_column_of_interval
+from .timeaxis import calendar_days
 
 
 class ValidationError(AssertionError):
@@ -48,9 +48,13 @@ class TrajectoryDiagnostics:
     discharge_charge_relation_residual_kwh: float = float("nan")
     round_trip_ratio: float = float("nan")
     simultaneous_charge_discharge_intervals: list[int] = field(default_factory=list)
-    loss_cycle_net_kwh: float = 0.0
+    charge_loss_kwh: float = 0.0
+    discharge_loss_kwh: float = 0.0
+    total_loss_kwh: float = 0.0
+    surplus_disposed_kwh: float = 0.0
     max_power_kw: dict[str, float] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -59,10 +63,14 @@ class TrajectoryDiagnostics:
             "daily_balance_residual_kwh": self.daily_balance_residual_kwh,
             "discharge_charge_relation_residual_kwh": self.discharge_charge_relation_residual_kwh,
             "round_trip_ratio": self.round_trip_ratio,
-            "simultaneous_charge_discharge_intervals": self.simultaneous_charge_discharge_intervals,
-            "loss_cycle_net_kwh": self.loss_cycle_net_kwh,
+            "n_simultaneous_intervals": len(self.simultaneous_charge_discharge_intervals),
+            "charge_loss_kwh": self.charge_loss_kwh,
+            "discharge_loss_kwh": self.discharge_loss_kwh,
+            "total_loss_kwh": self.total_loss_kwh,
+            "surplus_disposed_kwh": self.surplus_disposed_kwh,
             "max_power_kw": self.max_power_kw,
             "warnings": self.warnings,
+            "notes": self.notes,
         }
 
 
@@ -137,6 +145,7 @@ def validate_trajectory(
     surplus_kwh = float(positive.sum())
     declared = getattr(trajectory, "surplus_disposed_kwh", None)
     declared_kwh = 0.0 if declared is None else float(np.sum(declared))
+    diag.surplus_disposed_kwh = surplus_kwh
     if surplus_kwh > TOL_ENERGY_KWH:
         if allow_surplus_safety_valve:
             if abs(declared_kwh - surplus_kwh) > 1e-3:
@@ -195,24 +204,27 @@ def validate_trajectory(
                 f"{diag.discharge_charge_relation_residual_kwh:.9f}"
             )
 
-    # 可实施性诊断（只报告，不偷偷改模型）
+    # 损耗与同时充放电核算。
+    # 2026-09-11 定稿：设备支持同时充放电，这**不是异常**、不作不可行判据；
+    # 但损耗必须如实进入能量账，且不得把损耗称为"净储存"。
     diag.round_trip_ratio = physics.round_trip_ratio(
         trajectory.charge_stored_kwh, trajectory.discharge_delivered_kwh
     )
-    cycling = physics.diagnose_loss_cycling(
+    loss = physics.loss_accounting(
         trajectory.charge_stored_kwh, trajectory.discharge_delivered_kwh
     )
-    diag.simultaneous_charge_discharge_intervals = list(cycling["intervals"])  # type: ignore[arg-type]
-    diag.loss_cycle_net_kwh = float(cycling["net_loss_kwh"])
+    diag.simultaneous_charge_discharge_intervals = list(loss["simultaneous_intervals"])  # type: ignore[arg-type]
+    diag.charge_loss_kwh = float(loss["charge_loss_kwh"])
+    diag.discharge_loss_kwh = float(loss["discharge_loss_kwh"])
+    diag.total_loss_kwh = float(loss["total_loss_kwh"])
     diag.max_power_kw = physics.max_bus_power_kw(
         trajectory.charge_stored_kwh, trajectory.discharge_delivered_kwh
     )
     if diag.simultaneous_charge_discharge_intervals:
-        diag.warnings.append(
-            "存在同时充放电段 "
-            f"{diag.simultaneous_charge_discharge_intervals}，"
-            f"损耗循环 {diag.loss_cycle_net_kwh:.6f} kWh；"
-            "必须在论文中披露可实施性缺口，不得事后暗加互斥约束后仍称同一模型。"
+        diag.notes.append(
+            f"同时充放电 {len(diag.simultaneous_charge_discharge_intervals)} 段"
+            f"（合法运行状态，非异常）；当日总损耗 {diag.total_loss_kwh:.6f} kWh"
+            f"（充电侧 {diag.charge_loss_kwh:.6f} + 放电侧 {diag.discharge_loss_kwh:.6f}）"
         )
 
     if final and problems:
@@ -369,8 +381,9 @@ class ValidationSummary:
     max_bus_residual_kwh: float
     max_soc_transition_error_kwh: float
     max_daily_balance_residual_kwh: float
-    loss_cycle_net_kwh: float
+    total_loss_kwh: float
     n_simultaneous_intervals: int
+    total_surplus_disposed_kwh: float
     max_bus_charge_kw: float
     max_bus_discharge_kw: float
     soc_end_kwh: float
@@ -387,8 +400,9 @@ class ValidationSummary:
             "max_bus_residual_kwh": self.max_bus_residual_kwh,
             "max_soc_transition_error_kwh": self.max_soc_transition_error_kwh,
             "max_daily_balance_residual_kwh": self.max_daily_balance_residual_kwh,
-            "loss_cycle_net_kwh": self.loss_cycle_net_kwh,
+            "total_loss_kwh": self.total_loss_kwh,
             "n_simultaneous_intervals": self.n_simultaneous_intervals,
+            "total_surplus_disposed_kwh": self.total_surplus_disposed_kwh,
             "max_bus_charge_kw": self.max_bus_charge_kw,
             "max_bus_discharge_kw": self.max_bus_discharge_kw,
             "soc_end_kwh": self.soc_end_kwh,
@@ -417,10 +431,11 @@ def summarize(
         max_daily_balance_residual_kwh=max(
             abs(d.daily_balance_residual_kwh) for d in diagnostics
         ),
-        loss_cycle_net_kwh=float(sum(d.loss_cycle_net_kwh for d in diagnostics)),
+        total_loss_kwh=float(sum(d.total_loss_kwh for d in diagnostics)),
         n_simultaneous_intervals=int(
             sum(len(d.simultaneous_charge_discharge_intervals) for d in diagnostics)
         ),
+        total_surplus_disposed_kwh=float(sum(d.surplus_disposed_kwh for d in diagnostics)),
         max_bus_charge_kw=max(d.max_power_kw.get("bus_charge_kw", 0.0) for d in diagnostics),
         max_bus_discharge_kw=max(d.max_power_kw.get("bus_discharge_kw", 0.0) for d in diagnostics),
         soc_end_kwh=float(trajectories[-1].soc_kwh[-1]),
