@@ -483,6 +483,19 @@ def run(config: RunConfig, bundle: DataBundle | None = None) -> RunResult:
 # ==========================================================================
 
 
+def _json_default(obj):
+    """JSON fallback for the summary payload (dates, numpy scalars, Paths)."""
+    if isinstance(obj, (date,)):
+        return obj.isoformat()
+    if isinstance(obj, Path):
+        return str(obj)
+    if isinstance(obj, np.generic):
+        return obj.item()
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    return float(obj)
+
+
 def _data_paths() -> list[Path]:
     root = project_root()
     return [
@@ -500,6 +513,7 @@ def save_run(result: RunResult) -> Path:
             {k: (str(v) if isinstance(v, Path) else v) for k, v in asdict(result.config).items()},
             ensure_ascii=False,
             indent=2,
+            default=_json_default,
         ),
         encoding="utf-8",
     )
@@ -524,7 +538,7 @@ def save_run(result: RunResult) -> Path:
             },
             ensure_ascii=False,
             indent=2,
-            default=float,
+            default=_json_default,
         ),
         encoding="utf-8",
     )

@@ -327,12 +327,26 @@ def run_absolute(
             fixed_values[idx] = commitment.o_kwh[valid] + commitment.a_kwh[valid]
 
         can_revise = policy.can_adjust_plan and at_node and not is_day_start
-        if can_revise:
-            fee_mode = FeeMode.ADJUSTABLE
-        elif mask.any():
-            fee_mode = FeeMode.FROZEN
+        if mask.any() and not is_day_start:
+            # Already covered by a previous commitment: only the intervals the
+            # revision may touch are freed (and only on adjustment branches).
+            if can_revise:
+                o_arr = np.where(mask, o_arr, 0.0)
+                a_arr = np.where(mask, a_arr, 0.0)
+                mask = np.zeros(n, dtype=bool)
+                fee_mode = FeeMode.ADJUSTABLE
+            else:
+                fee_mode = FeeMode.FROZEN
+        elif mask.any() and is_day_start:
+            # Start of a new natural day: form today's plan afresh. The whole
+            # solved window is committed below, so the next day boundary is
+            # covered without another solve.
+            fee_mode = FeeMode.FIRST_PLAN
+            o_arr = np.zeros(n, dtype=np.float64)
+            a_arr = np.zeros(n, dtype=np.float64)
+            mask = np.zeros(n, dtype=bool)
+            fixed_values = np.zeros(n, dtype=np.float64)
         else:
-            # The 00:00 node forms this natural day's plan.
             fee_mode = FeeMode.FIRST_PLAN
 
         absorption = forecaster.absorption_upper_kwh(
@@ -354,6 +368,34 @@ def run_absolute(
             solver_name=options.solver_name,
             problem_name=f"{policy.name}@{abs_minute}",
         )
+        if not result.report.feasible and mask.any():
+            # The carried-over forward commitment turned out to be physically
+            # impossible given the realised state of charge (a large forecast
+            # deviation). Only our own natural day is binding; release the
+            # next-day part and retry rather than declaring the day infeasible.
+            today_only = mask & (minutes < _natural_day_end(abs_minute))
+            if today_only.any() and not np.array_equal(today_only, mask):
+                result = solve_window(
+                    forecast=forecast,
+                    soc_start_kwh=soc_now,
+                    fee_mode=fee_mode,
+                    o_kwh=np.where(today_only, o_arr, 0.0),
+                    a_kwh=np.where(today_only, a_arr, 0.0),
+                    price_now_yuan_per_kwh=current_price,
+                    absorption_upper_kwh=absorption,
+                    committed_grid_kwh=fixed_values,
+                    committed_mask=today_only,
+                    solver_name=options.solver_name,
+                    problem_name=f"{policy.name}@{abs_minute}-relaxed",
+                )
+                if result.report.feasible:
+                    mask = today_only
+                    o_arr = np.where(today_only, o_arr, 0.0)
+                    a_arr = np.where(today_only, a_arr, 0.0)
+                    notes.append(
+                        f"区间 {abs_minute}：次日前瞻承诺在实测 SOC 下不可行，"
+                        "已释放次日部分并重解（仅本自然日计划保持绑定）"
+                    )
         n_windows += 1
         if not result.report.feasible:
             infeasible.append(abs_minute)
@@ -368,10 +410,22 @@ def run_absolute(
         last_solve_abs = abs_minute
 
         if can_revise:
-            # A revision may only touch the not-yet-committed part of today.
+            # A revision may only touch this natural day's remaining plan; the
+            # part already committed for the next day is left untouched, which
+            # is why the O/A state is compared only on the freed intervals.
+            new_y = np.zeros(commitment.abs_minutes.size, dtype=np.float64)
+            pos = np.searchsorted(minutes, commitment.abs_minutes)
+            inside = pos < n
+            new_y[~inside] = commitment.effective_kwh[~inside]
+            if inside.any():
+                new_y[inside] = np.where(
+                    minutes[pos[inside]] <= _natural_day_end(abs_minute),
+                    result.grid_kwh[pos[inside]],
+                    commitment.effective_kwh[inside],
+                )
             new_state, penalty = revise_commitment(
                 commitment,
-                result.grid_kwh[~mask] if mask.any() else result.grid_kwh,
+                new_y,
                 at_abs=abs_minute,
                 price_at_yuan_per_kwh=float(current_price if current_price is not None else 0.0),
             )
@@ -380,9 +434,14 @@ def run_absolute(
                 n_revisions += 1
             commitment = new_state
         elif fee_mode == FeeMode.FIRST_PLAN:
-            commitment = CommittedBalances.from_initial_plan(
-                minutes.copy(), result.grid_kwh.copy()
-            )
+            # The 00:00 plan covers the whole solved window: today's remaining
+            # intervals become O, the next-day lookahead becomes A. Committing
+            # both is what lets the next day boundary carry over without another
+            # re-optimisation, and the next 00:00 simply replaces this plan.
+            boundary = _natural_day_end(abs_minute)
+            o_new = np.where(minutes < boundary, result.grid_kwh, 0.0)
+            a_new = np.where(minutes >= boundary, result.grid_kwh, 0.0)
+            commitment = CommittedBalances(minutes.copy(), o_new, a_new)
             n_revisions += 1
 
         # ---- execute the current interval ------------------------------------
@@ -485,6 +544,11 @@ def _is_adjust_node(abs_minute: int, policy: Policy) -> bool:
     """True when this interval starts an allowed adjustment node (06/12/18)."""
     clock = (abs_minute % MINUTES_PER_DAY) // 10
     return clock in policy.adjust_nodes_abs
+
+
+def _natural_day_end(abs_minute: int) -> int:
+    """Absolute minute of the next natural day 00:00 (exclusive day end)."""
+    return (abs_minute // MINUTES_PER_DAY + 1) * MINUTES_PER_DAY
 
 
 def _pv_curtailment(
