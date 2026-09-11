@@ -343,14 +343,18 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
     abs_from = (days[0] - DATE_2025_01_01).days * MINUTES_PER_DAY
     abs_to = (days[-1] - DATE_2025_01_01).days * MINUTES_PER_DAY + MINUTES_PER_DAY
 
-    price_lookup = None
-    if policy.price_mode == "historical":
-        # The current quote is only used once it is revealed: the plan always
-        # sees realised prices strictly before the current interval.
-        def price_lookup(abs_minute: int) -> float | None:  # type: ignore[misc]
-            if abs_minute - 10 < 0:
-                return None
-            return float(timeline.price_yuan_per_kwh.value_at(abs_minute - 10))
+    # Current price is always supplied, because the adjustment fee needs it:
+    #   * repeated-price branches (problems 1-3): the given daily curve is fully
+    #     known, so p_a is simply that curve at the current clock interval;
+    #   * historical branches (problem 4): only prices already revealed may be
+    #     used, so p_a is the last realised interval price.
+    def price_lookup(abs_minute: int) -> float | None:
+        if policy.price_mode == "repeated":
+            clock = (abs_minute % MINUTES_PER_DAY) // 10
+            return float(bundle.attachment1.price_yuan_per_kwh[clock])
+        if abs_minute - 10 < 0:
+            return None
+        return float(timeline.price_yuan_per_kwh.value_at(abs_minute - 10))
 
     t0 = time.perf_counter()
     outcome = run_absolute(
