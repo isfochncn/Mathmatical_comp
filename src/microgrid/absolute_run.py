@@ -601,12 +601,18 @@ def save_run(result: RunResult) -> Path:
     (run_dir / "daily_bills.csv").write_text("".join(lines), encoding="utf-8")
 
     arrays = result.run.arrays()
-    np.savez_compressed(
-        run_dir / "trajectory.npz",
-        soc_boundary_kwh=result.run.soc_boundary_kwh,
+    # Build the payload as an explicit dict instead of successive ``**kwargs``.
+    # ``export_arrays`` is an *override*: problem 1 keeps its trajectory in
+    # result-row order (and its SOC series has 145 boundary points rather than
+    # 144 intervals), so it deliberately replaces ``grid_kwh``/``charge_kwh``/…
+    # with row-aligned versions of the same length. Passing both as keyword
+    # arguments raised "got multiple values for keyword argument 'grid_kwh'".
+    payload: dict[str, np.ndarray] = {
+        "soc_boundary_kwh": result.run.soc_boundary_kwh,
         **{k: v for k, v in arrays.items() if k != "soc_kwh"},
-        **({} if not result.export_arrays else result.export_arrays),
-    )
+        **result.export_arrays,
+    }
+    np.savez_compressed(run_dir / "trajectory.npz", **payload)
     return run_dir
 
 
