@@ -56,6 +56,12 @@ def build_parser() -> argparse.ArgumentParser:
     runp.add_argument("--solver", default="appsi_highs")
     runp.add_argument("--history-days", type=int, default=28)
     runp.add_argument(
+        "--load-method",
+        choices=("same_clock_mean", "same_weekday"),
+        default="same_clock_mean",
+        help="负载预测主线；same_weekday 为比较事项 P1 的对照设置",
+    )
+    runp.add_argument(
         "--absorption-safety-kwh",
         type=float,
         default=600.0,
@@ -135,6 +141,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         problem=args.problem,
         out_dir=Path(args.out),
         history_days=args.history_days,
+        load_method=args.load_method,
         absorption_safety_kwh=args.absorption_safety_kwh,
         plan_refresh_intervals=args.plan_refresh_intervals,
         allow_spill=not args.strict_no_spill,

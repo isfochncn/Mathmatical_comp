@@ -63,6 +63,10 @@ class RunConfig:
     out_dir: Path = field(default_factory=lambda: Path("out"))
 
     history_days: int = 28
+    #: Main line is the 28-day same-clock mean (fixed 2026-09-11). The alternative
+    #: ``same_weekday`` exists as comparison item P1; it must never be swapped in
+    #: silently, so the choice is recorded in the run summary.
+    load_method: str = "same_clock_mean"
     absorption_safety_kwh: float = 600.0
     allow_spill: bool = True
     max_infeasible_intervals: int = 0
@@ -321,7 +325,9 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
     bundle = bundle or load_all()
     policy = POLICIES[config.problem]
     timeline = build_timeline(bundle)
-    forecaster = Forecaster(bundle, timeline, history_days=config.history_days)
+    forecaster = Forecaster(
+        bundle, timeline, history_days=config.history_days, load_method=config.load_method
+    )
 
     days = calendar_days(DATE_2025_01_01, DATE_2025_12_31)
     if config.run_from is not None:

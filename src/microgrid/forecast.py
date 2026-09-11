@@ -57,6 +57,11 @@ class Forecaster:
     timeline : absolute series with provenance.
     history_days : same-clock lookback window (technical baseline, not a task
         parameter; its sensitivity is comparison item A1).
+    load_method : ``"same_clock_mean"`` (main model, fixed 2026-09-11) or
+        ``"same_weekday"`` (comparison item P1: use the same weekday one week
+        ago). The comparison exists because this dataset has a strong weekly
+        pattern; the rule is that the main line may not be swapped silently, so
+        the choice is recorded in the run summary.
     """
 
     def __init__(
@@ -65,11 +70,13 @@ class Forecaster:
         timeline: Timeline,
         history_days: int = HISTORY_DAYS,
         fallback_hours: int = FALLBACK_HOURS,
+        load_method: str = "same_clock_mean",
     ) -> None:
         self.bundle = bundle
         self.timeline = timeline
         self.history_days = history_days
         self.fallback_hours = fallback_hours
+        self.load_method = load_method
 
     # ------------------------------------------------------------------
     # History access: only samples that have already been observed
@@ -173,6 +180,18 @@ class Forecaster:
         statement itself, and tag every such interval as ``cold_start``.
         """
         samples, n_days = self._same_clock_samples(now_abs, series_values)
+        if (
+            name == "demand"
+            and self.load_method == "same_weekday"
+            and now_abs >= 7 * MINUTES_PER_DAY
+        ):
+            # Comparison item P1: the same weekday one week ago.
+            past = series_values[(now_abs - 7 * MINUTES_PER_DAY) // 10 + clock_intervals]
+            return ForecastRecord(
+                values=np.maximum(past.astype(np.float64), 0.0) if clip_non_negative else past.astype(np.float64),
+                source="same-weekday(-7d)",
+                fallback_mask=np.zeros(clock_intervals.size, dtype=bool),
+            )
         out = np.zeros(clock_intervals.size, dtype=np.float64)
         fallback = np.zeros(clock_intervals.size, dtype=bool)
         cold = np.zeros(clock_intervals.size, dtype=bool)
