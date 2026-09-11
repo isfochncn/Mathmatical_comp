@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 from openpyxl import load_workbook
 
-from .constants import TEMPLATE_FILES
+from .constants import N_INTERVAL, TEMPLATE_FILES
 from .data_io import data_path
 from .timeaxis import result_interval_clock_index
 from .timeline import MINUTES_PER_DAY
@@ -59,6 +59,11 @@ class DailyExportRow:
     soc_natural_end_kwh: float        # natural day 24:00 (E_{d,144})
     execution_cost_yuan: float
     reduce_cost_yuan: float
+    #: Charge/discharge of this date's own 00:00-00:10 interval. The result row
+    #: starts at 00:10, so this value lives in the previous date's row; the
+    #: 4-hour blocks are laid out on the natural-day clock and therefore need it.
+    charge_clock_start_kwh: float | None = None
+    discharge_clock_start_kwh: float | None = None
 
     @property
     def result_row_cost_yuan(self) -> float:
@@ -107,12 +112,22 @@ def export_result1(trajectory, dest_dir: Path) -> Path:
     soc = np.asarray(
         trajectory.get("soc_boundary_kwh", trajectory.get("soc_kwh")), dtype=np.float64
     )
+    # Problem 1 is a periodic single day: cell j is clock interval j + 1 and the
+    # day's own 00:00 interval is the periodic extension, i.e. cell 143. Convert
+    # to the natural-day clock the block labels are written in, otherwise every
+    # 4-hour block would be one interval late (same defect as problem 2/3/4-x).
+    if charge.size != N_INTERVAL or discharge.size != N_INTERVAL:
+        raise ValidationError(
+            f"问题一充放电序列应为 {N_INTERVAL} 段，实际 {charge.size}/{discharge.size}"
+        )
+    charge_clock = _clock_order(charge, float(charge[N_INTERVAL - 1]))
+    discharge_clock = _clock_order(discharge, float(discharge[N_INTERVAL - 1]))
     for b in range(6):
         lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
         row = b + 2
         ws2.cell(row=row, column=1).value = BLOCK_LABELS[b]
-        ws2.cell(row=row, column=2).value = round(float(charge[lo:hi].sum()), 6)
-        ws2.cell(row=row, column=3).value = round(float(discharge[lo:hi].sum()), 6)
+        ws2.cell(row=row, column=2).value = round(float(charge_clock[lo:hi].sum()), 6)
+        ws2.cell(row=row, column=3).value = round(float(discharge_clock[lo:hi].sum()), 6)
     ws2.cell(row=2, column=5).value = round(float(soc[0]), 6)
     ws2.cell(row=3, column=5).value = round(float(soc[-1]), 6)
 
@@ -220,6 +235,40 @@ def _fill_daily_matrix(ws, rows: list[DailyExportRow], attr: str) -> None:
         _clear_row(ws, excel_row, 147)
 
 
+def _clock_order(values: np.ndarray, first_clock: float | None = None) -> np.ndarray:
+    """Result-row order -> natural-day clock order (exact re-indexing).
+
+    The template labels its blocks ``0:00-4:00 … 20:00-24:00``, so a block is
+    defined on the **natural-day clock**: clock interval ``t`` covers
+    ``[t*10, (t+1)*10)`` minutes of the date in column 1.
+
+    A ``DailyExportRow`` stores its 144 values in **result-row order**, where
+    cell ``j`` belongs to clock ``j + 1`` of that date, and ``j = 143`` reaches
+    into the *next* day (clock 0 of the following date). Two consequences:
+
+    * clock 0 of this date (its own 00:00) is **not in its own row** — it is the
+      last cell of the *previous* date's row. It must be supplied by the caller
+      via ``first_clock``; without it the block cannot be reconstructed.
+    * the orders are permutations of the same 144 values but **not** a cyclic
+      rotation of the row array (rotating would pull the next day's interval
+      into the last block and the wrong value into the first).
+
+    Exact mapping: ``clock[0] = first_clock`` and ``clock[t] = row[t - 1]``.
+    """
+    arr = np.asarray(values, dtype=np.float64)
+    if arr.size != N_INTERVAL:
+        raise ValidationError(f"分块需要 {N_INTERVAL} 段，收到 {arr.size}")
+    if first_clock is None:
+        raise ValidationError(
+            "缺少该自然日 00:00 的数值：result 行首格是 00:10，当日 00:00 落在前一日"
+            " result 行的最后一格，无法由本行自身还原"
+        )
+    out = np.empty(N_INTERVAL, dtype=np.float64)
+    out[0] = float(first_clock)
+    out[1:] = arr[: N_INTERVAL - 1]
+    return out
+
+
 def _fill_charge_discharge(ws, rows: list[DailyExportRow]) -> None:
     """Six 4-hour blocks per natural day plus the natural-day 00:00/24:00 SOC."""
     for excel_row in range(2, ws.max_row + 1):
@@ -227,8 +276,10 @@ def _fill_charge_discharge(ws, rows: list[DailyExportRow]) -> None:
 
     excel_row = 2
     for r in rows:
-        charge = np.asarray(r.charge_stored_kwh, dtype=np.float64)
-        discharge = np.asarray(r.discharge_delivered_kwh, dtype=np.float64)
+        # Re-align to the natural-day clock before slicing the blocks. The day's
+        # own 00:00 value is not in its result row, so it is carried explicitly.
+        charge = _clock_order(r.charge_stored_kwh, r.charge_clock_start_kwh)
+        discharge = _clock_order(r.discharge_delivered_kwh, r.discharge_clock_start_kwh)
         for b in range(6):
             ws.cell(row=excel_row, column=1).value = r.day if b == 0 else None
             ws.cell(row=excel_row, column=2).value = BLOCK_LABELS[b]
@@ -400,6 +451,10 @@ def build_daily_rows(result) -> list[DailyExportRow]:
                 final[j] = ev.o_exec_kwh + ev.a_exec_kwh
                 exec_cost += ev.cost_yuan
         row_bill = dict(result.row_bills)[day]
+        # The day's own 00:00 interval is not in its result row; look it up by
+        # absolute minute (and on the very first day of a run it may be absent,
+        # in which case the block is filled zero rather than a wrong value).
+        step0 = step_index.get(base)
         out.append(
             DailyExportRow(
                 day=day,
@@ -413,6 +468,8 @@ def build_daily_rows(result) -> list[DailyExportRow]:
                 soc_natural_end_kwh=soc_index.get(base + MINUTES_PER_DAY, float("nan")),
                 execution_cost_yuan=exec_cost,
                 reduce_cost_yuan=row_bill.reduce_cost_yuan,
+                charge_clock_start_kwh=None if step0 is None else step0.charge_kwh,
+                discharge_clock_start_kwh=None if step0 is None else step0.discharge_kwh,
             )
         )
     return out

@@ -276,6 +276,10 @@ def cmd_export(args: argparse.Namespace) -> int:
                     plan[j] = float(plan_exec[idx])
                     adjust[j] = float(add_exec[idx])
         df, _dt = natural_day_bounds(day)
+        # The 4-hour blocks are labelled on the natural-day clock (0:00-4:00 …),
+        # and the day's own 00:00-00:10 interval sits in the PREVIOUS date's
+        # result row, so it is read straight from the trajectory.
+        i_start = step_index.get(df)
         rows.append(
             DailyExportRow(
                 day=day,
@@ -293,6 +297,12 @@ def cmd_export(args: argparse.Namespace) -> int:
                 soc_natural_end_kwh=soc_by_abs.get(df + MINUTES_PER_DAY, float("nan")),
                 execution_cost_yuan=float(rec.get("execution_cost_yuan", 0.0)),
                 reduce_cost_yuan=float(rec.get("reduce_cost_yuan", 0.0)),
+                charge_clock_start_kwh=(
+                    float(arrays["charge_kwh"][i_start]) if i_start is not None else None
+                ),
+                discharge_clock_start_kwh=(
+                    float(arrays["discharge_kwh"][i_start]) if i_start is not None else None
+                ),
             )
         )
 

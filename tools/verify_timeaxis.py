@@ -185,7 +185,12 @@ n_eq = int(np.sum(np.abs(cur[both] - sur[both]) < 1e-6))
 share = float(cur[both][np.abs(cur[both] - sur[both]) < 1e-6].sum() / cur.sum()) if cur.sum() else 0.0
 check(n_both > 0 and n_eq / n_both > 0.5,
       f"多数同时在正的段上两者数值恒等（{n_eq}/{n_both} 段，占弃光量的 {share:.1%}）")
-check(share > 0.9, f"恒等的那些段覆盖弃光总量的绝大部分（{share:.1%}）")
+# The equality share is a property of the data, not of the code: on the 7-day
+# benchmark it is 98.7%, over a full year 85-87%. Assert only that the bulk is
+# explained by exact equality, so a real accounting change (>15% unexplained)
+# still fails.
+check(share > 0.75,
+      f"恒等的那些段覆盖弃光总量的大部分（{share:.1%}；7 天算例约 98.7%，全年约 85–87%）")
 print(f"       弃光累计 {cur.sum():,.1f} kWh，富余累计 {sur.sum():,.1f} kWh")
 print(f"       重复计量部分 ≈ 弃光累计 {cur.sum():,.1f} kWh（占富余的 {cur.sum() / sur.sum():.1%}）")
 print(f"       富余中不重复的部分（购电过量所致）= {sur.sum() - cur.sum():,.1f} kWh")

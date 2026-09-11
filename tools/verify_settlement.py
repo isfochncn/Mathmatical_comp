@@ -38,6 +38,17 @@ u = npz["emergency_kwh"][keep]
 p = npz["price_actual"][keep]
 n = int(keep.sum())
 
+# Problem 3 / 4-3 save the O/A split. Without it the labels cannot be verified:
+# grid_kwh is O + A and the two carry different rates (A is charged 1.5x), so
+# summing grid_kwh would overstate plan_kwh and understate the adjustment fee.
+has_split = "plan_exec_kwh" in npz and "add_exec_kwh" in npz
+if has_split:
+    o = npz["plan_exec_kwh"][keep]
+    a = npz["add_exec_kwh"][keep]
+else:
+    o = g
+    a = np.zeros_like(g)
+
 print("=" * 78)
 print(f"独立复算结算：{problem}（{run_dir}，输出窗口 {n} 段）")
 print("=" * 78)
@@ -55,49 +66,55 @@ def check(cond: bool, msg: str) -> None:
         fails.append(msg)
 
 
-plan_kwh = float(g.sum())
+plan_kwh = float(o.sum())
+add_kwh = float(a.sum())
 emg_kwh = float(u.sum())
-plan_cost = float(np.sum(p * g))
+plan_cost = float(np.sum(p * o))
+add_cost = float(np.sum(1.5 * p * a))
 emg_cost = float(np.sum(5.0 * p * u))
 reduce_cost = float(S["reduce_cost_yuan"])
 
 print(f"  区间段数            {n}")
-print(f"  Σ购电（=O^exec）    {plan_kwh:>18,.6f} kWh")
+print(f"  ΣO^exec（计划购电） {plan_kwh:>18,.6f} kWh")
+print(f"  ΣA^exec（调整增购） {add_kwh:>18,.6f} kWh")
 print(f"  Σ紧急购电           {emg_kwh:>18,.6f} kWh")
-print(f"  Σ价格×购电          {plan_cost:>18,.6f} 元")
+print(f"  Σ价格×O             {plan_cost:>18,.6f} 元")
+print(f"  1.5×Σ价格×A         {add_cost:>18,.6f} 元")
 print(f"  5×Σ价格×紧急        {emg_cost:>18,.6f} 元")
 print(f"  违约费用（记录值）  {reduce_cost:>18,.6f} 元")
+if not has_split:
+    print("  注：轨迹未保存 O/A 拆分，本问按 A ≡ 0 处理（仅对 problem2 / 4-2 成立）。")
 print()
 
 rel = 1e-9
 check(abs(plan_kwh - float(S["plan_kwh"])) <= rel * max(1.0, abs(plan_kwh)),
       f"plan_kwh 一致：{plan_kwh:,.6f} vs {float(S['plan_kwh']):,.6f}")
+check(abs(add_kwh - float(S["add_kwh"])) <= rel * max(1.0, abs(add_kwh)),
+      f"add_kwh 一致：{add_kwh:,.6f} vs {float(S['add_kwh']):,.6f}")
 check(abs(emg_kwh - float(S["emergency_kwh"])) <= rel * max(1.0, abs(emg_kwh)),
       f"emergency_kwh 一致：{emg_kwh:,.6f} vs {float(S['emergency_kwh']):,.6f}")
 check(abs(plan_cost - float(S["plan_cost_yuan"])) <= 1e-6 * max(1.0, abs(plan_cost)),
       f"plan_cost_yuan 一致：{plan_cost:,.6f} vs {float(S['plan_cost_yuan']):,.6f}")
+check(abs(add_cost - float(S["add_cost_yuan"])) <= 1e-6 * max(1.0, abs(add_cost)),
+      f"add_cost_yuan 一致：{add_cost:,.6f} vs {float(S['add_cost_yuan']):,.6f}")
 check(abs(emg_cost - float(S["emergency_cost_yuan"])) <= 1e-6 * max(1.0, abs(emg_cost)),
       f"emergency_cost_yuan 一致：{emg_cost:,.6f} vs {float(S['emergency_cost_yuan']):,.6f}")
 check(
-    abs((plan_cost + emg_cost + reduce_cost) - float(S["total_cost_yuan"]))
+    abs((plan_cost + add_cost + emg_cost + reduce_cost) - float(S["total_cost_yuan"]))
     <= 1e-6 * max(1.0, abs(float(S["total_cost_yuan"]))),
-    f"总费用 = 计划费 + 紧急费 + 违约费：{plan_cost + emg_cost + reduce_cost:,.6f} "
-    f"vs {float(S['total_cost_yuan']):,.6f}",
+    f"总费用 = 计划费 + 调整费 + 紧急费 + 违约费："
+    f"{plan_cost + add_cost + emg_cost + reduce_cost:,.6f} vs {float(S['total_cost_yuan']):,.6f}",
 )
 check(
-    abs((plan_kwh + emg_kwh) - float(S["total_purchased_kwh"])) <= rel * max(1.0, plan_kwh),
-    f"总购电量一致：{plan_kwh + emg_kwh:,.6f} vs {float(S['total_purchased_kwh']):,.6f}",
+    abs((plan_kwh + add_kwh + emg_kwh) - float(S["total_purchased_kwh"]))
+    <= rel * max(1.0, plan_kwh),
+    f"总购电量一致：{plan_kwh + add_kwh + emg_kwh:,.6f} vs "
+    f"{float(S['total_purchased_kwh']):,.6f}",
 )
-
-if abs(float(S["add_kwh"])) > 1e-9:
-    print()
-    print(f"  注：本问存在调整增购 {float(S['add_kwh']):,.3f} kWh（费率 1.5 倍），")
-    print("      npz 未保存 O/A 拆分，故 total_kwh 只能校验到相加关系。")
-    check(
-        abs((plan_kwh + float(S["add_kwh"]) + emg_kwh) - float(S["total_purchased_kwh"]))
-        <= rel * max(1.0, plan_kwh),
-        "计划 + 增购 + 紧急 = 总购电量",
-    )
+check(
+    abs(float(np.max(np.abs(o + a - g)))) < 1e-9,
+    f"O^exec + A^exec = grid（最大差 {np.max(np.abs(o + a - g)):.3e}）",
+)
 
 print()
 print("全部通过" if not fails else f"{len(fails)} 项失败")
