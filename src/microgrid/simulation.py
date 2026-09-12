@@ -112,6 +112,7 @@ class RunOptions:
     max_infeasible_intervals: int = 0
     solver_name: str = "appsi_highs"
     experiment: str = "main"
+    evaluation_restart: bool = False  # paired subperiod tests only, never a main annual run
 
 
 @dataclass
@@ -137,8 +138,12 @@ def _is_adjust_node(abs_minute: int, policy: Policy) -> bool:
 def run_absolute(*, timeline: Timeline, forecaster: Forecaster, policy: Policy,
                  options: RunOptions, abs_from: int, abs_to: int,
                  soc_start_kwh: float, current_price_lookup=None) -> AbsoluteRunResult:
-    if abs_to <= abs_from or abs_from != ROLLING_START_ABS_MINUTE or abs_to % 10:
+    valid_start = abs_from == ROLLING_START_ABS_MINUTE or (
+        options.evaluation_restart and options.experiment != 'main' and abs_from > 0 and abs_from%1440 == 0)
+    if abs_to <= abs_from or not valid_start or abs_to % 10:
         raise ValueError("Rolling run must start at January 1 00:10 and contain complete intervals")
+    if options.evaluation_restart and options.experiment == 'main':
+        raise ValueError('A main run cannot restart from an evaluation checkpoint')
     if options.max_infeasible_intervals:
         raise ValueError("Failed intervals cannot be skipped")
     if options.experiment == "main" and (
@@ -166,6 +171,12 @@ def run_absolute(*, timeline: Timeline, forecaster: Forecaster, policy: Policy,
         if needs_solve:
             forecast = forecaster.window_forecast(now, now, b + 1440,
                 use_published_pv=policy.use_published_pv, current_price=quote, price_mode=policy.price_mode)
+            risk = {}
+            if hasattr(forecaster, 'risk_requirements'):
+                risk = forecaster.risk_requirements(now, forecast,
+                    published=policy.use_published_pv, adjustable=policy.can_adjust_plan)
+                forecast.reserve_energy_kwh = risk.get('reserve_energy_kwh')
+                forecast.net_upper_kwh = risk.get('net_upper_kwh')
             today = forecast.abs_minutes < b
             o, a = np.zeros(forecast.n), np.zeros(forecast.n)
             if is_start:
@@ -197,7 +208,22 @@ def run_absolute(*, timeline: Timeline, forecaster: Forecaster, policy: Policy,
             n_solves += 1
             audits.append(dict(formed_at=now, observed_end=now, window_end=b+1440,
                                source=str(forecast.provenance[0]), forecast_cost=result.objective_yuan,
-                               forecast_spill_kwh=float(np.sum(getattr(result, "spill_kwh", 0)))))
+                               forecast_spill_kwh=float(np.sum(getattr(result, "spill_kwh", 0))),
+                               demand_forecast_kwh=float(forecast.demand_kwh[0]),
+                               pv_forecast_kwh=float(forecast.pv_kwh[0]),
+                               risk_sample_count=risk.get('risk_sample_count', 0),
+                               reserve_required_kwh=(float(forecast.reserve_energy_kwh[0])
+                                   if forecast.reserve_energy_kwh is not None else 0.),
+                               reserve_shortfall_kwh=result.reserve_shortfall_kwh,
+                               reserve_stock_shortfall_kwh=result.reserve_stock_shortfall_kwh,
+                               reserve_power_shortfall_now_kwh=float(result.reserve_power_shortfall_kwh[0]),
+                               risk_penalty_yuan=result.risk_penalty_yuan))
+            if (is_start or can_revise) and risk:
+                audits[-1]['reserve_path_kwh'] = forecast.reserve_energy_kwh.tolist()
+                audits[-1]['net_upper_path_kwh'] = forecast.net_upper_kwh.tolist()
+                audits[-1]['demand_forecast_path_kwh'] = forecast.demand_kwh.tolist()
+                audits[-1]['pv_forecast_path_kwh'] = forecast.pv_kwh.tolist()
+                audits[-1]['reserve_power_shortfall_path_kwh'] = result.reserve_power_shortfall_kwh.tolist()
             if is_start:
                 commitment = CommittedBalances.from_initial_plan(
                     forecast.abs_minutes[today], result.grid_kwh[today])

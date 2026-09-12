@@ -56,6 +56,7 @@ def main(argv: list[str]) -> int:
             experiment=args.experiment,
             allow_spill=not args.strict_no_spill,
             load_method=args.load_method,
+            risk_quantile=args.risk_quantile,
             absorption_safety_kwh=args.absorption_safety_kwh,
             plan_refresh_intervals=args.plan_refresh_intervals,
             max_infeasible_intervals=args.max_infeasible_intervals,

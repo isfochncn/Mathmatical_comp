@@ -1,0 +1,742 @@
+{
+  "problem2": {
+    "totals": {
+      "plan_kwh": 1945284.0571815227,
+      "ordinary_kwh": 1945284.0571815227,
+      "emergency_kwh": 4330.416188825259,
+      "total_kwh": 1949614.473370348,
+      "ordinary_cost": 1187146.856550717,
+      "emergency_cost": 27700.441021314044,
+      "total_cost": 1214847.2975720312,
+      "spill_kwh": 16602.782720833857,
+      "soc_start": 10696.993178203204,
+      "soc_end": 7265.629489043839,
+      "emergency_intervals": 58,
+      "revised_intervals": 0
+    },
+    "forecast": {
+      "rolling": {
+        "load_mae": 20.269423810350528,
+        "pv_mae": 19.428053579105242,
+        "pv_bias_actual_minus_pred": 10.93585826306215,
+        "net_mae": 33.04052174555933,
+        "net_underforecast_sum": 35552.25221571429,
+        "urgent_load_error_mean": 10.929367571839077,
+        "urgent_pv_error_mean": 0.20252307060755328,
+        "urgent_net_error_mean": 10.726844501231522
+      },
+      "last_legal_node": {
+        "load_mae": 22.460483232051327,
+        "pv_mae": 19.428053579105242,
+        "pv_bias_actual_minus_pred": 10.93585826306215,
+        "net_mae": 35.60546774297934,
+        "net_underforecast_sum": 24855.872670772864,
+        "urgent_load_error_mean": 10.465113513811161,
+        "urgent_pv_error_mean": 0.20252307060755328,
+        "urgent_net_error_mean": 10.262590443203612
+      }
+    },
+    "hourly_emergency": [
+      {
+        "hour": 0,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 1,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 2,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 3,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 4,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 5,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 6,
+        "emergency_kwh": 6.924281644325764,
+        "cost": 31.953066442471922,
+        "n": 3
+      },
+      {
+        "hour": 7,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 8,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 9,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 10,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 11,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 12,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 13,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 14,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 15,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 16,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 17,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 18,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 19,
+        "emergency_kwh": 14.467116686666586,
+        "cost": 97.38129692622111,
+        "n": 2
+      },
+      {
+        "hour": 20,
+        "emergency_kwh": 3682.4034099906057,
+        "cost": 24622.377317883933,
+        "n": 24
+      },
+      {
+        "hour": 21,
+        "emergency_kwh": 626.6213805036612,
+        "cost": 2948.729340061422,
+        "n": 29
+      },
+      {
+        "hour": 22,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 23,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      }
+    ],
+    "largest_emergencies": [
+      {
+        "at": "2025-02-16T20:40:00",
+        "decision_at": "2025-02-16T00:00:00",
+        "demand": 718.6760333333333,
+        "pv": 0.0,
+        "grid": 1.0643724988674421,
+        "emergency": 546.8142376552909,
+        "soc_start": 1389.774914654639,
+        "soc_end": 1200.000000011111,
+        "discharge": 170.79742317917498,
+        "initial_plan": 1.0643724988674421,
+        "original_exec": 1.0643724988674421,
+        "add_exec": 0.0,
+        "node_demand_pred": 708.2194619116364,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 714.3108008333332,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 751.0643724988674,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 132.01546825539515
+      },
+      {
+        "at": "2025-02-09T20:40:00",
+        "decision_at": "2025-02-09T00:00:00",
+        "demand": 697.1692833333333,
+        "pv": 0.0,
+        "grid": 7.886550013941246,
+        "emergency": 544.4829176365305,
+        "soc_start": 1360.8886841031795,
+        "soc_end": 1200.000000011111,
+        "discharge": 144.79981568286155,
+        "initial_plan": 7.886550013941246,
+        "original_exec": 7.886550013941246,
+        "add_exec": 0.0,
+        "node_demand_pred": 725.0796906126018,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 723.9635241666667,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 757.8865500139412,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 197.3040899811608
+      },
+      {
+        "at": "2025-02-04T20:40:00",
+        "decision_at": "2025-02-04T00:00:00",
+        "demand": 710.2774833333333,
+        "pv": 0.0,
+        "grid": 51.57789243832883,
+        "emergency": 536.0821708656144,
+        "soc_start": 1336.2415778215445,
+        "soc_end": 1200.0000000111113,
+        "discharge": 122.61742002939002,
+        "initial_plan": 51.57789243832883,
+        "original_exec": 51.57789243832883,
+        "add_exec": 0.0,
+        "node_demand_pred": 733.5191337164537,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 707.0198933333332,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 801.5778924383288,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 248.3443706807642
+      },
+      {
+        "at": "2025-02-26T20:40:00",
+        "decision_at": "2025-02-26T00:00:00",
+        "demand": 714.9542333333334,
+        "pv": 0.0,
+        "grid": 12.320362339399253,
+        "emergency": 369.10682635197554,
+        "soc_start": 1570.585605168843,
+        "soc_end": 1200.000000011111,
+        "discharge": 333.5270446419586,
+        "initial_plan": 12.320362339399253,
+        "original_exec": 12.320362339399253,
+        "add_exec": 0.0,
+        "node_demand_pred": 719.4754517521682,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 715.8675900000001,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 762.3203623393993,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 126.69192991614011
+      },
+      {
+        "at": "2025-02-01T20:50:00",
+        "decision_at": "2025-02-01T00:00:00",
+        "demand": 454.01236666666665,
+        "pv": 0.0,
+        "grid": 0.0,
+        "emergency": 359.493776103489,
+        "soc_start": 1305.0206561924197,
+        "soc_end": 1200.000000011111,
+        "discharge": 94.51859056317767,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 489.11441251543,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 468.39815999999996,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 605.8756541820966,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1396.60566
+      },
+      {
+        "at": "2025-02-22T20:50:00",
+        "decision_at": "2025-02-22T00:00:00",
+        "demand": 473.94864999999993,
+        "pv": 0.0,
+        "grid": 0.0,
+        "emergency": 342.4180018076214,
+        "soc_start": 1346.1451646693095,
+        "soc_end": 1200.000000011111,
+        "discharge": 131.53064819237852,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 460.07127563023886,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 454.2266299999999,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 474.1365244275291,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 160.04183435795153
+      },
+      {
+        "at": "2025-02-15T20:50:00",
+        "decision_at": "2025-02-15T00:00:00",
+        "demand": 454.96875,
+        "pv": 0.0,
+        "grid": 0.0,
+        "emergency": 196.98786520963097,
+        "soc_start": 1486.6454275559656,
+        "soc_end": 1200.000000011111,
+        "discharge": 257.98088479036903,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 475.87230171562675,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 476.42285916666657,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 489.93755051291697,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 160.04183435795153
+      },
+      {
+        "at": "2025-02-14T20:50:00",
+        "decision_at": "2025-02-14T00:00:00",
+        "demand": 463.57769999999994,
+        "pv": 0.0,
+        "grid": 0.0,
+        "emergency": 191.0665879444261,
+        "soc_start": 1502.7901245173043,
+        "soc_end": 1200.0000000111113,
+        "discharge": 272.51111205557385,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 486.572028504935,
+        "node_pv_pred": 0.0,
+        "rolling_demand_pred": 485.40565333333325,
+        "rolling_pv_pred": 0.0,
+        "node_net_upper": 500.63727730222524,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 160.04183435795153
+      }
+    ],
+    "physical_emergency_formula_max_error": 1.000012161966879e-08,
+    "power_only_shortage_kwh": 36.11095725919597,
+    "additional_stock_shortage_kwh": 4294.305231257667,
+    "urgent_discharge_at_750_count": 7,
+    "urgent_soc_end_at_min_count": 51,
+    "soc_mean": 7576.980731818356,
+    "reserve_mean": 1526.8187177492418,
+    "decision_node_urgent_count": 0,
+    "decision_node_urgent_kwh": 0.0
+  },
+  "problem3": {
+    "totals": {
+      "plan_kwh": 1937307.884082417,
+      "retained_kwh": 1886744.627494595,
+      "add_kwh": 41504.75096409034,
+      "ordinary_kwh": 1928249.3784586855,
+      "net_adjustment_kwh": -9058.505623731655,
+      "emergency_kwh": 27516.074000830362,
+      "total_kwh": 1955765.4524595158,
+      "plan_cost": 1143709.889549806,
+      "add_cost": 45289.91122353777,
+      "emergency_cost": 133898.42454979298,
+      "reduced_kwh": 54966.73789902829,
+      "penalty_cost": 22029.825663723677,
+      "total_cost": 1344928.0509868604,
+      "spill_kwh": 15394.26446491625,
+      "soc_start": 9413.245064631434,
+      "soc_end": 6802.179718277211,
+      "emergency_intervals": 198,
+      "revised_intervals": 1542,
+      "penalty_nodes": 69,
+      "spill_intervals": 234
+    },
+    "forecast": {
+      "rolling": {
+        "load_mae": 20.269423810350528,
+        "pv_mae": 40.06990784069879,
+        "pv_bias_actual_minus_pred": -2.1663389593479776,
+        "net_mae": 50.53003552978824,
+        "net_underforecast_sum": 97225.14160509859,
+        "urgent_load_error_mean": -2.0712996212121233,
+        "urgent_pv_error_mean": -73.0998371345315,
+        "urgent_net_error_mean": 71.02853751331938
+      },
+      "last_legal_node": {
+        "load_mae": 21.062214617527744,
+        "pv_mae": 40.06990784069879,
+        "pv_bias_actual_minus_pred": -2.1663389593479776,
+        "net_mae": 51.16402608652924,
+        "net_underforecast_sum": 91379.55369305528,
+        "urgent_load_error_mean": -4.5230821963225045,
+        "urgent_pv_error_mean": -73.0998371345315,
+        "urgent_net_error_mean": 68.57675493820899
+      }
+    },
+    "hourly_emergency": [
+      {
+        "hour": 0,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 1,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 2,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 3,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 4,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 5,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 6,
+        "emergency_kwh": 419.30888323259006,
+        "cost": 1876.6859478714225,
+        "n": 27
+      },
+      {
+        "hour": 7,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 8,
+        "emergency_kwh": 601.7874275214131,
+        "cost": 3150.322532165394,
+        "n": 6
+      },
+      {
+        "hour": 9,
+        "emergency_kwh": 14688.478121941454,
+        "cost": 71827.42470856424,
+        "n": 71
+      },
+      {
+        "hour": 10,
+        "emergency_kwh": 11598.553976189758,
+        "cost": 56204.31033608179,
+        "n": 85
+      },
+      {
+        "hour": 11,
+        "emergency_kwh": 85.46375000000015,
+        "cost": 214.72767187500034,
+        "n": 1
+      },
+      {
+        "hour": 12,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 13,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 14,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 15,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 16,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 17,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 18,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 19,
+        "emergency_kwh": 14.467116686666586,
+        "cost": 97.38129692622111,
+        "n": 2
+      },
+      {
+        "hour": 20,
+        "emergency_kwh": 8.49096413970288,
+        "cost": 57.25625416968789,
+        "n": 2
+      },
+      {
+        "hour": 21,
+        "emergency_kwh": 99.52376111877892,
+        "cost": 470.3158021392179,
+        "n": 4
+      },
+      {
+        "hour": 22,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      },
+      {
+        "hour": 23,
+        "emergency_kwh": 0.0,
+        "cost": 0.0,
+        "n": 0
+      }
+    ],
+    "largest_emergencies": [
+      {
+        "at": "2025-02-27T09:00:00",
+        "decision_at": "2025-02-27T06:00:00",
+        "demand": 1175.3483333333334,
+        "pv": 744.375,
+        "grid": 0.0,
+        "emergency": 430.9733333209877,
+        "soc_start": 1200.000000011111,
+        "soc_end": 1200.000000011111,
+        "discharge": 0.0,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1115.0797688483174,
+        "node_pv_pred": 991.721535236109,
+        "rolling_demand_pred": 1122.5402499999998,
+        "rolling_pv_pred": 991.721535236109,
+        "node_net_upper": 344.0330176772165,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1872.217697825282
+      },
+      {
+        "at": "2025-02-27T09:10:00",
+        "decision_at": "2025-02-27T06:00:00",
+        "demand": 1154.2244666666666,
+        "pv": 767.6888333333333,
+        "grid": 0.0,
+        "emergency": 386.53563333333335,
+        "soc_start": 1200.000000011111,
+        "soc_end": 1200.000000011111,
+        "discharge": 0.0,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1120.2062805353755,
+        "node_pv_pred": 1006.5765505655904,
+        "rolling_demand_pred": 1127.3541016666668,
+        "rolling_pv_pred": 1006.5765505655904,
+        "node_net_upper": 309.38581899632993,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1728.7782649236499
+      },
+      {
+        "at": "2025-02-12T09:20:00",
+        "decision_at": "2025-02-12T06:00:00",
+        "demand": 1155.5801999999999,
+        "pv": 783.8513333333333,
+        "grid": 0.0,
+        "emergency": 371.7288666666664,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1160.6134702819509,
+        "node_pv_pred": 922.6500574242364,
+        "rolling_demand_pred": 1167.1639816666664,
+        "rolling_pv_pred": 922.6500574242364,
+        "node_net_upper": 396.5404256649518,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1234.1421237431741
+      },
+      {
+        "at": "2025-02-26T09:00:00",
+        "decision_at": "2025-02-26T06:00:00",
+        "demand": 1204.385,
+        "pv": 845.8874999999999,
+        "grid": 0.0,
+        "emergency": 358.4975000000001,
+        "soc_start": 1200.000000011111,
+        "soc_end": 1200.000000011111,
+        "discharge": 0.0,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1154.6892311933548,
+        "node_pv_pred": 1050.8544884236564,
+        "rolling_demand_pred": 1145.7540333333336,
+        "rolling_pv_pred": 1050.8544884236564,
+        "node_net_upper": 324.5095268347065,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1872.217697825282
+      },
+      {
+        "at": "2025-02-16T09:20:00",
+        "decision_at": "2025-02-16T06:00:00",
+        "demand": 1138.3096666666665,
+        "pv": 784.5850499999999,
+        "grid": 0.0,
+        "emergency": 353.7246166666667,
+        "soc_start": 1200.000000011111,
+        "soc_end": 1200.000000011111,
+        "discharge": 0.0,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1175.0889527411737,
+        "node_pv_pred": 892.0612649397091,
+        "rolling_demand_pred": 1177.0627566666665,
+        "rolling_pv_pred": 892.0612649397091,
+        "node_net_upper": 441.6047006087019,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1234.1421237431741
+      },
+      {
+        "at": "2025-02-11T09:30:00",
+        "decision_at": "2025-02-11T06:00:00",
+        "demand": 1151.0983333333334,
+        "pv": 804.0562499999999,
+        "grid": 0.0,
+        "emergency": 347.04208333333355,
+        "soc_start": 1200.000000011111,
+        "soc_end": 1200.000000011111,
+        "discharge": 0.0,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1180.7880868436116,
+        "node_pv_pred": 913.6233368664341,
+        "rolling_demand_pred": 1178.763883333333,
+        "rolling_pv_pred": 913.6233368664341,
+        "node_net_upper": 412.74678410887316,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1084.169212057366
+      },
+      {
+        "at": "2025-02-04T09:50:00",
+        "decision_at": "2025-02-04T06:00:00",
+        "demand": 1150.3997166666666,
+        "pv": 807.6507666666666,
+        "grid": 0.0,
+        "emergency": 342.74894999999975,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1178.4973868429138,
+        "node_pv_pred": 849.0882206828632,
+        "rolling_demand_pred": 1164.4097458333333,
+        "rolling_pv_pred": 849.0882206828632,
+        "node_net_upper": 414.9915187594163,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1090.1964521693385
+      },
+      {
+        "at": "2025-02-19T09:20:00",
+        "decision_at": "2025-02-19T06:00:00",
+        "demand": 1165.62795,
+        "pv": 822.2113333333333,
+        "grid": 0.0,
+        "emergency": 336.748982902119,
+        "soc_start": 1207.4084819717198,
+        "soc_end": 1200.000000011111,
+        "discharge": 6.667633764547759,
+        "initial_plan": 0.0,
+        "original_exec": 0.0,
+        "add_exec": 0.0,
+        "node_demand_pred": 1156.5411534665516,
+        "node_pv_pred": 948.8698378581554,
+        "rolling_demand_pred": 1158.099630833333,
+        "rolling_pv_pred": 948.8698378581554,
+        "node_net_upper": 368.5581117977788,
+        "node_reserve_power_slack": 0.0,
+        "reserve_current": 1234.1421237431741
+      }
+    ],
+    "physical_emergency_formula_max_error": 1.000005767082257e-08,
+    "power_only_shortage_kwh": 455.18415441680986,
+    "additional_stock_shortage_kwh": 27060.88984447059,
+    "urgent_discharge_at_750_count": 33,
+    "urgent_soc_end_at_min_count": 165,
+    "soc_mean": 7257.194036218039,
+    "reserve_mean": 727.8297079518458,
+    "decision_node_urgent_count": 7,
+    "decision_node_urgent_kwh": 97.46123479820704
+  },
+  "cost_decomposition": {
+    "total_difference": 130080.75341482926,
+    "ordinary_execution_difference": 1852.944222626742,
+    "emergency_difference": 106197.98352847894,
+    "penalty_difference": 22029.825663723677
+  }
+}

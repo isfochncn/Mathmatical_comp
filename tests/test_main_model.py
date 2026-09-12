@@ -263,7 +263,10 @@ def test_revision_archive_penalty_and_export_round_trip(synthetic, monkeypatch, 
         else:
             grid = np.full(f.n, 100. if kw["fee_mode"] == FeeMode.FIRST_PLAN else 80.)
         result = SimpleNamespace(grid_kwh=grid, charge_kwh=np.zeros(f.n),
-                                 discharge_kwh=np.maximum(100-grid, 0), objective_yuan=0.)
+                                 discharge_kwh=np.maximum(100-grid, 0), objective_yuan=0.,
+                                 reserve_shortfall_kwh=0., risk_penalty_yuan=0.)
+        result.reserve_stock_shortfall_kwh = 0.
+        result.reserve_power_shortfall_kwh = np.zeros(f.n)
         result.require_ok = lambda: result
         return result
 

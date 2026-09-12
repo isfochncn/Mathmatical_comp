@@ -50,17 +50,18 @@ def run_arm(
     run_to: date | None,
     progress_every_days: int,
 ) -> tuple[dict[str, object], float, list[str]]:
-    label = "main" if load_method == "same_clock_mean" else "P1-same_weekday"
+    label = "legacy-mean28" if load_method == "same_clock_mean" else "P1-same_weekday"
     arm_dir = out_dir if load_method == "same_clock_mean" else out_dir / f"_p1_{problem}"
     config = RunConfig(
         problem=problem,
         out_dir=arm_dir,
         load_method=load_method,
+        risk_quantile=0,
         run_from=run_from,
         run_to=run_to,
         progress_every_days=progress_every_days,
         max_infeasible_intervals=0,
-        experiment="main" if load_method == "same_clock_mean" else "comparison",
+        experiment="legacy-mean28" if load_method == "same_clock_mean" else "comparison",
     )
     print(f"\n>>> [{label}] load_method={load_method} -> {config.problem_dir()}", flush=True)
     t0 = time.perf_counter()
@@ -98,6 +99,8 @@ def main(argv: list[str]) -> int:
         if payload.get("validation_version") != "main-model-v4-paid-spill":
             raise ValueError("Cannot compare against an obsolete model run")
         saved_config = json.loads((summary_path.parent / "config.json").read_text(encoding="utf-8"))
+        if saved_config.get('load_method') != 'same_clock_mean' or saved_config.get('risk_quantile', 0) != 0:
+            raise ValueError('This legacy comparison requires a same_clock_mean run without risk reserve')
         if saved_config.get("run_from") != args.run_from or saved_config.get("run_to") != args.run_to:
             raise ValueError("Comparison arms must use the same reporting dates")
         arms["main"] = payload["summary"]

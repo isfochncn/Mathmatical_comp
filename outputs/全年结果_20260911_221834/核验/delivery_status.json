@@ -1,0 +1,72 @@
+{
+  "state": "complete",
+  "updated": "2026-09-12 02:02:16",
+  "checks": [
+    {
+      "log": "workbooks.txt",
+      "returncode": 0
+    },
+    {
+      "log": "problem2_physics_timeaxis.txt",
+      "returncode": 0
+    },
+    {
+      "log": "problem3_physics_timeaxis.txt",
+      "returncode": 0
+    },
+    {
+      "log": "problem4-2_physics_timeaxis.txt",
+      "returncode": 0
+    },
+    {
+      "log": "problem4-3_physics_timeaxis.txt",
+      "returncode": 0
+    }
+  ],
+  "summary": [
+    {
+      "problem": "problem2",
+      "full_year_intervals": 52560,
+      "full_year_cost_yuan": 31836587.935554106,
+      "full_year_purchase_kwh": 24816987.539317638,
+      "full_year_paid_disposal_kwh": 872503.8125856735,
+      "template_days": 334,
+      "template_cost_yuan": 28738712.91434318,
+      "template_paid_disposal_kwh": 746755.1389260142,
+      "final_soc_kwh": 7926.154286898889
+    },
+    {
+      "problem": "problem3",
+      "full_year_intervals": 52560,
+      "full_year_cost_yuan": 25285163.704954073,
+      "full_year_purchase_kwh": 25258267.708053946,
+      "full_year_paid_disposal_kwh": 929970.4297006575,
+      "template_days": 334,
+      "template_cost_yuan": 22573189.326705717,
+      "template_paid_disposal_kwh": 802981.8387771434,
+      "final_soc_kwh": 7926.154286898889
+    },
+    {
+      "problem": "problem4-2",
+      "full_year_intervals": 52560,
+      "full_year_cost_yuan": 32366159.75567856,
+      "full_year_purchase_kwh": 25000784.801277902,
+      "full_year_paid_disposal_kwh": 765180.2747915864,
+      "template_days": 334,
+      "template_cost_yuan": 28660475.59167933,
+      "template_paid_disposal_kwh": 641771.2923932779,
+      "final_soc_kwh": 9474.936375443323
+    },
+    {
+      "problem": "problem4-3",
+      "full_year_intervals": 52560,
+      "full_year_cost_yuan": 26845216.72457912,
+      "full_year_purchase_kwh": 25056360.037425563,
+      "full_year_paid_disposal_kwh": 769361.2195229316,
+      "template_days": 334,
+      "template_cost_yuan": 23699434.388748612,
+      "template_paid_disposal_kwh": 645003.6007275982,
+      "final_soc_kwh": 9474.936375443323
+    }
+  ]
+}

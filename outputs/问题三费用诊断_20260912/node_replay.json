@@ -1,0 +1,98 @@
+{
+  "date": "2025-02-27",
+  "node": "06:00",
+  "forecast_objective_matches_saved": true,
+  "soc_start": 10780.53303544275,
+  "forecast_emergency_until_12": 0.0,
+  "reserve_stock_slack": 0.0,
+  "rows": [
+    {
+      "time": "06:00",
+      "soc_forecast_at_06": 10780.53303544275,
+      "soc_actual": 10780.53303544275,
+      "grid_decided_at_06": 81.95513386467746,
+      "grid_executed": 81.95513386467746,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 13.826532811989061,
+      "net_forecast": 718.8990663454103,
+      "net_actual": 845.7816666666665
+    },
+    {
+      "time": "07:00",
+      "soc_forecast_at_06": 6713.831698878172,
+      "soc_actual": 6045.436154704801,
+      "grid_decided_at_06": 478.408236852007,
+      "grid_executed": 478.408236852007,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 0.0,
+      "net_forecast": 478.408236852007,
+      "net_actual": 673.1741666666667
+    },
+    {
+      "time": "08:00",
+      "soc_forecast_at_06": 6192.596900471735,
+      "soc_actual": 4759.913853194526,
+      "grid_decided_at_06": 3.14548297622423,
+      "grid_executed": 3.14548297622423,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 0.0,
+      "net_forecast": 491.1103757979171,
+      "net_actual": 674.7137500000001
+    },
+    {
+      "time": "09:00",
+      "soc_forecast_at_06": 3280.241886472536,
+      "soc_actual": 1200.000000011111,
+      "grid_decided_at_06": 0.0,
+      "grid_executed": 0.0,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 430.9733333209877,
+      "net_forecast": 123.35823361220832,
+      "net_actual": 430.97333333333336
+    },
+    {
+      "time": "09:10",
+      "soc_forecast_at_06": 3143.1771824589705,
+      "soc_actual": 1200.000000011111,
+      "grid_decided_at_06": 0.0,
+      "grid_executed": 0.0,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 386.53563333333335,
+      "net_forecast": 113.6297299697851,
+      "net_actual": 386.5356333333333
+    },
+    {
+      "time": "10:00",
+      "soc_forecast_at_06": 2558.874386162814,
+      "soc_actual": 1200.000000011111,
+      "grid_decided_at_06": 0.0,
+      "grid_executed": 0.0,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 145.9620833333334,
+      "net_forecast": -113.52463652997653,
+      "net_actual": 145.96208333333334
+    },
+    {
+      "time": "11:00",
+      "soc_forecast_at_06": 3296.9554390730436,
+      "soc_actual": 1543.735920008111,
+      "grid_decided_at_06": 0.0,
+      "grid_executed": 0.0,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 0.0,
+      "net_forecast": -217.0525380592769,
+      "net_actual": -204.5062499999999
+    },
+    {
+      "time": "11:50",
+      "soc_forecast_at_06": 5839.6326982403825,
+      "soc_actual": 4156.957436911258,
+      "grid_decided_at_06": 585.492402897623,
+      "grid_executed": 585.492402897623,
+      "emergency_forecast": 0.0,
+      "emergency_actual": 0.0,
+      "net_forecast": -247.84093043571033,
+      "net_actual": -300.66065000000003
+    }
+  ]
+}

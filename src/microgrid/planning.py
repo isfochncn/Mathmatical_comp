@@ -80,6 +80,8 @@ class WindowForecast:
     pv_kwh: np.ndarray           # (n,)
     price_yuan_per_kwh: np.ndarray  # (n,) planning price p_hat_{s|a}
     provenance: np.ndarray       # (n,) of str, same values as timeline markers
+    reserve_energy_kwh: np.ndarray | None = None  # (n+1,) delivered-energy buffer
+    net_upper_kwh: np.ndarray | None = None       # (n,) calibrated upper net load
 
     def __post_init__(self) -> None:
         n = np.asarray(self.abs_minutes, dtype=np.int64).size
@@ -111,6 +113,10 @@ class WindowResult:
     soc_boundary_kwh: np.ndarray
     objective_yuan: float
     spill_kwh: np.ndarray = field(default_factory=lambda: np.empty(0))
+    reserve_shortfall_kwh: float = 0.0
+    risk_penalty_yuan: float = 0.0  # planning preference only; never a settled bill
+    reserve_stock_shortfall_kwh: float = 0.0
+    reserve_power_shortfall_kwh: np.ndarray = field(default_factory=lambda: np.empty(0))
 
     def require_ok(self) -> "WindowResult":
         self.report.require_ok()
@@ -232,6 +238,7 @@ class _WindowShape:
     adjustable_mask: bytes | None
     allow_emergency: bool
     allow_spill: bool
+    risk_reserve: bool
 
 
 @dataclass
@@ -270,6 +277,7 @@ def _window_shape(
     adjustable_mask: np.ndarray | None,
     allow_emergency: bool,
     allow_spill: bool,
+    risk_reserve: bool,
 ) -> _WindowShape:
     """由本次调用的输入推出结构指纹（只取真正影响模型形状的部分）。"""
     mask = None
@@ -285,6 +293,7 @@ def _window_shape(
         adjustable_mask=None if adjustable_mask is None else np.ascontiguousarray(adjustable_mask, dtype=bool).tobytes(),
         allow_emergency=allow_emergency,
         allow_spill=allow_spill,
+        risk_reserve=risk_reserve,
         fee_mode=fee_mode,
         absorption=absorption_upper_kwh is not None and committed_mask is None,
         commitment_floor=commitment_lower_kwh is not None and committed_mask is None,
@@ -457,11 +466,34 @@ def _build_window_model(
     else:
         raise ValueError(f"unknown fee mode: {shape.fee_mode}")
 
-    m.obj = pyo.Objective(
+    m.fee_objective = pyo.Expression(
         rule=lambda m: sum(m.fee_fixed[t] for t in m.T)
         + sum(FEE_EMERGENCY * m.price[t] * m.emergency[t] for t in m.T),
-        sense=pyo.minimize,
     )
+    m.risk_cost = pyo.Expression(expr=0.)
+    if shape.risk_reserve:
+        m.reserve_energy = pyo.Param(m.S, mutable=True, initialize=0.)
+        m.net_upper = pyo.Param(m.T, mutable=True, initialize=0.)
+        m.risk_price = pyo.Param(mutable=True, initialize=0.)
+        # One maximum deficit avoids charging repeatedly for the same stored
+        # reserve across consecutive intervals. Slack keeps frozen plans feasible.
+        m.reserve_shortfall = pyo.Var(domain=pyo.NonNegativeReals)
+        m.power_shortfall = pyo.Var(m.T, domain=pyo.NonNegativeReals)
+        m.reserve_stock = pyo.Constraint(m.S, rule=lambda m, s:
+            pyo.Constraint.Skip if s == 0 else
+            (m.soc[s]-E_MIN)/DISCHARGE_BATTERY_FACTOR + m.reserve_shortfall >= m.reserve_energy[s])
+        m.reserve_power = pyo.Constraint(m.T, rule=lambda m, t:
+            m.grid[t]+Q_DIS_MAX+m.power_shortfall[t] >= m.net_upper[t])
+        m.reserve_deliverable = pyo.Constraint(m.T, rule=lambda m, t:
+            m.grid[t]+(m.soc[t]-E_MIN)/DISCHARGE_BATTERY_FACTOR+m.power_shortfall[t] >= m.net_upper[t])
+        # Do not manufacture room for a *new reserve purchase* through cycling
+        # losses. Paid surplus must fit into space available at the interval start.
+        m.reserve_absorption = pyo.Constraint(m.T, rule=lambda m, t:
+            pyo.Constraint.Skip if frozen_for_spill[t] else
+            m.grid[t] <= m.demand[t]+(E_MAX-m.soc[t])*CHARGE_BUS_FACTOR)
+        m.risk_cost.set_value(m.risk_price*m.reserve_shortfall
+            + sum(FEE_EMERGENCY*m.price[t]*m.power_shortfall[t] for t in m.T))
+    m.obj = pyo.Objective(expr=m.fee_objective+m.risk_cost, sense=pyo.minimize)
 
     if shape.allow_spill:
         m.spill_limit = pyo.Param(mutable=True, initialize=0.0)
@@ -505,6 +537,12 @@ def _load_window_inputs(
     _load(m.pv, forecast.pv_kwh)
     _load(m.price, forecast.price_yuan_per_kwh)
     m.soc_start_kwh.set_value(float(soc_start_kwh))
+    if shape.risk_reserve:
+        _load(m.reserve_energy, forecast.reserve_energy_kwh)
+        _load(m.net_upper, forecast.net_upper_kwh)
+        # Five times the mean forecast tariff prices an uncovered delivered kWh.
+        # This is a soft planning tradeoff, explicitly excluded from settlement.
+        m.risk_price.set_value(FEE_EMERGENCY*float(np.mean(forecast.price_yuan_per_kwh)))
 
     if shape.absorption:
         _load(m.cap, absorption_upper_kwh)
@@ -586,6 +624,15 @@ def solve_window(
     n = forecast.n
     if n <= 0:
         raise ValueError("empty window")
+    risk_reserve = forecast.reserve_energy_kwh is not None
+    if risk_reserve != (forecast.net_upper_kwh is not None):
+        raise ValueError("Reserve energy and upper net load must be supplied together")
+    if risk_reserve:
+        if not allow_emergency:
+            raise ValueError("Risk reserve is only supported for rolling problems")
+        for vector, size in ((forecast.reserve_energy_kwh, n+1), (forecast.net_upper_kwh, n)):
+            if np.asarray(vector).shape != (size,) or not np.isfinite(vector).all() or np.any(np.asarray(vector) < 0):
+                raise ValueError("Invalid risk reserve quantities")
     T = list(range(n))
     for name, arr in (("demand", forecast.demand_kwh), ("pv", forecast.pv_kwh), ("price", forecast.price_yuan_per_kwh)):
         if not np.isfinite(arr).all() or np.any(arr < 0):
@@ -652,6 +699,7 @@ def solve_window(
         adjustable_mask=adjustable_mask,
         allow_emergency=allow_emergency,
         allow_spill=allow_spill,
+        risk_reserve=risk_reserve,
     )
     template = _CACHE.get(shape)
     if template is None:
@@ -722,9 +770,11 @@ def solve_window(
             m.prefer_storage.activate()
             report = stage_solve()
         if report.feasible:
-            report.objective_yuan = float(pyo.value(m.obj.expr))  # actual fee, not tie-break objective
+            report.objective_yuan = float(pyo.value(m.fee_objective))
     else:
         report = stage_solve()
+        if report.feasible:
+            report.objective_yuan = float(pyo.value(m.fee_objective))
     if not report.feasible:
         frozen = np.zeros(n, dtype=bool)
         quantities = np.zeros(n)
@@ -764,6 +814,11 @@ def solve_window(
         soc_boundary_kwh=np.array([get(m.soc, s) for s in m.S]),
         objective_yuan=float(report.objective_yuan),
         spill_kwh=np.array([get(m.spill, t) for t in T]),
+        reserve_shortfall_kwh=max(float(pyo.value(m.reserve_shortfall)),
+            max(get(m.power_shortfall, t) for t in T)) if risk_reserve else 0.,
+        risk_penalty_yuan=float(pyo.value(m.risk_cost)),
+        reserve_stock_shortfall_kwh=float(pyo.value(m.reserve_shortfall)) if risk_reserve else 0.,
+        reserve_power_shortfall_kwh=np.array([get(m.power_shortfall, t) for t in T]) if risk_reserve else np.zeros(n),
     )
 
 

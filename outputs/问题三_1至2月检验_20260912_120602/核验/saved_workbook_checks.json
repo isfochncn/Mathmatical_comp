@@ -1,0 +1,16 @@
+{
+  "month": "2025-02",
+  "n_intervals": 4032,
+  "from": "2025-02-01T00:10:00",
+  "to": "2025-03-01T00:10:00",
+  "saved_values_and_timestamps_match": true,
+  "daily_totals_match": true,
+  "four_fee_components_match": true,
+  "penalty_attribution_matches": true,
+  "source_and_templates_unchanged": true,
+  "formula_errors": [],
+  "max_bus_residual_kwh": 1.2345708455541171e-08,
+  "max_soc_residual_kwh": 9.094947017729282e-13,
+  "xlsx_sha256": "5cb482d147e0e5b86dacb993336954636ef236f6b01e2d00cea18288110d7b17",
+  "workbook": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\问题三_2025年2月_逐时购电与电费.xlsx"
+}

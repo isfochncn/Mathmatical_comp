@@ -1,0 +1,14 @@
+{
+  "problem": "problem3",
+  "start": "2025-12-08",
+  "days": 2,
+  "variant": "baseline",
+  "cost_yuan": 214961.77719433449,
+  "grid_kwh": 165779.4869739543,
+  "emergency_kwh": 19400.305390070804,
+  "spill_kwh": 0.0,
+  "soc_start": 7813.64548083429,
+  "soc_end": 8005.345283309735,
+  "risk_shortfall_max": 0.0,
+  "n_risk_shortfall": 0
+}

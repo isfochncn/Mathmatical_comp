@@ -64,10 +64,9 @@ class RunConfig:
     out_dir: Path = field(default_factory=lambda: Path("out"))
 
     history_days: int = 28
-    #: Main line is the 28-day same-clock mean (fixed 2026-09-11). The alternative
-    #: ``same_weekday`` exists as comparison item P1; it must never be swapped in
-    #: silently, so the choice is recorded in the run summary.
-    load_method: str = "same_clock_mean"
+    #: 2026-09-12: weekly load, calibrated PV and empirical joint-error reserve.
+    load_method: str = "adaptive"
+    risk_quantile: float = .90
     absorption_safety_kwh: float = 0.0
     #: Lower bound added to the historical same-clock minimum net demand when
     #: forming a commitment. This is what keeps a frozen plan executable when the
@@ -104,7 +103,14 @@ class RunConfig:
             raise ValueError("Invalid runs may not skip intervals")
         if self.experiment == "main" and not self.allow_spill and self.problem != "problem1":
             raise ValueError("Strict no-spill is a named comparison, not the revised main model")
-        if self.experiment == "main" and (self.history_days != 28 or self.load_method != "same_clock_mean"
+        if self.load_method not in ('adaptive', 'same_clock_mean', 'same_weekday'):
+            raise ValueError('Unknown forecast method')
+        if not np.isfinite(self.risk_quantile) or not 0 <= self.risk_quantile < 1:
+            raise ValueError('risk_quantile must be in [0, 1)')
+        if self.load_method != 'adaptive' and self.risk_quantile:
+            raise ValueError('Legacy forecast comparisons require risk_quantile=0')
+        if self.experiment == "main" and (self.history_days != 28 or self.load_method != "adaptive"
+                or self.risk_quantile != .90
                 or self.plan_refresh_intervals != 1 or self.absorption_safety_kwh or self.commitment_floor_kwh):
             raise ValueError("Alternative assumptions need an explicit experiment name")
 
@@ -351,9 +357,13 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
     bundle = bundle or load_all()
     policy = POLICIES[config.problem]
     timeline = build_timeline(bundle)
-    forecaster = Forecaster(
-        bundle, timeline, history_days=config.history_days, load_method=config.load_method
-    )
+    if config.load_method == 'adaptive':
+        from .adaptive_forecast import AdaptiveForecaster
+        forecaster = AdaptiveForecaster(bundle, timeline, history_days=config.history_days,
+                                       risk_quantile=config.risk_quantile)
+    else:
+        forecaster = Forecaster(bundle, timeline, history_days=config.history_days,
+                                load_method=config.load_method)
 
     days = calendar_days(DATE_2025_01_01, DATE_2025_12_31)
     if config.run_to is not None:
@@ -438,6 +448,9 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
     loss = physics.loss_accounting(arrays["charge_kwh"][report_mask], arrays["discharge_kwh"][report_mask])
     summary: dict[str, object] = {
         "problem": config.problem,
+        "forecast_policy_version": "adaptive-risk-v1" if config.load_method == 'adaptive' else 'legacy-point-v1',
+        "forecast_method": config.load_method,
+        "risk_quantile": config.risk_quantile,
         "n_intervals": int(out_minutes.size),
         "warmup_intervals": int(natural_start_index),
         "execution_start_abs_minute": abs_from,
@@ -483,6 +496,10 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         ),
         "max_bus_charge_kw": float(np.max(arrays["charge_kwh"]) * 6 / 0.9),
         "max_bus_discharge_kw": float(np.max(arrays["discharge_kwh"]) * 6),
+        "reserve_shortfall_windows": sum(a.get('reserve_shortfall_kwh', 0) > 1e-5 for a in outcome.forecast_audits),
+        "reserve_shortfall_max_kwh": max(a.get('reserve_shortfall_kwh', 0) for a in outcome.forecast_audits),
+        "uncalibrated_forecast_windows": sum(a.get('risk_sample_count', 0) < 7 for a in outcome.forecast_audits)
+            if config.risk_quantile else 0,
     }
     # ``grid_kwh`` stores the delivered normal purchase O + A, which loses the
     # split the settlement needs: the plan fee applies to O at the normal rate

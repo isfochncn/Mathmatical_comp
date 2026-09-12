@@ -57,9 +57,9 @@ def build_parser() -> argparse.ArgumentParser:
     runp.add_argument("--history-days", type=int, default=28)
     runp.add_argument(
         "--load-method",
-        choices=("same_clock_mean", "same_weekday"),
-        default="same_clock_mean",
-        help="负载预测主线；same_weekday 为比较事项 P1 的对照设置",
+        choices=("adaptive", "same_clock_mean", "same_weekday"),
+        default="adaptive",
+        help="主线为周周期负荷与校准光伏；旧预测须使用命名对照实验",
     )
     runp.add_argument(
         "--absorption-safety-kwh",
@@ -74,6 +74,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="主模型每段重算；其他周期需命名为独立实验",
     )
     runp.add_argument("--experiment", default="main", help="独立实验名；主模型为 main")
+    runp.add_argument('--risk-quantile', type=float, default=.90,
+                      help='净负荷误差备用分位；0关闭备用，非0.90须命名实验')
     runp.add_argument("--run-from", default=None, help="报告起始日期；仍从 1 月 1 日 00:10 连续执行（YYYY-MM-DD）")
     runp.add_argument("--run-to", default=None, help="只跑到该日期（YYYY-MM-DD）")
     runp.add_argument("--max-infeasible-intervals", type=int, default=0)
@@ -150,6 +152,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         history_days=args.history_days,
         experiment=args.experiment,
         load_method=args.load_method,
+        risk_quantile=args.risk_quantile,
         absorption_safety_kwh=args.absorption_safety_kwh,
         plan_refresh_intervals=args.plan_refresh_intervals,
         allow_spill=not args.strict_no_spill,
