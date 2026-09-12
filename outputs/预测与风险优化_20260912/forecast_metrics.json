@@ -1,0 +1,137 @@
+{
+  "period": "2025-02-01 00:00 to 2026-01-01 00:00",
+  "scope": "rolling historical evaluation; model design informed by this dataset, not an untouched prospective holdout",
+  "forecasts": {
+    "historical-frozen/baseline": {
+      "load": {
+        "mae_kwh": 131.04226012460447,
+        "rmse_kwh": 161.34571978411637,
+        "bias_actual_minus_forecast_kwh": -0.2708002230781093
+      },
+      "pv": {
+        "mae_kwh": 36.44433005623178,
+        "rmse_kwh": 65.13889012366481,
+        "bias_actual_minus_forecast_kwh": -1.053384369331752
+      },
+      "net": {
+        "mae_kwh": 135.28512190575447,
+        "rmse_kwh": 174.68455041400995,
+        "bias_actual_minus_forecast_kwh": 0.7825841462536415
+      },
+      "n": 48096
+    },
+    "historical-frozen/adaptive": {
+      "load": {
+        "mae_kwh": 26.979789134476658,
+        "rmse_kwh": 37.01508608283109,
+        "bias_actual_minus_forecast_kwh": -0.37961712853529483
+      },
+      "pv": {
+        "mae_kwh": 25.566617787490493,
+        "rmse_kwh": 50.642956542593275,
+        "bias_actual_minus_forecast_kwh": -0.46153370208986755
+      },
+      "net": {
+        "mae_kwh": 43.641941355875744,
+        "rmse_kwh": 62.73637786840464,
+        "bias_actual_minus_forecast_kwh": 0.08191657355457363
+      },
+      "n": 48096
+    },
+    "published-frozen/baseline": {
+      "load": {
+        "mae_kwh": 131.04226012460447,
+        "rmse_kwh": 161.34571978411637,
+        "bias_actual_minus_forecast_kwh": -0.2708002230781093
+      },
+      "pv": {
+        "mae_kwh": 76.0575759768657,
+        "rmse_kwh": 128.13711228757967,
+        "bias_actual_minus_forecast_kwh": 4.946037135797871
+      },
+      "net": {
+        "mae_kwh": 153.1586800148092,
+        "rmse_kwh": 207.91192930403432,
+        "bias_actual_minus_forecast_kwh": -5.216837358875979
+      },
+      "n": 48096
+    },
+    "published-frozen/adaptive": {
+      "load": {
+        "mae_kwh": 26.979789134476658,
+        "rmse_kwh": 37.01508608283109,
+        "bias_actual_minus_forecast_kwh": -0.37961712853529483
+      },
+      "pv": {
+        "mae_kwh": 53.77613506526183,
+        "rmse_kwh": 90.85744499220952,
+        "bias_actual_minus_forecast_kwh": 0.9853488074514409
+      },
+      "net": {
+        "mae_kwh": 68.41855930878803,
+        "rmse_kwh": 97.94824509689138,
+        "bias_actual_minus_forecast_kwh": -1.3649659359867352
+      },
+      "n": 48096
+    },
+    "published-adjustable/baseline": {
+      "load": {
+        "mae_kwh": 131.04226012460447,
+        "rmse_kwh": 161.34571978411637,
+        "bias_actual_minus_forecast_kwh": -0.2708002230781093
+      },
+      "pv": {
+        "mae_kwh": 66.96644384113716,
+        "rmse_kwh": 112.63506226683086,
+        "bias_actual_minus_forecast_kwh": 0.2721852146401862
+      },
+      "net": {
+        "mae_kwh": 146.01333810109196,
+        "rmse_kwh": 196.10881522655546,
+        "bias_actual_minus_forecast_kwh": -0.5429854377182971
+      },
+      "n": 48096
+    },
+    "published-adjustable/adaptive": {
+      "load": {
+        "mae_kwh": 25.17419704099624,
+        "rmse_kwh": 32.97919236405129,
+        "bias_actual_minus_forecast_kwh": -0.2964606093265013
+      },
+      "pv": {
+        "mae_kwh": 46.94646924573193,
+        "rmse_kwh": 79.41441714951425,
+        "bias_actual_minus_forecast_kwh": -4.080981363305502
+      },
+      "net": {
+        "mae_kwh": 60.76215433996022,
+        "rmse_kwh": 86.06208027948098,
+        "bias_actual_minus_forecast_kwh": 3.7845207539790007
+      },
+      "n": 48096
+    }
+  },
+  "risk_coverage": {
+    "historical-frozen": {
+      "blocks": 334,
+      "energy_coverage": 0.9281437125748503,
+      "interval_coverage": 0.9323436460412509,
+      "mean_buffer_kwh": 5762.570153549423,
+      "max_buffer_kwh": 17440.958269999996
+    },
+    "published-adjustable": {
+      "blocks": 1336,
+      "energy_coverage": 0.9154191616766467,
+      "interval_coverage": 0.9406395542248835,
+      "mean_buffer_kwh": 1751.861896870394,
+      "max_buffer_kwh": 9207.667039999998
+    },
+    "published-frozen": {
+      "blocks": 334,
+      "energy_coverage": 0.907185628742515,
+      "interval_coverage": 0.9381445442448436,
+      "mean_buffer_kwh": 7170.319903766478,
+      "max_buffer_kwh": 18319.1093611111
+    }
+  }
+}

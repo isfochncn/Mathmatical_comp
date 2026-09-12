@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "D:\WorkSpace\Project\Mathmatical\Mathmatical_comp\outputs\全年结果_20260911_221834\运行记录\finalize_annual.py", line 46, in <module>
+    full_cost=sum(e['price_actual_yuan_per_kwh']*(e['o_exec_kwh']+1.5*e['a_exec_kwh']+5*e['emergency_kwh']) for e in ledger['execution'])+sum(e['penalty_yuan'] for e in ledger['penalties'])
+                                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\WorkSpace\Project\Mathmatical\Mathmatical_comp\outputs\全年结果_20260911_221834\运行记录\finalize_annual.py", line 46, in <genexpr>
+    full_cost=sum(e['price_actual_yuan_per_kwh']*(e['o_exec_kwh']+1.5*e['a_exec_kwh']+5*e['emergency_kwh']) for e in ledger['execution'])+sum(e['penalty_yuan'] for e in ledger['penalties'])
+                                                                                                                                              ~^^^^^^^^^^^^^^^^
+KeyError: 'penalty_yuan'

@@ -17,3 +17,7 @@ out/
 
 # Scratch
 *.tmp
+tmp/
+
+# PowerShell logs
+*.log

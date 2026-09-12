@@ -1,0 +1,17 @@
+{
+  "problem": "problem1",
+  "out_dir": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\运行记录",
+  "history_days": 28,
+  "load_method": "same_clock_mean",
+  "absorption_safety_kwh": 0.0,
+  "commitment_floor_kwh": 0.0,
+  "allow_spill": true,
+  "max_infeasible_intervals": 0,
+  "solver_name": "appsi_highs",
+  "plan_refresh_intervals": 1,
+  "experiment": "main",
+  "run_from": null,
+  "run_to": null,
+  "warmup_days": 0,
+  "progress_every_days": 1
+}

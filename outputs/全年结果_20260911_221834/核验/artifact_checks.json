@@ -1,0 +1,62 @@
+{
+  "original_templates_unchanged": true,
+  "model_source_unchanged": true,
+  "files": [
+    {
+      "file": "result1.xlsx",
+      "sheets": [
+        "计划购电量",
+        "充放电量"
+      ],
+      "size": 8725,
+      "formula_errors": [],
+      "sha256": "3760605f59d15c74e46d2dfdb51b354993164d72c927beb3ef7c6e5384d563f9"
+    },
+    {
+      "file": "result2.xlsx",
+      "sheets": [
+        "计划购电量",
+        "充放电量",
+        "紧急购电量"
+      ],
+      "size": 410991,
+      "formula_errors": [],
+      "sha256": "2b2ee6376bbff81393006b25b5858b64cc5ff15b532c92c0aca2003e9015f5ba"
+    },
+    {
+      "file": "result3.xlsx",
+      "sheets": [
+        "计划购电量",
+        "调整购电量",
+        "充放电量",
+        "紧急购电量"
+      ],
+      "size": 788336,
+      "formula_errors": [],
+      "sha256": "0e4260522cefc96903cd7c4f1bc149b0af8948366bb400cd20dce50bc1bdab45"
+    },
+    {
+      "file": "result4-2.xlsx",
+      "sheets": [
+        "计划购电量",
+        "充放电量",
+        "紧急购电量"
+      ],
+      "size": 415839,
+      "formula_errors": [],
+      "sha256": "803503f5b31f5ef3084dfa3ed13e9c07b749697532bf70a21fa2e3d369b00b91"
+    },
+    {
+      "file": "result4-3.xlsx",
+      "sheets": [
+        "计划购电量",
+        "调整购电量",
+        "充放电量",
+        "紧急购电量"
+      ],
+      "size": 801595,
+      "formula_errors": [],
+      "sha256": "2541aa2bdd2edf6c76598c8b4a473af628f20cdd85b4cd269a9f4482fafe617e"
+    }
+  ]
+}

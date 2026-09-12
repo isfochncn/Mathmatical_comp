@@ -12,16 +12,19 @@
 * 状态转移   ``E_{t+1} = E_t + q_ch[t] - q_dis[t] / 0.9``
 * 母线守恒   ``h[t] + u[t] + G[t] - r[t] + q_dis[t] = D[t] + q_ch[t] / 0.9``
 * 每段上限   ``0 <= q_ch[t], q_dis[t] <= 4500/6 = 750``
-  （q_ch = 750 -> 电池存入 675、母线侧 5000 kW；
+  （q_ch = 750 -> 电池存入 750、母线侧 5000 kW；
     q_dis = 750 -> 电池放出 833.333、母线侧 4500 kW。
     两向电池内部交换功率都不超过 5000 kW 额定值。
     绝不可把 750 再乘 0.9 得到 675。）
 * 电量边界   ``1200 <= E_s <= 10800``（额定 12000 不是运行上限）
 
+以上母线式及下方损耗恒等式为 w=0 的基础形式，仍用于问题一。
+滚动模型按备忘录第4.0节允许已付费弃购电 w，母线右侧和全天购电总账
+右侧分别增加 w 和 Σw；planning/simulation/validation 负责该扩展。
+
 命名提醒
 --------
-``q_ch`` 是**母线侧**充电量（未扣效率），电池真正存进去的是 ``0.9 * q_ch``。
-这一点必须说清，否则容易误读成"电池只交换 750 kWh"。
+``q_ch`` 是电池实际存入量；母线侧输入为 ``q_ch / 0.9``。
 
 损耗代数恒等式（全天收尾恒等式与"损耗循环"诊断共用）
 -----------------------------------------------------
@@ -304,31 +307,43 @@ def check_curtail_bounds(curtail_kwh: np.ndarray, pv_kwh: np.ndarray, tol: float
 def simultaneous_charge_discharge_mask(
     charge_stored_kwh: np.ndarray, discharge_delivered_kwh: np.ndarray, tol: float = 1e-6
 ) -> np.ndarray:
-    """同时充放电的段掩码。用于可实施性诊断，不能用来偷偷改模型。"""
+    """Mask of intervals where both directions are active.
+
+    2026-09-11 定稿口径：储能设备被视为**支持同时充放电**的系统，
+    因此这**不是异常**，不能作为不可行判据。本掩码只用于统计与损耗核算。
+    """
     a = np.asarray(charge_stored_kwh, dtype=np.float64)
     b = np.asarray(discharge_delivered_kwh, dtype=np.float64)
     return (a > tol) & (b > tol)
 
 
-def diagnose_loss_cycling(
+def loss_accounting(
     charge_stored_kwh: np.ndarray,
     discharge_delivered_kwh: np.ndarray,
     tol: float = 1e-6,
 ) -> dict[str, float | int | list[int]]:
-    """损耗循环诊断。
+    """能量损耗核算（同时充放电是合法运行状态，此处只如实记账）。
 
-    若最优解依赖"同时充放烧掉已购电"来消纳富余，必须如实报告可实施性缺口，
-    不得在事后暗加互斥约束后仍声称是同一模型。
+    充电损耗 = Σ q_ch/0.9 − Σ q_ch（母线付出多于实际存入的部分）
+    放电损耗 = Σ q_dis/0.9 − Σ q_dis（电池消耗多于实际送达的部分）
+    总损耗   = (1/0.9 - 1)·Σ(q_ch + q_dis)
+
+    规范原话：同段存入 90、送达 81 使 SOC 净变化为 0，母线进 100 出 81，
+    **19 kWh 是正常效率损耗**，必须如实列出，但不能称为"净储存 19 kWh"。
     """
-    mask = simultaneous_charge_discharge_mask(charge_stored_kwh, discharge_delivered_kwh, tol)
     q_ch = np.asarray(charge_stored_kwh, dtype=np.float64)
     q_dis = np.asarray(discharge_delivered_kwh, dtype=np.float64)
-    stored = float(np.minimum(q_ch, q_dis / ETA_DISCHARGE)[mask].sum()) if mask.any() else 0.0
+    mask = simultaneous_charge_discharge_mask(q_ch, q_dis, tol)
+    charge_loss = float(np.sum(charge_bus_input_kwh(q_ch)) - np.sum(q_ch))
+    discharge_loss = float(np.sum(discharge_battery_draw_kwh(q_dis)) - np.sum(q_dis))
     return {
-        "n_intervals": int(mask.sum()),
-        "intervals": [int(i) for i in np.flatnonzero(mask)],
-        "cycled_stored_kwh": stored,
-        "net_loss_kwh": LOSS_COEFF * stored,
+        "n_simultaneous_intervals": int(mask.sum()),
+        "simultaneous_intervals": [int(i) for i in np.flatnonzero(mask)],
+        "charge_loss_kwh": charge_loss,
+        "discharge_loss_kwh": discharge_loss,
+        "total_loss_kwh": charge_loss + discharge_loss,
+        "charge_stored_total_kwh": float(np.sum(q_ch)),
+        "discharge_delivered_total_kwh": float(np.sum(q_dis)),
     }
 
 
@@ -371,7 +386,7 @@ __all__ = [
     "check_bus_balance",
     "check_curtail_bounds",
     "simultaneous_charge_discharge_mask",
-    "diagnose_loss_cycling",
+    "loss_accounting",
     "max_bus_power_kw",
     "ETA_CHARGE",
     "ETA_DISCHARGE",

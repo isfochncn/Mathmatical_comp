@@ -1,0 +1,114 @@
+
+==============================================================================
+1) original templates must be untouched
+==============================================================================
+  OK   data/附件5/result1.xlsx size=13323 sha256[:16]=28360e0974e7d606
+  OK   result1.xlsx template hash unchanged
+  OK   data/附件5/result2.xlsx size=18397 sha256[:16]=1c26494cfc6d754e
+  OK   result2.xlsx template hash unchanged
+  OK   data/附件5/result3.xlsx size=265429 sha256[:16]=c59da470cabd0be2
+  OK   result3.xlsx template hash unchanged
+  OK   data/附件5/result4-2.xlsx size=18397 sha256[:16]=1c26494cfc6d754e
+  OK   result4-2.xlsx template hash unchanged
+  OK   data/附件5/result4-3.xlsx size=265429 sha256[:16]=c59da470cabd0be2
+  OK   result4-3.xlsx template hash unchanged
+
+==============================================================================
+2) exports exist with the expected sheet structure
+==============================================================================
+  OK   D:/WorkSpace/Project/Mathmatical/Mathmatical_comp/outputs/全年结果_20260911_221834/运行记录/problem1/result/result1.xlsx exists
+  OK   result1.xlsx sheets == ['计划购电量', '充放电量'] (got ['计划购电量', '充放电量'])
+  OK   D:/WorkSpace/Project/Mathmatical/Mathmatical_comp/outputs/全年结果_20260911_221834/运行记录/problem2/result/result2.xlsx exists
+  OK   result2.xlsx sheets == ['计划购电量', '充放电量', '紧急购电量'] (got ['计划购电量', '充放电量', '紧急购电量'])
+  OK   D:/WorkSpace/Project/Mathmatical/Mathmatical_comp/outputs/全年结果_20260911_221834/运行记录/problem3/result/result3.xlsx exists
+  OK   result3.xlsx sheets == ['计划购电量', '调整购电量', '充放电量', '紧急购电量'] (got ['计划购电量', '调整购电量', '充放电量', '紧急购电量'])
+  OK   D:/WorkSpace/Project/Mathmatical/Mathmatical_comp/outputs/全年结果_20260911_221834/运行记录/problem4-2/result/result4-2.xlsx exists
+  OK   result4-2.xlsx sheets == ['计划购电量', '充放电量', '紧急购电量'] (got ['计划购电量', '充放电量', '紧急购电量'])
+  OK   D:/WorkSpace/Project/Mathmatical/Mathmatical_comp/outputs/全年结果_20260911_221834/运行记录/problem4-3/result/result4-3.xlsx exists
+  OK   result4-3.xlsx sheets == ['计划购电量', '调整购电量', '充放电量', '紧急购电量'] (got ['计划购电量', '调整购电量', '充放电量', '紧急购电量'])
+
+==============================================================================
+3) time-axis alignment: template columns ARE the result intervals
+==============================================================================
+  OK   row1 col1 = '时间段'
+  OK   first data label = '0:10-0:20' (template verbatim)
+  OK   row144 label = '23:50-0:00+1'
+  OK   row145 label = '0:00+1-0:10+1'
+  OK   144 distinct interval labels
+  OK   all 144 plan cells filled
+  OK   block 1 label = '0:00-4:00'
+  OK   block 6 label = '20:00-24:00'
+  OK   SOC columns are 时刻/储电量 ('时刻'/'储电量')
+  OK   SOC row labels use natural-day 0:00 / 24:00 ('0:00'/'24:00')
+  OK   matrix header col1 = '日期\\时间'
+  OK   matrix first slot = '0:10-0:20'
+  OK   matrix 144th slot = '23:50-0:00+1'
+  OK   matrix 145th slot = '0:00-0:10+1'
+  OK   matrix daily total col = '全天购电量'
+  OK   matrix daily cost col = '全天购电费'
+
+==============================================================================
+4) coverage
+==============================================================================
+  OK   result1 plan rows = 145
+  OK   result2.xlsx plan rows >= 335 (got 335)
+  OK   result2.xlsx date span 2025-02-01 .. 2025-12-31
+  OK   result2.xlsx no stale rows past 334 days
+  OK   result3.xlsx plan rows >= 335 (got 335)
+  OK   result3.xlsx date span 2025-02-01 .. 2025-12-31
+  OK   result3.xlsx no stale rows past 334 days
+  OK   result4-2.xlsx plan rows >= 335 (got 335)
+  OK   result4-2.xlsx date span 2025-02-01 .. 2025-12-31
+  OK   result4-2.xlsx no stale rows past 334 days
+  OK   result4-3.xlsx plan rows >= 335 (got 335)
+  OK   result4-3.xlsx date span 2025-02-01 .. 2025-12-31
+  OK   result4-3.xlsx no stale rows past 334 days
+
+==============================================================================
+5) exported totals vs recorded result-row bills
+==============================================================================
+  OK   result2.xlsx current model validation version
+  OK   result2.xlsx recorded 334 result rows (got 334)
+  OK   result2.xlsx result-row purchase totals match (0 mismatches)
+  OK   result2.xlsx result-row cost totals match (0 mismatches)
+       window check 2025-02-01: result-row minus natural-day = -1.308 kWh (different windows; equality is possible)
+  OK   result3.xlsx current model validation version
+  OK   result3.xlsx recorded 334 result rows (got 334)
+  OK   result3.xlsx result-row purchase totals match (0 mismatches)
+  OK   result3.xlsx result-row cost totals match (0 mismatches)
+       window check 2025-02-01: result-row minus natural-day = -1.308 kWh (different windows; equality is possible)
+  OK   result3.xlsx 轨迹保存了 O/A 拆分（plan_exec_kwh / add_exec_kwh）
+  OK   result3.xlsx 计划购电量表 = 零点原计划（0 个单元格不符）
+  OK   result3.xlsx 调整购电量表 = O^exec + A^exec（0 个单元格不符）
+  OK   result3.xlsx 调整表与计划表确有差异（8907 个单元格不同；两表差额合计 1,201,726.241 kWh（非 A^exec 合计））
+  OK   result4-2.xlsx current model validation version
+  OK   result4-2.xlsx recorded 334 result rows (got 334)
+  OK   result4-2.xlsx result-row purchase totals match (0 mismatches)
+  OK   result4-2.xlsx result-row cost totals match (0 mismatches)
+       window check 2025-02-01: result-row minus natural-day = -1.308 kWh (different windows; equality is possible)
+  OK   result4-3.xlsx current model validation version
+  OK   result4-3.xlsx recorded 334 result rows (got 334)
+  OK   result4-3.xlsx result-row purchase totals match (0 mismatches)
+  OK   result4-3.xlsx result-row cost totals match (0 mismatches)
+       window check 2025-02-01: result-row minus natural-day = -1.308 kWh (different windows; equality is possible)
+  OK   result4-3.xlsx 轨迹保存了 O/A 拆分（plan_exec_kwh / add_exec_kwh）
+  OK   result4-3.xlsx 计划购电量表 = 零点原计划（0 个单元格不符）
+  OK   result4-3.xlsx 调整购电量表 = O^exec + A^exec（0 个单元格不符）
+  OK   result4-3.xlsx 调整表与计划表确有差异（9131 个单元格不同；两表差额合计 1,091,067.779 kWh（非 A^exec 合计））
+
+==============================================================================
+6) charge/discharge blocks and SOC vs the 10-minute trajectory
+==============================================================================
+  OK   result2.xlsx 4-hour block sums match (0 mismatches)
+  OK   result2.xlsx 0:00/24:00 SOC match (0 mismatches)
+  OK   result3.xlsx 4-hour block sums match (0 mismatches)
+  OK   result3.xlsx 0:00/24:00 SOC match (0 mismatches)
+  OK   result4-2.xlsx 4-hour block sums match (0 mismatches)
+  OK   result4-2.xlsx 0:00/24:00 SOC match (0 mismatches)
+  OK   result4-3.xlsx 4-hour block sums match (0 mismatches)
+  OK   result4-3.xlsx 0:00/24:00 SOC match (0 mismatches)
+
+==============================================================================
+RESULT
+==============================================================================
+ALL CHECKS PASSED

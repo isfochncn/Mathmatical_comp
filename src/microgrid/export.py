@@ -1,16 +1,20 @@
-"""导出层：向模板副本定点填值。
+"""Export layer: fill the five result workbooks from an absolute run.
 
-模板处理规则（只读核验 + 用户已确认口径）
-------------------------------------------
-1. **原模板一字不改**。程序只读 ``data/附件5/*.xlsx``，把结果写到 ``out/`` 下的副本。
-2. 时间轴：模板的 144 个时间标签比模型区间整体后移了一段
-   （首列是 '0:10-0:20'，末列是 '0:00-0:10+1'），且缺 '0:00-0:10'。
-   已确认口径是**保持模板标签不动**，模型第 t 段（[t*10min,(t+1)*10min)）
-   写入第 t+1 个数据格，即 ``0:00-0:10`` 的值写在 '0:10-0:20' 标签下方。
-   映射函数集中在 :mod:`microgrid.timeaxis`，此处只调用。
-3. 模板里的 '⁝' 省略行必须展开为完整日期，不能只填示例几行。
-4. "充放电量" 表每天 6 个 4 小时块；10 分钟轨迹按块求和写入。
-5. "紧急购电量" 表按日、按实际发生的紧急时段逐条填写；只有**相邻**紧急段可合并。
+Fixed rules (2026-09-11)
+------------------------
+* The original templates are **never** modified; results are written to copies.
+* The template's 144 time columns ARE the 144 result intervals of a date row,
+  and a result row covers ``[day 00:10, next day 00:10)``. The mapping from a
+  result index to a timeline interval is
+  ``clock index = j + 1`` (``j = 143`` reaches into the next natural day), which
+  lives in :mod:`microgrid.timeaxis` and nowhere else.
+* Result-row quantity/cost totals cover ``[day 00:10, next day 00:10)`` while the
+  natural-day bill and the six 4-hour blocks cover ``[day 00:00, day 24:00)``.
+  The two windows are labelled explicitly and are **not** expected to be equal
+  without the boundary conversion.
+* The template's ``...`` placeholder rows are expanded to the full date range.
+* Consecutive emergency intervals are merged only when they are truly adjacent
+  and belong to the same result row.
 """
 
 from __future__ import annotations
@@ -22,34 +26,56 @@ from pathlib import Path
 import numpy as np
 from openpyxl import load_workbook
 
-from .constants import (
-    ADJUST_NODE_INTERVALS,
-    E_INIT_2025_01_01,
-    N_INTERVAL,
-    TEMPLATE_FILES,
-)
-from .data_io import data_path, project_root
-from .timeaxis import boundary_labels, interval_labels
+from .constants import N_INTERVAL, TEMPLATE_FILES
+from .data_io import data_path
+from .timeaxis import result_interval_clock_index
+from .timeline import MINUTES_PER_DAY
 from .validation import ValidationError
 
-# 4 小时块 = 24 段
 BLOCK_INTERVALS = 24
-BLOCK_LABELS = ("0:00-4:00", "4:00-8:00", "8:00-12:00", "12:00-16:00", "16:00-20:00", "20:00-24:00")
-
-#: 论文表1/表3 指定时间段（10 分钟）的起点
+BLOCK_LABELS = (
+    "0:00-4:00",
+    "4:00-8:00",
+    "8:00-12:00",
+    "12:00-16:00",
+    "16:00-20:00",
+    "20:00-24:00",
+)
 SPECIAL_START_TIMES = ("10:00", "12:00", "14:00", "16:00", "18:00", "20:00")
 
 
-# ==========================================================================
-# 工具
-# ==========================================================================
+@dataclass
+class DailyExportRow:
+    """Everything needed to write one date row of a multi-day workbook."""
+
+    day: date
+    plan_initial_kwh: np.ndarray      # (144,) initial daily plan (Jan 1: formed at 00:10)
+    final_plan_kwh: np.ndarray        # (144,) final effective plan, result-row aligned
+    grid_actual_kwh: np.ndarray       # (144,) executed normal purchase = O + A
+    emergency_actual_kwh: np.ndarray  # (144,)
+    charge_stored_kwh: np.ndarray     # (144,)
+    discharge_delivered_kwh: np.ndarray
+    soc_natural_start_kwh: float      # day start SOC; Jan 1 partial day uses 00:10
+    soc_natural_end_kwh: float        # natural day 24:00 (E_{d,144})
+    execution_cost_yuan: float
+    reduce_cost_yuan: float
+    #: Charge/discharge of this date's own 00:00-00:10 interval. The result row
+    #: starts at 00:10, so this value lives in the previous date's row; the
+    #: 4-hour blocks are laid out on the natural-day clock and therefore need it.
+    charge_clock_start_kwh: float | None = None
+    discharge_clock_start_kwh: float | None = None
+    # Only Jan 1 may start at 00:10; its omitted interval remains absent.
+    natural_start_minute: int = 0
+
+    @property
+    def result_row_cost_yuan(self) -> float:
+        return self.execution_cost_yuan + self.reduce_cost_yuan
 
 
-def _load_template_copy(key: str, dest: Path) -> "openpyxl.workbook.workbook.Workbook":  # type: ignore[name-defined]
+def _load_template_copy(key: str, dest: Path):
     src = data_path(TEMPLATE_FILES[key])
     dest.parent.mkdir(parents=True, exist_ok=True)
-    wb = load_workbook(src)  # 原模板只读打开，另存为副本
-    return wb
+    return load_workbook(src)
 
 
 def _clear_row(ws, row: int, n_cols: int) -> None:
@@ -58,12 +84,12 @@ def _clear_row(ws, row: int, n_cols: int) -> None:
 
 
 def interval_index_of_start_time(hhmm: str) -> int:
-    """'10:00' -> 该 10 分钟段（10:00-10:10）的模型区间号 60。"""
+    """'10:00' -> natural-day clock interval 60 (the 10:00-10:10 segment)."""
     hh, mm = hhmm.split(":")
     minutes = int(hh) * 60 + int(mm)
     t = minutes // 10
-    if not 0 <= t < N_INTERVAL:
-        raise ValidationError(f"时间 {hhmm} 不对应任何模型区间")
+    if not 0 <= t < 144:
+        raise ValidationError(f"时间 {hhmm} 不对应任何区间")
     return t
 
 
@@ -72,30 +98,37 @@ def interval_index_of_start_time(hhmm: str) -> int:
 # ==========================================================================
 
 
-def export_result1(record, dest_dir: Path, *, grid_kwh: np.ndarray | None = None) -> Path:
-    """问题一结果：计划购电量（144 段）+ 充放电量（6 个 4 小时块 + 首末 SOC）。"""
-    traj = record.trajectory
-    grid = np.asarray(grid_kwh if grid_kwh is not None else traj.grid_actual_kwh, dtype=np.float64)
-
+def export_result1(trajectory, dest_dir: Path) -> Path:
+    """Problem 1: 144 plan values plus the six 4-hour blocks and day-end SOC."""
     wb = _load_template_copy("result1", dest_dir / "result1.xlsx")
     ws = wb["计划购电量"]
-    if ws.max_row != N_INTERVAL + 1:
-        raise ValidationError(f"result1 计划购电量应为 {N_INTERVAL + 1} 行，实际 {ws.max_row}")
-    # 第 t 段 -> 第 t+2 行（第 1 行是表头）
-    for t in range(N_INTERVAL):
-        ws.cell(row=t + 2, column=2).value = round(float(grid[t]), 6)
+    if ws.max_row != 145:
+        raise ValidationError(f"result1 计划购电量应为 145 行，实际 {ws.max_row}")
+    grid = np.asarray(trajectory.get("result_grid_kwh", np.roll(trajectory["grid_kwh"], -1)), dtype=np.float64)
+    for j in range(144):
+        ws.cell(row=j + 2, column=2).value = round(float(grid[j]), 6)
 
     ws2 = wb["充放电量"]
-    charge = traj.charge_stored_kwh
-    discharge = traj.discharge_delivered_kwh
+    charge = np.asarray(trajectory["charge_kwh"], dtype=np.float64)
+    discharge = np.asarray(trajectory["discharge_kwh"], dtype=np.float64)
+    soc = np.asarray(
+        trajectory.get("soc_boundary_kwh", trajectory.get("soc_kwh")), dtype=np.float64
+    )
+    # Physical arrays and SOC are in natural-day order; only plan cells use result order.
+    if charge.size != N_INTERVAL or discharge.size != N_INTERVAL:
+        raise ValidationError(
+            f"问题一充放电序列应为 {N_INTERVAL} 段，实际 {charge.size}/{discharge.size}"
+        )
+    charge_clock = charge
+    discharge_clock = discharge
     for b in range(6):
         lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
         row = b + 2
         ws2.cell(row=row, column=1).value = BLOCK_LABELS[b]
-        ws2.cell(row=row, column=2).value = round(float(charge[lo:hi].sum()), 6)
-        ws2.cell(row=row, column=3).value = round(float(discharge[lo:hi].sum()), 6)
-    ws2.cell(row=2, column=5).value = round(float(traj.soc_kwh[0]), 6)
-    ws2.cell(row=3, column=5).value = round(float(traj.soc_kwh[-1]), 6)
+        ws2.cell(row=row, column=2).value = round(float(charge_clock[lo:hi].sum()), 6)
+        ws2.cell(row=row, column=3).value = round(float(discharge_clock[lo:hi].sum()), 6)
+    ws2.cell(row=2, column=5).value = round(float(soc[0]), 6)
+    ws2.cell(row=3, column=5).value = round(float(soc[-1]), 6)
 
     out = dest_dir / "result1.xlsx"
     wb.save(out)
@@ -104,40 +137,17 @@ def export_result1(record, dest_dir: Path, *, grid_kwh: np.ndarray | None = None
 
 
 # ==========================================================================
-# result2 / result4-2 / result3 / result4-3
+# result2 / result3 / result4-2 / result4-3
 # ==========================================================================
 
 
-@dataclass
-class DailyExportRow:
-    """导出所需的单日数据（与仿真/结算解耦，便于单独测试）。"""
-
-    day: date
-    plan_initial_kwh: np.ndarray        # 0 点计划 x
-    final_plan_kwh: np.ndarray          # 调整后的最终有效策略（问题二等于 x）
-    grid_actual_kwh: np.ndarray         # 实际普通购电 h
-    emergency_actual_kwh: np.ndarray
-    charge_stored_kwh: np.ndarray
-    discharge_delivered_kwh: np.ndarray
-    soc_start_kwh: float
-    soc_end_kwh: float
-    purchase_cost_yuan: float
-    penalty_yuan: float
-
-    @property
-    def full_day_cost_yuan(self) -> float:
-        """模板"全天购电费"列：实际执行购电费 + 已发生违约金。"""
-        return self.purchase_cost_yuan + self.penalty_yuan
-
-
 def _merge_adjacent(intervals: list[int]) -> list[tuple[int, int]]:
-    """把相邻段合并为 [起, 止) 区间；只有相邻才合并。"""
     if not intervals:
         return []
     out: list[tuple[int, int]] = []
     start = prev = intervals[0]
     for t in intervals[1:]:
-        if t == prev + 1:
+        if t == prev + 1 and t != 143:
             prev = t
             continue
         out.append((start, prev + 1))
@@ -147,13 +157,10 @@ def _merge_adjacent(intervals: list[int]) -> list[tuple[int, int]]:
 
 
 def _fmt_interval_range(lo: int, hi: int) -> str:
-    """[起, 止) 段号 -> 'HH:MM-HH:MM' 文本（结束用 24:00 表示一天末尾）。"""
-    def fmt(t: int) -> str:
-        minutes = t * 10
-        if minutes >= 24 * 60:
-            return "24:00"
-        return f"{minutes // 60}:{minutes % 60:02d}"
-
+    def fmt(j: int) -> str:
+        minutes = (j + 1) * 10
+        day, minute = divmod(minutes, 1440)
+        return f"{minute//60}:{minute%60:02d}" + ("+1" if day else "")
     return f"{fmt(lo)}-{fmt(hi)}"
 
 
@@ -164,10 +171,6 @@ def export_multiday(
     *,
     with_adjust_sheet: bool,
 ) -> Path:
-    """导出 result2 / result3 / result4-2 / result4-3。
-
-    ``rows`` 必须只包含需要输出的 2025-02-01..12-31 共 334 天，且按日期升序。
-    """
     key = problem.replace("problem", "result")
     if key not in TEMPLATE_FILES:
         raise ValidationError(f"未知的结果文件：{problem}")
@@ -183,23 +186,25 @@ def export_multiday(
             "discharge_delivered_kwh",
         ):
             arr = np.asarray(getattr(r, name), dtype=np.float64)
-            if arr.shape != (N_INTERVAL,):
+            if arr.shape != (144,) or not np.isfinite(arr).all() or np.any(arr < -1e-6):
                 raise ValidationError(f"{r.day} 的 {name} 形状错误：{arr.shape}")
 
+    for r in rows:
+        if r.natural_start_minute not in (0, 10) or (r.natural_start_minute == 10 and r.day != date(2025, 1, 1)):
+            raise ValidationError("Invalid partial natural-day boundary")
+        if r.natural_start_minute == 0 and (r.charge_clock_start_kwh is None or r.discharge_clock_start_kwh is None):
+            raise ValidationError("Missing natural-midnight dispatch")
+        if not np.isfinite([r.soc_natural_start_kwh, r.soc_natural_end_kwh, r.execution_cost_yuan,
+                            r.reduce_cost_yuan,
+                            *([] if r.natural_start_minute else [r.charge_clock_start_kwh, r.discharge_clock_start_kwh])]).all():
+            raise ValidationError("Missing export boundaries/costs")
     wb = _load_template_copy(key, dest_dir / f"{key}.xlsx")
-
-    # ---- 计划购电量 / 调整购电量：一天一行 ----
     _fill_daily_matrix(wb["计划购电量"], rows, "plan_initial_kwh")
     if with_adjust_sheet:
         if "调整购电量" not in wb.sheetnames:
             raise ValidationError(f"{key} 缺少'调整购电量'工作表")
-        # 已确认口径：写"最终有效执行策略曲线"（逐段实际生效的普通购电量）
         _fill_daily_matrix(wb["调整购电量"], rows, "final_plan_kwh")
-
-    # ---- 充放电量：每天 6 行 4 小时块 ----
     _fill_charge_discharge(wb["充放电量"], rows)
-
-    # ---- 紧急购电量：按日逐条展开 ----
     _fill_emergency(wb["紧急购电量"], rows)
 
     out = dest_dir / f"{key}.xlsx"
@@ -209,72 +214,101 @@ def export_multiday(
 
 
 def _fill_daily_matrix(ws, rows: list[DailyExportRow], attr: str) -> None:
-    """把 (天 × 144 段) 写进 '日期\\时间' 矩阵表。
+    """Write the (day x 144) matrix.
 
-    模板第 1 行是表头，第 1 列是日期，第 2..145 列是 144 个时间段
-    （标签 '0:10-0:20' … '0:00-0:10+1'，比模型区间后移一段）。
-    第 146/147 列是 '全天购电量' 与 '全天购电费'。
+    Template layout: row 1 header, column 1 date, columns 2..145 the 144 result
+    intervals, column 146 '全天购电量', column 147 '全天购电费'.
     """
-    n_rows_needed = len(rows) + 1  # 含表头
-    if ws.max_row < n_rows_needed:
-        # 模板行数不足时按末行样式扩展列标题单元格
-        raise ValidationError(
-            f"模板行数不足：需要 {n_rows_needed} 行，模板只有 {ws.max_row} 行。"
-            "请确认输出日期范围与模板一致（334 天 + 表头 = 335 行）。"
-        )
+    needed = len(rows) + 1
+    # openpyxl expands the template when new date rows are written.
     for i, r in enumerate(rows):
         excel_row = i + 2
         ws.cell(row=excel_row, column=1).value = r.day
         values = np.asarray(getattr(r, attr), dtype=np.float64)
-        day_total = float(np.asarray(r.grid_actual_kwh, dtype=np.float64).sum() + np.asarray(
-            r.emergency_actual_kwh, dtype=np.float64
-        ).sum())
-        for t in range(N_INTERVAL):
-            ws.cell(row=excel_row, column=t + 2).value = round(float(values[t]), 6)
-        ws.cell(row=excel_row, column=N_INTERVAL + 2).value = round(day_total, 6)
-        ws.cell(row=excel_row, column=N_INTERVAL + 3).value = round(r.full_day_cost_yuan, 6)
-    # 模板多余行（'⁝' 或示例日）必须清空，避免残留示例数据
+        # result-row totals: execution + emergency over [00:10, next day 00:10)
+        day_total = float(
+            np.asarray(r.grid_actual_kwh, dtype=np.float64).sum()
+            + np.asarray(r.emergency_actual_kwh, dtype=np.float64).sum()
+        )
+        for j in range(144):
+            ws.cell(row=excel_row, column=j + 2).value = round(float(values[j]), 6)
+        ws.cell(row=excel_row, column=146).value = round(day_total, 6)
+        ws.cell(row=excel_row, column=147).value = round(r.result_row_cost_yuan, 6)
     for excel_row in range(len(rows) + 2, ws.max_row + 1):
-        _clear_row(ws, excel_row, N_INTERVAL + 3)
+        _clear_row(ws, excel_row, 147)
+
+
+def _clock_order(values: np.ndarray, first_clock: float | None = None, start_minute: int = 0) -> np.ndarray:
+    """Result-row order -> natural-day clock order (exact re-indexing).
+
+    The template labels its blocks ``0:00-4:00 … 20:00-24:00``, so a block is
+    defined on the **natural-day clock**: clock interval ``t`` covers
+    ``[t*10, (t+1)*10)`` minutes of the date in column 1.
+
+    A ``DailyExportRow`` stores its 144 values in **result-row order**, where
+    cell ``j`` belongs to clock ``j + 1`` of that date, and ``j = 143`` reaches
+    into the *next* day (clock 0 of the following date). Two consequences:
+
+    Jan 1 alone may start at 00:10: its clock[0] stays NaN and is excluded
+    from the first block, which is explicitly labelled 00:10-04:00.
+
+    * clock 0 of this date (its own 00:00) is **not in its own row** — it is the
+      last cell of the *previous* date's row. It must be supplied by the caller
+      via ``first_clock``; without it the block cannot be reconstructed.
+    * these windows cover different sets of intervals; there is no cyclic
+      rotation of the row array (rotating would pull the next day's interval
+      into the last block and the wrong value into the first).
+
+    Exact mapping: ``clock[0] = first_clock`` and ``clock[t] = row[t - 1]``.
+    """
+    arr = np.asarray(values, dtype=np.float64)
+    if arr.size != N_INTERVAL:
+        raise ValidationError(f"分块需要 {N_INTERVAL} 段，收到 {arr.size}")
+    if first_clock is None and start_minute != 10:
+        raise ValidationError(
+            "缺少该自然日 00:00 的数值：result 行首格是 00:10，当日 00:00 落在前一日"
+            " result 行的最后一格，无法由本行自身还原"
+        )
+    out = np.empty(N_INTERVAL, dtype=np.float64)
+    out[0] = np.nan if start_minute == 10 else float(first_clock)
+    out[1:] = arr[: N_INTERVAL - 1]
+    return out
 
 
 def _fill_charge_discharge(ws, rows: list[DailyExportRow]) -> None:
-    """模板每天 6 行：日期 / 时间段 / 充电量 / 放电量 / 时刻 / 储电量。
-
-    模板原有 2—3 天示例 + 一行 '⁝'。本函数按 6 行/天重建整表：
-    先清空原内容，再按 334 天写入，保证不残留省略行与示例。
-    """
+    """Six 4-hour blocks per natural day plus the natural-day 00:00/24:00 SOC."""
     for excel_row in range(2, ws.max_row + 1):
         _clear_row(ws, excel_row, 6)
 
     excel_row = 2
     for r in rows:
-        charge = np.asarray(r.charge_stored_kwh, dtype=np.float64)
-        discharge = np.asarray(r.discharge_delivered_kwh, dtype=np.float64)
+        # Re-align to the natural-day clock before slicing the blocks. The day's
+        # own 00:00 value is not in its result row, so it is carried explicitly.
+        charge = _clock_order(r.charge_stored_kwh, r.charge_clock_start_kwh, r.natural_start_minute)
+        discharge = _clock_order(r.discharge_delivered_kwh, r.discharge_clock_start_kwh, r.natural_start_minute)
         for b in range(6):
             ws.cell(row=excel_row, column=1).value = r.day if b == 0 else None
-            ws.cell(row=excel_row, column=2).value = BLOCK_LABELS[b]
-            lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
+            ws.cell(row=excel_row, column=2).value = "0:10-4:00" if b == 0 and r.natural_start_minute else BLOCK_LABELS[b]
+            lo, hi = max(b * BLOCK_INTERVALS, r.natural_start_minute // 10), (b + 1) * BLOCK_INTERVALS
             ws.cell(row=excel_row, column=3).value = round(float(charge[lo:hi].sum()), 6)
             ws.cell(row=excel_row, column=4).value = round(float(discharge[lo:hi].sum()), 6)
             if b == 0:
-                ws.cell(row=excel_row, column=5).value = "0:00"
-                ws.cell(row=excel_row, column=6).value = round(float(r.soc_start_kwh), 6)
+                ws.cell(row=excel_row, column=5).value = "0:10" if r.natural_start_minute else "0:00"
+                ws.cell(row=excel_row, column=6).value = round(r.soc_natural_start_kwh, 6)
             elif b == 5:
                 ws.cell(row=excel_row, column=5).value = "24:00"
-                ws.cell(row=excel_row, column=6).value = round(float(r.soc_end_kwh), 6)
+                ws.cell(row=excel_row, column=6).value = round(r.soc_natural_end_kwh, 6)
             excel_row += 1
 
 
 def _fill_emergency(ws, rows: list[DailyExportRow]) -> None:
-    """紧急购电表：每天按实际发生的紧急时段逐条写，相邻段合并。"""
     for excel_row in range(2, ws.max_row + 1):
         _clear_row(ws, excel_row, 3)
 
     excel_row = 2
     for r in rows:
         emg = np.asarray(r.emergency_actual_kwh, dtype=np.float64)
-        hit = [int(t) for t in np.flatnonzero(emg > 1e-9)]
+        hit = [int(j) for j in np.flatnonzero(emg > 1e-9)]
         merged = _merge_adjacent(hit)
         if not merged:
             continue
@@ -288,25 +322,27 @@ def _fill_emergency(ws, rows: list[DailyExportRow]) -> None:
 
 
 # ==========================================================================
-# 论文用表（表1 / 表2 / 表3）
+# Paper tables
 # ==========================================================================
 
 
-def paper_table1(rows: list[DailyExportRow]) -> list[dict[str, float | str]]:
-    """表1：指定 10 分钟段的购电量 + 全天购电量与购电费。"""
-    out: list[dict[str, float | str]] = []
+def paper_table1(rows: list[DailyExportRow]) -> list[dict[str, object]]:
+    out: list[dict[str, object]] = []
     for r in rows:
         grid = np.asarray(r.grid_actual_kwh, dtype=np.float64)
         emg = np.asarray(r.emergency_actual_kwh, dtype=np.float64)
         for start in SPECIAL_START_TIMES:
             t = interval_index_of_start_time(start)
+            # result index for natural-day clock interval t is t-1
+            j = t - 1
+            if j < 0:
+                j = 0
             end_minutes = (t + 1) * 10
-            label = f"{start}-{end_minutes // 60}:{end_minutes % 60:02d}"
             out.append(
                 {
                     "日期": r.day.isoformat(),
-                    "时间段": label,
-                    "购电量": round(float(grid[t] + emg[t]), 6),
+                    "时间段": f"{start}-{end_minutes // 60}:{end_minutes % 60:02d}",
+                    "购电量": round(float(grid[j] + emg[j]), 6),
                 }
             )
         out.append(
@@ -320,39 +356,49 @@ def paper_table1(rows: list[DailyExportRow]) -> list[dict[str, float | str]]:
             {
                 "日期": r.day.isoformat(),
                 "时间段": "全天购电费",
-                "购电量": round(float(r.full_day_cost_yuan), 6),
+                "购电量": round(r.result_row_cost_yuan, 6),
             }
         )
     return out
 
 
-def paper_table2(rows: list[DailyExportRow]) -> list[dict[str, float | str]]:
-    """表2：6 个 4 小时块的充放电量 + 0:00/24:00 储电量。"""
-    out: list[dict[str, float | str]] = []
+def paper_table2(rows: list[DailyExportRow]) -> list[dict[str, object]]:
+    out: list[dict[str, object]] = []
     for r in rows:
-        charge = np.asarray(r.charge_stored_kwh, dtype=np.float64)
-        discharge = np.asarray(r.discharge_delivered_kwh, dtype=np.float64)
+        charge = _clock_order(r.charge_stored_kwh, r.charge_clock_start_kwh, r.natural_start_minute)
+        discharge = _clock_order(r.discharge_delivered_kwh, r.discharge_clock_start_kwh, r.natural_start_minute)
         for b, label in enumerate(BLOCK_LABELS):
-            lo, hi = b * BLOCK_INTERVALS, (b + 1) * BLOCK_INTERVALS
+            lo, hi = max(b * BLOCK_INTERVALS, r.natural_start_minute // 10), (b + 1) * BLOCK_INTERVALS
             out.append(
                 {
                     "日期": r.day.isoformat(),
-                    "时间段": label,
+                    "时间段": "0:10-4:00" if b == 0 and r.natural_start_minute else label,
                     "充电量": round(float(charge[lo:hi].sum()), 6),
                     "放电量": round(float(discharge[lo:hi].sum()), 6),
                 }
             )
-        out.append({"日期": r.day.isoformat(), "时间段": "0:00储电量", "充电量": round(float(r.soc_start_kwh), 6)})
-        out.append({"日期": r.day.isoformat(), "时间段": "24:00储电量", "充电量": round(float(r.soc_end_kwh), 6)})
+        out.append(
+            {
+                "日期": r.day.isoformat(),
+                "时间段": "0:10储电量" if r.natural_start_minute else "0:00储电量",
+                "充电量": round(r.soc_natural_start_kwh, 6),
+            }
+        )
+        out.append(
+            {
+                "日期": r.day.isoformat(),
+                "时间段": "24:00储电量",
+                "充电量": round(r.soc_natural_end_kwh, 6),
+            }
+        )
     return out
 
 
-def paper_table3(rows: list[DailyExportRow]) -> list[dict[str, float | str]]:
-    """表3：指定日期的紧急购电量。"""
-    out: list[dict[str, float | str]] = []
+def paper_table3(rows: list[DailyExportRow]) -> list[dict[str, object]]:
+    out: list[dict[str, object]] = []
     for r in rows:
         emg = np.asarray(r.emergency_actual_kwh, dtype=np.float64)
-        hit = [int(t) for t in np.flatnonzero(emg > 1e-9)]
+        hit = [int(j) for j in np.flatnonzero(emg > 1e-9)]
         for lo, hi in _merge_adjacent(hit):
             out.append(
                 {
@@ -364,9 +410,90 @@ def paper_table3(rows: list[DailyExportRow]) -> list[dict[str, float | str]]:
     return out
 
 
+# ==========================================================================
+# Building export rows from a run
+# ==========================================================================
+
+
+def build_daily_rows(result) -> list[DailyExportRow]:
+    """Convert an AbsoluteRun into result-row records for every output day.
+
+    ``result`` is a :class:`microgrid.absolute_run.RunResult`. Its row_bills
+    already select the report dates; short initialization runs may include January.
+    """
+    from .constants import OUTPUT_START
+    from .absolute_run import validate_result
+    validate_result(result)
+
+    step_index = {s.abs_minute: s for s in result.run.steps}
+    soc_index = _soc_lookup(result.run)
+    events = {e.at_abs: e for e in result.run.events}
+
+    out: list[DailyExportRow] = []
+    for day in [d for d, _ in result.row_bills]:
+        base = (day - date(2025, 1, 1)).days * MINUTES_PER_DAY
+        plan = np.zeros(144)
+        final = np.zeros(144)
+        grid = np.zeros(144)
+        emg = np.zeros(144)
+        ch = np.zeros(144)
+        dis = np.zeros(144)
+        exec_cost = 0.0
+        for j in range(144):
+            abs_minute = base + result_interval_clock_index(j) * 10
+            step = step_index.get(abs_minute)
+            if step is None or abs_minute not in events or abs_minute not in result.run.initial_plans:
+                raise ValidationError(f"Missing execution/initial plan at {abs_minute}")
+            if step is not None:
+                grid[j] = step.grid_kwh
+                emg[j] = step.emergency_kwh
+                ch[j] = step.charge_kwh
+                dis[j] = step.discharge_kwh
+            ev = events.get(abs_minute)
+            if ev is not None:
+                # Preserve the midnight archive separately from executed O/A labels.
+                plan[j] = result.run.initial_plans[abs_minute]
+                final[j] = ev.o_exec_kwh + ev.a_exec_kwh
+                exec_cost += ev.cost_yuan
+        row_bill = dict(result.row_bills)[day]
+        # Natural-day blocks need this date's own midnight interval.
+        step0 = step_index.get(base)
+        start_minute = 10 if base == 0 and result.run.abs_minutes[0] == 10 else 0
+        out.append(
+            DailyExportRow(
+                day=day,
+                plan_initial_kwh=plan,
+                final_plan_kwh=final,
+                grid_actual_kwh=grid,
+                emergency_actual_kwh=emg,
+                charge_stored_kwh=ch,
+                discharge_delivered_kwh=dis,
+                soc_natural_start_kwh=soc_index.get(base + start_minute, float("nan")),
+                natural_start_minute=start_minute,
+                soc_natural_end_kwh=soc_index.get(base + MINUTES_PER_DAY, float("nan")),
+                execution_cost_yuan=exec_cost,
+                reduce_cost_yuan=row_bill.reduce_cost_yuan,
+                charge_clock_start_kwh=None if step0 is None else step0.charge_kwh,
+                discharge_clock_start_kwh=None if step0 is None else step0.discharge_kwh,
+            )
+        )
+    return out
+
+
+def _soc_lookup(run) -> dict[int, float]:
+    """Absolute minute -> SOC boundary value for successive executed intervals."""
+    out: dict[int, float] = {}
+    steps = sorted(run.steps, key=lambda s: s.abs_minute)
+    soc = run.soc_boundary_kwh
+    for i, s in enumerate(steps):
+        out[s.abs_minute] = float(soc[i]) if i < soc.size else float("nan")
+        out[s.abs_minute + 10] = float(soc[i + 1]) if i + 1 < soc.size else float("nan")
+    return out
+
+
 __all__ = [
     "DailyExportRow",
-    "daily_export_rows",
+    "build_daily_rows",
     "export_result1",
     "export_multiday",
     "paper_table1",
@@ -375,41 +502,4 @@ __all__ = [
     "interval_index_of_start_time",
     "BLOCK_LABELS",
     "SPECIAL_START_TIMES",
-    "boundary_labels",
-    "interval_labels",
-    "ADJUST_NODE_INTERVALS",
-    "E_INIT_2025_01_01",
 ]
-
-
-def daily_export_rows(day_records) -> list[DailyExportRow]:
-    """把运行结果里的逐日记录转成导出行。
-
-    只接受 2025-02-01 之后的日期——1 月是预热期，不进入结果文件。
-    """
-    first = date(2025, 2, 1)
-    rows: list[DailyExportRow] = []
-    for rec in day_records:
-        if rec.day < first:
-            continue
-        traj = rec.trajectory
-        plan_initial = rec.plan_initial_kwh
-        final_plan = rec.final_plan_curve_kwh
-        if plan_initial is None or final_plan is None:
-            raise ValidationError(f"{rec.day} 缺少计划曲线，无法导出")
-        rows.append(
-            DailyExportRow(
-                day=rec.day,
-                plan_initial_kwh=np.asarray(plan_initial, dtype=np.float64),
-                final_plan_kwh=np.asarray(final_plan, dtype=np.float64),
-                grid_actual_kwh=np.asarray(traj.grid_actual_kwh, dtype=np.float64),
-                emergency_actual_kwh=np.asarray(traj.emergency_actual_kwh, dtype=np.float64),
-                charge_stored_kwh=np.asarray(traj.charge_stored_kwh, dtype=np.float64),
-                discharge_delivered_kwh=np.asarray(traj.discharge_delivered_kwh, dtype=np.float64),
-                soc_start_kwh=float(traj.soc_kwh[0]),
-                soc_end_kwh=float(traj.soc_kwh[-1]),
-                purchase_cost_yuan=float(rec.bill.purchase_cost_yuan),
-                penalty_yuan=float(rec.bill.penalty_yuan),
-            )
-        )
-    return rows

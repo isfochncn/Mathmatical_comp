@@ -5,9 +5,17 @@
   * 原附件与模板一律只读；排除 Excel 锁文件 ``~$*.xlsx``；
   * 时间换算全部委托给 :mod:`microgrid.timeaxis`，本模块不自行算段号。
 
-单位口径（备忘录第 7 节）：
+单位口径（备忘录第 4 节）：
   附件里的 10 分钟数值是**区间平均功率**（kW），
   区间电量 = 功率 / 6（kWh）；价格直接是区间平均单价（元/kWh），不除以 6。
+
+标签口径（2026-09-11 定稿，见 :mod:`microgrid.timeaxis`）：
+  源标签是**区间起点**：'00:10' 表示 [00:10, 00:20)，序号 v=0；
+  '23:50' 表示 [23:50, 00:00)，序号 v=143；
+  '0:00+1' / '24:00' 表示 [次日 00:00, 次日 00:10)，序号 v=143（同列）。
+
+  自然日的首个区间（00:00—00:10）由**上一源日的 '0:00+1' 列**承担，
+  这一步在 :mod:`microgrid.timeline` 里做，本模块只吐出源序列。
 """
 
 from __future__ import annotations
@@ -35,7 +43,7 @@ from .timeaxis import (
     DATE_2025_01_01,
     DATE_2025_12_31,
     calendar_days,
-    interval_index_from_label,
+    seq_index_from_label,
     to_date,
 )
 
@@ -103,7 +111,7 @@ def _grid_from_matrix_sheet(path: Path, sheet: str) -> tuple[list[date], np.ndar
             continue
         if isinstance(label, (time, str)):
             try:
-                t = interval_index_from_label(label)
+                t = seq_index_from_label(label)
             except ValueError:
                 continue
             time_cols.append((col, t))
@@ -166,7 +174,7 @@ def load_attachment1(root: Path | None = None) -> Attachment1:
     for row in rows[1:]:
         if row[0] is None:
             continue
-        t = interval_index_from_label(row[0])
+        t = seq_index_from_label(row[0])
         for arr, idx in ((price, 1), (load, 2), (pv, 3)):
             if arr[t] == arr[t] and not np.isnan(arr[t]):
                 raise DataError(f"附件1 区间 {t} 重复出现")
@@ -251,32 +259,41 @@ class Attachment3:
         raise DataError(f"附件3 缺少 {day} {hour}:00 的预报块")
 
     def hourly_power_on(self, day: date) -> np.ndarray:
-        """某日 24 个小时平均功率（kW），由覆盖该日的预报拼成。
+        """某日 24 个小时平均功率（kW），取自该日 00:00 的发布。
 
-        优先级：优先用该日自己 0:00 的发布（完整覆盖该日 0:00—24:00）；
-        前沿缺失的小时由前一日 18:00 发布补齐（跨午夜预报保留真实有效日期）。
+        00:00 发布的 24 条预报覆盖 [day 00:00, day 24:00)，自足、无需拼接。
+        规范要求：不得读取未来 6/12/18 点或次日 0 点的发布来补当前窗口；
+        超出单次 24 小时覆盖的部分由**历史光伏点预测**补齐，那一步在
+        :mod:`microgrid.forecast` 里做，本方法只负责已发布版本本身。
         """
-        out = np.full(24, np.nan, dtype=np.float64)
-        try:
-            b0 = self.block_at(day, 0)
-            out[:] = b0.hourly_power_kw
-        except DataError:
-            pass
-        try:
-            prev = self.block_at(day - _one_day(), 18)
-            # 前一日 18:00 的发布覆盖 [day 0:00, day 18:00) 即前 18 小时
-            out[:18] = np.where(np.isnan(out[:18]), prev.hourly_power_kw[6:24], out[:18])
-        except DataError:
-            pass
-        if np.isnan(out).any():
-            raise DataError(f"{day} 的小时级光伏预报不完整")
-        return out
+        return self.block_at(day, 0).hourly_power_kw.copy()
 
+    def hourly_power_from(self, publish_day: date, publish_hour: int) -> np.ndarray:
+        """取指定发布版本覆盖 [publish_day 00:00, +24h) 的 24 条小时预报。"""
+        return self.block_at(publish_day, publish_hour).hourly_power_kw.copy()
 
-def _one_day():
-    from datetime import timedelta
+    def latest_published_covering(
+        self, before: date, before_hour: int, target_hour_abs: int
+    ) -> tuple[ForecastBlock, int] | None:
+        """在 (before, before_hour) 之前（含）已发布、且覆盖目标绝对小时的**最新**版本。
 
-    return timedelta(days=1)
+        Returns ``(block, offset)``，offset 为目标绝对小时在该块 24 条预报中的
+        下标；没有任何版本覆盖时返回 None。绝不读取尚未发布的版本。
+        """
+        best: tuple[ForecastBlock, int] | None = None
+        for block in self.blocks:
+            publish_abs = block.publish_day.toordinal() * 24 + block.publish_hour
+            request_abs = before.toordinal() * 24 + before_hour
+            if publish_abs > request_abs:
+                continue
+            offset = target_hour_abs - publish_abs
+            if 0 <= offset < 24:
+                if best is None or (
+                    block.publish_day.toordinal() * 24 + block.publish_hour
+                    > best[0].publish_day.toordinal() * 24 + best[0].publish_hour
+                ):
+                    best = (block, offset)
+        return best
 
 
 def load_attachment3(root: Path | None = None) -> Attachment3:

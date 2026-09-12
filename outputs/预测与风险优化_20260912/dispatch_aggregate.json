@@ -1,0 +1,98 @@
+[
+  {
+    "problem": "problem2",
+    "variant": "baseline",
+    "cost_yuan": 464609.3962864352,
+    "emergency_kwh": 48509.60132470076,
+    "spill_kwh": 13562.978016816278,
+    "terminal_soc_sum_kwh": 18805.345283299735
+  },
+  {
+    "problem": "problem2",
+    "variant": "adaptive",
+    "cost_yuan": 223572.95704540415,
+    "emergency_kwh": 5232.7150924633115,
+    "spill_kwh": 2442.037565821443,
+    "terminal_soc_sum_kwh": 16648.414559506797
+  },
+  {
+    "problem": "problem2",
+    "variant": "reserve90",
+    "cost_yuan": 226676.37198754033,
+    "emergency_kwh": 4507.225397189999,
+    "spill_kwh": 2563.026113071893,
+    "terminal_soc_sum_kwh": 19186.935015439332
+  },
+  {
+    "problem": "problem3",
+    "variant": "baseline",
+    "cost_yuan": 349120.9905876857,
+    "emergency_kwh": 26620.128135194947,
+    "spill_kwh": 13772.483122495109,
+    "terminal_soc_sum_kwh": 18805.345283300736
+  },
+  {
+    "problem": "problem3",
+    "variant": "adaptive",
+    "cost_yuan": 226576.98800381745,
+    "emergency_kwh": 5896.010948910725,
+    "spill_kwh": 1881.6033866239381,
+    "terminal_soc_sum_kwh": 16553.296752177812
+  },
+  {
+    "problem": "problem3",
+    "variant": "reserve90",
+    "cost_yuan": 220013.57475822594,
+    "emergency_kwh": 4226.139055888958,
+    "spill_kwh": 2354.3329780173685,
+    "terminal_soc_sum_kwh": 16339.26760738901
+  },
+  {
+    "problem": "problem4-2",
+    "variant": "baseline",
+    "cost_yuan": 446930.1525919488,
+    "emergency_kwh": 36809.553020566804,
+    "spill_kwh": 14201.6905747711,
+    "terminal_soc_sum_kwh": 18799.81265005338
+  },
+  {
+    "problem": "problem4-2",
+    "variant": "adaptive",
+    "cost_yuan": 254089.08100612328,
+    "emergency_kwh": 4860.369314922969,
+    "spill_kwh": 2432.9032548424184,
+    "terminal_soc_sum_kwh": 16920.932266005668
+  },
+  {
+    "problem": "problem4-2",
+    "variant": "reserve90",
+    "cost_yuan": 243131.9329098587,
+    "emergency_kwh": 2744.3850621158663,
+    "spill_kwh": 2529.046849700274,
+    "terminal_soc_sum_kwh": 19187.718555871208
+  },
+  {
+    "problem": "problem4-3",
+    "variant": "baseline",
+    "cost_yuan": 395434.81873529236,
+    "emergency_kwh": 26899.65413928857,
+    "spill_kwh": 13967.069774705778,
+    "terminal_soc_sum_kwh": 18799.81265005338
+  },
+  {
+    "problem": "problem4-3",
+    "variant": "adaptive",
+    "cost_yuan": 257433.4474341576,
+    "emergency_kwh": 5957.860130070685,
+    "spill_kwh": 2308.3697172113148,
+    "terminal_soc_sum_kwh": 16868.41016378967
+  },
+  {
+    "problem": "problem4-3",
+    "variant": "reserve90",
+    "cost_yuan": 248806.32449026272,
+    "emergency_kwh": 4259.691894552476,
+    "spill_kwh": 2323.021913445338,
+    "terminal_soc_sum_kwh": 16409.090669752426
+  }
+]
