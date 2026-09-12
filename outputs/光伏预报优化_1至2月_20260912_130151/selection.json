@@ -1,0 +1,41 @@
+{
+  "selection_from": "2025-01-15T00:10:00",
+  "selection_to": "2025-02-01T00:10:00",
+  "criterion": "minimum PV MAE; candidate family and hyperparameters fixed before February evaluation",
+  "selected_variant": "blend",
+  "january_scores": {
+    "history": {
+      "mae": 16.029528526688456,
+      "rmse": 33.97857002886982,
+      "bias_pred_minus_actual": -7.300985321350759,
+      "overprediction_kwh": 10683.736883333337,
+      "underprediction_kwh": 28556.548949999997,
+      "p95_absolute": 82.57856321428584
+    },
+    "shape": {
+      "mae": 51.141044866663826,
+      "rmse": 89.92593137506637,
+      "bias_pred_minus_actual": -2.939179404956426,
+      "overprediction_kwh": 58999.08332512986,
+      "underprediction_kwh": 66194.19450846319,
+      "p95_absolute": 199.40115054596808
+    },
+    "calibrated": {
+      "mae": 20.617849848031945,
+      "rmse": 42.197319112691865,
+      "bias_pred_minus_actual": -5.745911175276338,
+      "overprediction_kwh": 18203.252935452867,
+      "underprediction_kwh": 32269.243492529342,
+      "p95_absolute": 99.00186366816023
+    },
+    "blend": {
+      "mae": 13.39279281623894,
+      "rmse": 28.162064183207843,
+      "bias_pred_minus_actual": -6.155262477655741,
+      "overprediction_kwh": 8858.73713442583,
+      "underprediction_kwh": 23926.819679727087,
+      "p95_absolute": 67.70197488751887
+    }
+  },
+  "caveat": "Earlier February diagnosis informed model design; February is a development backtest, not untouched external validation."
+}

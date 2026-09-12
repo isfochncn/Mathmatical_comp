@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "urgent-months",
+      "title": "紧急购电集中在哪里",
+      "queries": [
+        {
+          "id": "urgent-months",
+          "source": {
+            "label": "问题四两月运行轨迹",
+            "files": [
+              {
+                "label": "problem4-2/trajectory.npz"
+              },
+              {
+                "label": "problem4-3/trajectory.npz"
+              },
+              {
+                "label": "daily_bills.csv"
+              }
+            ],
+            "metricDefinitions": [
+              {
+                "label": "问题四两月运行轨迹",
+                "definition": "紧急购电量是普通计划购电和实际可用储能不能满足负载时的补购量；费用按实际电价的五倍结算。"
+              }
+            ],
+            "caveats": [
+              "月份沿用result行归属：当日00:10至次日00:10，一月首段从1月1日00:10开始。"
+            ]
+          },
+          "reportingPeriod": "2025年1月与2月",
+          "columns": [
+            "分支",
+            "月份",
+            "紧急电量_kWh",
+            "紧急电费_元",
+            "电量不足部分_kWh",
+            "功率上限部分_kWh",
+            "9至11点紧急电量_kWh"
+          ],
+          "rows": [
+            {
+              "分支": "problem4-2",
+              "月份": "January",
+              "紧急电量_kWh": 116225.18117127908,
+              "紧急电费_元": 794662.1814024246,
+              "电量不足部分_kWh": 111814.22282851656,
+              "功率上限部分_kWh": 4410.958340227946,
+              "9至11点紧急电量_kWh": 51618.79190291687
+            },
+            {
+              "分支": "problem4-2",
+              "月份": "February",
+              "紧急电量_kWh": 18772.231562480494,
+              "紧急电费_元": 109353.1416627515,
+              "电量不足部分_kWh": 18517.272669306778,
+              "功率上限部分_kWh": 254.95889210124483,
+              "9至11点紧急电量_kWh": 10241.315150887538
+            },
+            {
+              "分支": "problem4-3",
+              "月份": "January",
+              "紧急电量_kWh": 57326.187218951396,
+              "紧急电费_元": 379113.45930377516,
+              "电量不足部分_kWh": 55155.08288796102,
+              "功率上限部分_kWh": 2171.104329166665,
+              "9至11点紧急电量_kWh": 38877.194606387144
+            },
+            {
+              "分支": "problem4-3",
+              "月份": "February",
+              "紧急电量_kWh": 27732.079482172103,
+              "紧急电费_元": 150932.48366564937,
+              "电量不足部分_kWh": 27338.437527274014,
+              "功率上限部分_kWh": 393.6419529851229,
+              "9至11点紧急电量_kWh": 26550.003763854875
+            }
+          ],
+          "preview": {
+            "kind": "aggregate",
+            "note": "完整两月轨迹按月份汇总；每分支8496个时段。"
+          },
+          "methods": [
+            {
+              "language": "python",
+              "code": "\"\"\"Read archived two-month runs; decompose urgent purchases without rerunning policy.\"\"\"\nfrom pathlib import Path\nfrom datetime import datetime, timedelta\nimport json\nimport numpy as np\n\nROOT = Path(__file__).resolve().parents[1]\nOUT = ROOT/'outputs/问题四_1至2月检验_20260912_165702/紧急购电诊断'\nOUT.mkdir(exist_ok=True)\nORIGIN = datetime(2025, 1, 1)\ndef stamp(t): return (ORIGIN+timedelta(minutes=int(t))).isoformat(sep=' ')\ndef total(a,m): return float(a[m].sum())\n\ndef analyze(problem):\n    p=OUT.parent/problem/'运行记录'/problem\n    z=np.load(p/'trajectory.npz')\n    a=json.loads((p/'forecast_audit.json').read_text(encoding='utf-8'))\n    raw=json.loads((p/'summary.json').read_text(encoding='utf-8'))\n    t=z['abs_minute'];u=z['emergency_kwh'];n=len(t)\n    assert len(a)==n and np.array_equal(t,[r['formed_at'] for r in a])\n    soc=z['soc_boundary_kwh'][:-1];net=z['demand_kwh']-z['pv_kwh'];g=z['grid_kwh']\n    # Exact minimum urgent purchase with fixed purchases and interval-start SOC.\n    power=np.maximum(net-g-750,0)\n    need=np.maximum(net-g-np.minimum(750,.9*(soc-1200)),0)\n    assert np.max(np.abs(need-u))<1e-6\n    energy=np.maximum(need-power,0)\n    decision_load=np.zeros(n);decision_pv=np.zeros(n);upper=np.zeros(n);samples=np.zeros(n)\n    reserve=np.zeros(n);shortfall=np.zeros(n);formed=np.zeros(n,dtype=int)\n    for i,r in enumerate(a):\n        if 'demand_forecast_path_kwh' in r:\n            last=r\n        j=(int(t[i])-last['formed_at'])//10\n        decision_load[i]=last['demand_forecast_path_kwh'][j]\n        decision_pv[i]=last['pv_forecast_path_kwh'][j]\n        upper[i]=last['net_upper_path_kwh'][j]\n        reserve[i]=last['reserve_path_kwh'][j]\n        shortfall[i]=last['reserve_power_shortfall_path_kwh'][j]\n        samples[i]=last['risk_sample_count'];formed[i]=last['formed_at']\n    loaderr=z['demand_kwh']-decision_load;pverr=decision_pv-z['pv_kwh']\n    neterr=loaderr+pverr;curload=np.array([r['demand_forecast_kwh'] for r in a]);curpv=np.array([r['pv_forecast_kwh'] for r in a])\n    def detail(i):\n        return dict(time=stamp(t[i]),formed_at=stamp(formed[i]),urgent=float(u[i]),grid=float(g[i]),initial_plan=float(z['plan_initial_kwh'][i]),\n            load=float(z['demand_kwh'][i]),pv=float(z['pv_kwh'][i]),soc_start=float(soc[i]),soc_end=float(z['soc_boundary_kwh'][i+1]),\n            discharge=float(z['discharge_kwh'][i]),power_floor=float(power[i]),energy_extra=float(energy[i]),\n            decision_load=float(decision_load[i]),decision_pv=float(decision_pv[i]),load_error=float(loaderr[i]),pv_error=float(pverr[i]),\n            current_load=float(curload[i]),current_pv=float(curpv[i]),net_upper=float(upper[i]),reserve_energy=float(reserve[i]),\n            decision_power_slack=float(shortfall[i]),risk_samples=int(samples[i]),price=float(z['price_actual'][i]))\n    out={'problem':problem,'initial_soc':float(soc[0]),'source_max_urgent_reconstruction_error':float(np.max(np.abs(need-u))),'periods':{}}\n    for name,m in [('January',(t>=10)&(t<44650)),('February',t>=44650),('Both',t>=10)]:\n        hits=m&(u>1e-6);morning=m&(t%1440>=540)&(t%1440<660)\n        # Keep the result-row convention used in the delivered workbooks.\n        rows=[]\n        for d in np.unique((t[m]-10)//1440):\n            dm=m&((t-10)//1440==d)\n            rows.append({'date':stamp(d*1440)[:10],'urgent_kwh':total(u,dm),'power_floor_kwh':total(power,dm),'energy_extra_kwh':total(energy,dm)})\n        out['periods'][name]=dict(intervals=int(m.sum()),urgent_kwh=total(u,m),urgent_intervals=int(hits.sum()),\n            urgent_fee_yuan=total(5*u*z['price_actual'],m),ordinary_kwh=total(g,m),\n            power_floor_kwh=total(power,m),energy_extra_kwh=total(energy,m),\n            morning_9_11_kwh=total(u,morning),morning_load_error_kwh=total(loaderr,morning),morning_pv_error_kwh=total(pverr,morning),\n            morning_decision_pv_kwh=total(decision_pv,morning),morning_actual_pv_kwh=total(z['pv_kwh'],morning),\n            morning_decision_load_kwh=total(decision_load,morning),morning_actual_load_kwh=total(z['demand_kwh'],morning),\n            urgent_with_soc_above_5000=total(u,hits&(soc>5000)),urgent_with_discharge_750=total(u,hits&(z['discharge_kwh']>749.999)),\n            urgent_with_zero_grid=total(u,hits&(g<1e-6)),urgent_with_net_above_upper=total(u,hits&(net>upper+1e-6)),\n            urgent_with_decision_power_slack=total(u,hits&(shortfall>1e-5)),urgent_with_less7_samples=total(u,hits&(samples<7)),\n            hours=[{'hour':h,'urgent':total(u,m&(t//60%24==h))} for h in range(24)],\n            top_days=sorted(rows,key=lambda r:-r['urgent_kwh'])[:8],\n            top_intervals=[detail(i) for i in np.flatnonzero(m)[np.argsort(u[m])[-5:][::-1]]])\n    # A February morning with repeated large urgent purchases.\n    chosen=(t>=((datetime(2025,2,12)-ORIGIN).days*1440+480))&(t<((datetime(2025,2,12)-ORIGIN).days*1440+720))\n    out['feb12_8_to_12']=[detail(i) for i in np.flatnonzero(chosen)]\n    # Quantify current forecasts, not just the old decision forecast, at urgent events.\n    out['urgent_current_forecast_errors']={k:float(v[t>=44650].sum()) for k,v in {\n        'load_underprediction':np.where(u>1e-6,z['demand_kwh']-curload,0),\n        'pv_overprediction':np.where(u>1e-6,curpv-z['pv_kwh'],0)}.items()}\n    out['cold_start']={'first_seven_result_days_urgent_kwh':float(u[t<10090].sum()),'examples':[]}\n    for day in (1,5):\n        start=max(10,(day-1)*1440);i=(start-10)//10;r=a[i];length=(1440-start%1440)//10\n        out['cold_start']['examples'].append({'day':day,'samples':r['risk_sample_count'],\n            'load_forecast':sum(r['demand_forecast_path_kwh'][:length]),'load_actual':float(z['demand_kwh'][i:i+length].sum()),\n            'pv_forecast':sum(r['pv_forecast_path_kwh'][:length]),'pv_actual':float(z['pv_kwh'][i:i+length].sum())})\n    return out\n\nif __name__=='__main__':\n    results=[analyze(p) for p in ('problem4-2','problem4-3')]\n    (OUT/'diagnosis.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')\n    for r in results:\n        print(r['problem'])\n        for name,m in r['periods'].items():print(name,json.dumps({k:v for k,v in m.items() if k not in ('hours','top_intervals','top_days')},ensure_ascii=True))\n        print('February top',json.dumps(r['periods']['February']['top_intervals'][:2],ensure_ascii=True))\n        print('Jan days',json.dumps(r['periods']['January']['top_days'],ensure_ascii=True))\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "forecast-routing",
+      "title": "旧版光伏预测导致上午供给高估",
+      "queries": [
+        {
+          "id": "forecast-routing",
+          "source": {
+            "label": "购电决策时可见的预测",
+            "files": [
+              {
+                "label": "forecast_audit.json"
+              },
+              {
+                "label": "absolute_run.py"
+              },
+              {
+                "label": "adaptive_forecast.py"
+              }
+            ],
+            "metricDefinitions": [
+              {
+                "label": "购电决策时可见的预测",
+                "definition": "决策光伏预测取对应购电决策节点保存的预测路径；4-2取日初，4-3取最近一次允许调整节点。"
+              }
+            ],
+            "caveats": []
+          },
+          "reportingPeriod": "2025年2月，每日09:00至11:00",
+          "columns": [
+            "分支",
+            "9至11点预测光伏_kWh",
+            "9至11点实际光伏_kWh",
+            "光伏高估_kWh",
+            "实际负载减预测负载_kWh"
+          ],
+          "rows": [
+            {
+              "分支": "problem4-2",
+              "9至11点预测光伏_kWh": 330708.54888409114,
+              "9至11点实际光伏_kWh": 313948.7676833333,
+              "光伏高估_kWh": 16759.78120075781,
+              "实际负载减预测负载_kWh": -5456.73382044911
+            },
+            {
+              "分支": "problem4-3",
+              "9至11点预测光伏_kWh": 338996.949903492,
+              "9至11点实际光伏_kWh": 313948.7676833333,
+              "光伏高估_kWh": 25048.1822201587,
+              "实际负载减预测负载_kWh": -3492.4039728171997
+            }
+          ],
+          "summary": "本次两个问题四分支使用pooled；report_blend的自动路由及配置许可只覆盖问题三。"
+        }
+      ]
+    },
+    {
+      "id": "reserve-replay",
+      "title": "预留与调减计划为何没有避免缺电",
+      "queries": [
+        {
+          "id": "reserve-replay",
+          "source": {
+            "label": "2月12日06点决策复核",
+            "files": [
+              {
+                "label": "snapshot_replays.json"
+              },
+              {
+                "label": "forecast_audit.json"
+              },
+              {
+                "label": "planning.py"
+              },
+              {
+                "label": "adaptive_forecast.py"
+              }
+            ],
+            "metricDefinitions": [
+              {
+                "label": "2月12日06点决策复核",
+                "definition": "条件最小紧急电量固定候选普通购电计划和06点真实SOC，事后使用真实供需求解最佳储能调度。"
+              }
+            ],
+            "caveats": [
+              "条件最小紧急电量是局部事后下界，不能视为修改后完整两月滚动运行的效果。"
+            ]
+          },
+          "reportingPeriod": "2025年2月12日06:00至12:00",
+          "columns": [
+            "情形",
+            "上午普通购电_kWh",
+            "条件最小紧急电量_kWh"
+          ],
+          "rows": [
+            {
+              "情形": "原运行06点调整计划",
+              "上午普通购电_kWh": 9313.290265890464,
+              "条件最小紧急电量_kWh": 1822.7039269233258
+            },
+            {
+              "情形": "保留日初计划",
+              "上午普通购电_kWh": 11600.183148213691,
+              "条件最小紧急电量_kWh": 76.20695074803723
+            },
+            {
+              "情形": "同一状态接入优化光伏预测",
+              "上午普通购电_kWh": 12797.476596865781,
+              "条件最小紧急电量_kWh": 0.0
+            }
+          ],
+          "methods": [
+            {
+              "language": "python",
+              "code": "\"\"\"Replay archived decision windows for diagnosis; leave source/runs unchanged.\"\"\"\nfrom pathlib import Path\nfrom datetime import datetime\nimport json\nimport numpy as np\nfrom microgrid.absolute_run import RunConfig,make_forecaster\nfrom microgrid.data_io import load_all\nfrom microgrid.timeline import build_timeline\nfrom microgrid.planning import solve_window,FeeMode,WindowForecast\nfrom microgrid.report_forecast import ReportAwareForecaster\n\nROOT=Path(__file__).resolve().parents[1]\nOUT=ROOT/'outputs/问题四_1至2月检验_20260912_165702/紧急购电诊断'\nbundle=load_all();timeline=build_timeline(bundle)\norigin=datetime(2025,1,1)\nresults=[]\nfor problem,when in [('problem4-3','2025-02-12 06:00'),('problem4-3','2025-02-27 06:00'),('problem4-2','2025-02-27 00:00'),('problem4-2','2025-01-05 00:00')]:\n p=OUT.parent/problem/'运行记录'/problem;z=np.load(p/'trajectory.npz')\n audits=json.loads((p/'forecast_audit.json').read_text(encoding='utf-8'))\n now=int((datetime.fromisoformat(when)-origin).total_seconds()/60);idx=(now-10)//10\n end=(now//1440+2)*1440;dayend=end-1440;stop=min(dayend,now+360)\n fc=make_forecaster(RunConfig(problem=problem),bundle,timeline)\n record={'problem':problem,'when':when,'soc_start':float(z['soc_boundary_kwh'][idx]),'variants':{}}\n for label,forecaster in [('archived',fc),('optimized_pv',ReportAwareForecaster(bundle,timeline,history_days=28,risk_quantile=.9,variant='blend',nowcast=True))]:\n  f=forecaster.window_forecast(now,now,end,use_published_pv=True,current_price=None,price_mode='historical')\n  risk=forecaster.risk_requirements(now,f,published=True,adjustable=problem=='problem4-3')\n  f.reserve_energy_kwh=risk['reserve_energy_kwh'];f.net_upper_kwh=risk['net_upper_kwh']\n  today=f.abs_minutes<dayend;o=np.zeros(f.n);o[today]=z['plan_initial_kwh'][idx:idx+int(today.sum())]\n  mode=FeeMode.ADJUSTABLE if problem=='problem4-3' else FeeMode.FIRST_PLAN\n  r=solve_window(forecast=f,soc_start_kwh=record['soc_start'],fee_mode=mode,o_kwh=o,a_kwh=np.zeros(f.n),\n    price_now_yuan_per_kwh=float(f.price_yuan_per_kwh[0]),adjustable_mask=today if mode==FeeMode.ADJUSTABLE else None,allow_spill=True).require_ok()\n  n=(stop-now)//10\n  if label=='archived':\n   assert np.max(np.abs(f.pv_kwh-np.array(audits[idx]['pv_forecast_path_kwh'])))<1e-7\n   assert np.max(np.abs(r.grid_kwh[:n]-z['grid_kwh'][idx:idx+n]))<1e-4\n  actualnet=z['demand_kwh'][idx:idx+n]-z['pv_kwh'][idx:idx+n]\n  # Ex-post lower bound: exact minimum urgent with this fixed ordinary plan,\n  # actual six-hour supply/demand, and fully flexible physical battery dispatch.\n  truth=WindowForecast(f.abs_minutes[:n],z['demand_kwh'][idx:idx+n],z['pv_kwh'][idx:idx+n],\n    np.ones(n),np.full(n,'ex-post diagnostic only',dtype=object))\n  oracle=solve_window(forecast=truth,soc_start_kwh=record['soc_start'],fee_mode=FeeMode.FROZEN,\n    o_kwh=r.grid_kwh[:n],a_kwh=np.zeros(n),committed_mask=np.ones(n,dtype=bool),\n    committed_grid_kwh=r.grid_kwh[:n],allow_spill=True).require_ok()\n  error=actualnet-(f.demand_kwh[:n]-f.pv_kwh[:n]);trace=[]\n  for j in range(n):\n   if j%6==0 or z['emergency_kwh'][idx+j]>100:\n    trace.append({'minute':int(f.abs_minutes[j]%1440),'load_hat':float(f.demand_kwh[j]),'pv_hat':float(f.pv_kwh[j]),\n      'load':float(z['demand_kwh'][idx+j]),'pv':float(z['pv_kwh'][idx+j]),'grid':float(r.grid_kwh[j]),\n      'soc_hat':float(r.soc_boundary_kwh[j]),'soc_actual':float(z['soc_boundary_kwh'][idx+j]),\n      'soc_end_hat':float(r.soc_boundary_kwh[j+1]),'charge_hat':float(r.charge_kwh[j]),'discharge_hat':float(r.discharge_kwh[j]),\n      'urgent_actual':float(z['emergency_kwh'][idx+j]),'reserve':float(f.reserve_energy_kwh[j]),'price_hat':float(f.price_yuan_per_kwh[j]),\n      'price_actual':float(z['price_actual'][idx+j]),'cum_net_error':float(error[:j+1].sum())})\n  record['variants'][label]={'grid_first6h':float(r.grid_kwh[:n].sum()),'pv_first6h':float(f.pv_kwh[:n].sum()),\n   'actual_pv_first6h':float(z['pv_kwh'][idx:idx+n].sum()),'reserve_at_start':float(f.reserve_energy_kwh[0]),\n   'reserve_stock_slack':float(r.reserve_stock_shortfall_kwh),'risk_penalty':float(r.risk_penalty_yuan),\n   'max_cumulative_net_error':float(np.maximum(0,np.cumsum(error)).max()),\n   'expost_min_urgent_given_candidate_grid':float(oracle.emergency_kwh.sum()),\n   'actual_urgent_first6h':float(z['emergency_kwh'][idx:idx+n].sum()),'trace':trace}\n if problem=='problem4-3':\n  original=z['plan_initial_kwh'][idx:idx+n]\n  unchanged=solve_window(forecast=truth,soc_start_kwh=record['soc_start'],fee_mode=FeeMode.FROZEN,\n    o_kwh=original,a_kwh=np.zeros(n),committed_mask=np.ones(n,dtype=bool),\n    committed_grid_kwh=original,allow_spill=True).require_ok()\n  record['no_6am_reduction_expost_min_urgent']=float(unchanged.emergency_kwh.sum())\n  record['original_grid_first6h']=float(original.sum())\n results.append(record)\n print(json.dumps({k:v for k,v in record.items() if k!='variants'}),flush=True)\n for k,v in record['variants'].items():print(k,json.dumps({key:value for key,value in v.items() if key!='trace'}),flush=True)\n(OUT/'snapshot_replays.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')\n"
+            }
+          ],
+          "summary": "原预测备用量3199.74 kWh，备用松弛为0；实际累计净负荷误差最大2762.74 kWh。",
+          "sourceRoles": [
+            {
+              "kind": "file",
+              "label": "planning.py",
+              "role": "检查预测SOC的预留约束是否保护了此前累计误差的消耗。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cold-start",
+      "title": "一月冷启动为何更严重",
+      "queries": [
+        {
+          "id": "cold-start",
+          "source": {
+            "label": "一月冷启动记录",
+            "files": [
+              {
+                "label": "forecast_audit.json"
+              },
+              {
+                "label": "trajectory.npz"
+              },
+              {
+                "label": "adaptive_forecast.py"
+              }
+            ],
+            "metricDefinitions": [
+              {
+                "label": "一月冷启动记录",
+                "definition": "风险样本数仅统计当时已完成的历史预测误差路径；初始SOC为6000 kWh。"
+              }
+            ],
+            "caveats": []
+          },
+          "reportingPeriod": "2025年1月1日与1月5日",
+          "columns": [
+            "分支",
+            "一月日期",
+            "风险历史样本数",
+            "预测负载_kWh",
+            "实际负载_kWh"
+          ],
+          "rows": [
+            {
+              "分支": "problem4-2",
+              "一月日期": 1,
+              "风险历史样本数": 0,
+              "预测负载_kWh": 110450.68711666667,
+              "实际负载_kWh": 126670.03571666667
+            },
+            {
+              "分支": "problem4-2",
+              "一月日期": 5,
+              "风险历史样本数": 2,
+              "预测负载_kWh": 104660.0858013889,
+              "实际负载_kWh": 127665.11716666666
+            },
+            {
+              "分支": "problem4-3",
+              "一月日期": 1,
+              "风险历史样本数": 0,
+              "预测负载_kWh": 110450.68711666667,
+              "实际负载_kWh": 126670.03571666667
+            },
+            {
+              "分支": "problem4-3",
+              "一月日期": 5,
+              "风险历史样本数": 2,
+              "预测负载_kWh": 104660.0858013889,
+              "实际负载_kWh": 127665.11716666666
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

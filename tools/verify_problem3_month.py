@@ -15,7 +15,10 @@ def main():
     file=out/'问题三_2025年2月_逐时购电与电费.xlsx'
     w=load_workbook(file,read_only=True,data_only=True)
     f=load_workbook(file,read_only=False,data_only=False)
-    assert w.sheetnames==['月度汇总','逐时购电与费用','每日汇总','调减违约明细','供电与预测核验']
+    comparison_path=out/'comparison.json'
+    comparison=json.loads(comparison_path.read_text(encoding='utf-8')) if comparison_path.exists() else None
+    expected=['月度汇总','逐时购电与费用','每日汇总','调减违约明细','供电与预测核验']
+    assert w.sheetnames==expected+(['版本对比'] if comparison else [])
     def close(a,b,label,tol=1e-5):
         assert isinstance(a,(int,float)) and abs(a-b)<=tol,(label,a,b)
     def same_time(a,b,label):
@@ -44,6 +47,20 @@ def main():
           'spill_kwh','soc_start','soc_end','emergency_intervals','revised_intervals','penalty_nodes','spill_intervals']
     for i,key in enumerate(keys):
         close(w['月度汇总'].cell(i+5,2).value,p['current'][key],key,1e-4)
+    if comparison:
+        for i,key in enumerate(keys):
+            row=i+5;old=comparison['old_problem3']['current'][key];new=p['current'][key]
+            for col,value in ((2,old),(3,new),(4,new-old)):
+                close(w['版本对比'].cell(row,col).value,value,('comparison',key,col),1e-4)
+            if old:
+                close(w['版本对比'].cell(row,5).value,(new-old)/abs(old),('comparison percentage',key))
+            reference=comparison['problem2']['current'].get(key)
+            if reference is not None:
+                close(w['版本对比'].cell(row,7).value,reference,('problem2 reference',key),1e-4)
+        close(w['版本对比']['B37'].value,comparison['two_month_cost']['old'],'old two month cost',1e-4)
+        close(w['版本对比']['C37'].value,comparison['two_month_cost']['new'],'new two month cost',1e-4)
+        assert all(hashlib.sha256(Path(path).read_bytes()).hexdigest()==digest
+                   for path,digest in comparison['source_hashes'].items())
     # Daily reconciliation checks each complete row, including the shifted dates
     # and shared SOC boundaries, rather than only the monthly grand total.
     daily=w['每日汇总']
@@ -73,6 +90,7 @@ def main():
     result={'month':p['month'],'n_intervals':p['n'],'from':p['from'],'to':p['to'],
         'saved_values_and_timestamps_match':True,'daily_totals_match':True,'four_fee_components_match':True,
         'penalty_attribution_matches':True,'source_and_templates_unchanged':True,'formula_errors':errors,
+        'comparison_matches':True if comparison else None,
         'max_bus_residual_kwh':max(abs(r[20]) for r in p['check_rows']),
         'max_soc_residual_kwh':max(abs(r[21]) for r in p['check_rows']),
         'xlsx_sha256':hashlib.sha256(file.read_bytes()).hexdigest(),'workbook':str(file.resolve())}

@@ -66,6 +66,8 @@ class RunConfig:
     history_days: int = 28
     #: 2026-09-12: weekly load, calibrated PV and empirical joint-error reserve.
     load_method: str = "adaptive"
+    # Auto upgrades problem three only; pooled retains the earlier PV calibration.
+    pv_method: str = "auto"
     risk_quantile: float = .90
     absorption_safety_kwh: float = 0.0
     #: Lower bound added to the historical same-clock minimum net demand when
@@ -93,6 +95,11 @@ class RunConfig:
     def problem_dir(self) -> Path:
         return self.out_dir / self.problem if self.experiment == "main" else self.out_dir / self.experiment / self.problem
 
+    def effective_pv_method(self) -> str:
+        if self.pv_method == 'auto':
+            return 'report_blend' if self.problem == 'problem3' and self.load_method == 'adaptive' else 'pooled'
+        return self.pv_method
+
     def __post_init__(self) -> None:
         if self.warmup_days:
             raise ValueError("Warm-up is the actual trajectory from January 1, not a configurable reset")
@@ -105,6 +112,10 @@ class RunConfig:
             raise ValueError("Strict no-spill is a named comparison, not the revised main model")
         if self.load_method not in ('adaptive', 'same_clock_mean', 'same_weekday'):
             raise ValueError('Unknown forecast method')
+        if self.pv_method not in ('auto','pooled','report_blend'):
+            raise ValueError('Unknown PV forecast method')
+        if self.effective_pv_method() == 'report_blend' and (self.problem != 'problem3' or self.load_method != 'adaptive'):
+            raise ValueError('Report blend is currently enabled only for adaptive problem three')
         if not np.isfinite(self.risk_quantile) or not 0 <= self.risk_quantile < 1:
             raise ValueError('risk_quantile must be in [0, 1)')
         if self.load_method != 'adaptive' and self.risk_quantile:
@@ -351,19 +362,24 @@ def _p1_summary(run: AbsoluteRun, result: WindowResult, totals: LabelTotals, for
 # ==========================================================================
 
 
+def make_forecaster(config: RunConfig, bundle: DataBundle, timeline: Timeline):
+    if config.load_method == 'adaptive':
+        if config.effective_pv_method() == 'report_blend':
+            from .report_forecast import ReportAwareForecaster
+            return ReportAwareForecaster(bundle,timeline,history_days=config.history_days,
+                                         risk_quantile=config.risk_quantile,variant='blend',nowcast=True)
+        from .adaptive_forecast import AdaptiveForecaster
+        return AdaptiveForecaster(bundle,timeline,history_days=config.history_days,risk_quantile=config.risk_quantile)
+    return Forecaster(bundle,timeline,history_days=config.history_days,load_method=config.load_method)
+
+
 def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResult:
     if config.problem not in POLICIES or config.problem == "problem1":
         raise ValueError(f"run_rolling does not support {config.problem}")
     bundle = bundle or load_all()
     policy = POLICIES[config.problem]
     timeline = build_timeline(bundle)
-    if config.load_method == 'adaptive':
-        from .adaptive_forecast import AdaptiveForecaster
-        forecaster = AdaptiveForecaster(bundle, timeline, history_days=config.history_days,
-                                       risk_quantile=config.risk_quantile)
-    else:
-        forecaster = Forecaster(bundle, timeline, history_days=config.history_days,
-                                load_method=config.load_method)
+    forecaster = make_forecaster(config,bundle,timeline)
 
     days = calendar_days(DATE_2025_01_01, DATE_2025_12_31)
     if config.run_to is not None:
@@ -448,8 +464,10 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
     loss = physics.loss_accounting(arrays["charge_kwh"][report_mask], arrays["discharge_kwh"][report_mask])
     summary: dict[str, object] = {
         "problem": config.problem,
-        "forecast_policy_version": "adaptive-risk-v1" if config.load_method == 'adaptive' else 'legacy-point-v1',
+        "forecast_policy_version": ('report-hourly-blend-risk-v2' if config.effective_pv_method() == 'report_blend'
+                                    else 'adaptive-risk-v1' if config.load_method == 'adaptive' else 'legacy-point-v1'),
         "forecast_method": config.load_method,
+        "pv_forecast_method": config.effective_pv_method(),
         "risk_quantile": config.risk_quantile,
         "n_intervals": int(out_minutes.size),
         "warmup_intervals": int(natural_start_index),

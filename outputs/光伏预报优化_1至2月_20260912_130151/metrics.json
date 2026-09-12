@@ -1,0 +1,628 @@
+{
+  "selection": {
+    "selection_from": "2025-01-15T00:10:00",
+    "selection_to": "2025-02-01T00:10:00",
+    "criterion": "minimum PV MAE; candidate family and hyperparameters fixed before February evaluation",
+    "selected_variant": "blend",
+    "january_scores": {
+      "history": {
+        "mae": 16.029528526688456,
+        "rmse": 33.97857002886982,
+        "bias_pred_minus_actual": -7.300985321350759,
+        "overprediction_kwh": 10683.736883333337,
+        "underprediction_kwh": 28556.548949999997,
+        "p95_absolute": 82.57856321428584
+      },
+      "shape": {
+        "mae": 51.141044866663826,
+        "rmse": 89.92593137506637,
+        "bias_pred_minus_actual": -2.939179404956426,
+        "overprediction_kwh": 58999.08332512986,
+        "underprediction_kwh": 66194.19450846319,
+        "p95_absolute": 199.40115054596808
+      },
+      "calibrated": {
+        "mae": 20.617849848031945,
+        "rmse": 42.197319112691865,
+        "bias_pred_minus_actual": -5.745911175276338,
+        "overprediction_kwh": 18203.252935452867,
+        "underprediction_kwh": 32269.243492529342,
+        "p95_absolute": 99.00186366816023
+      },
+      "blend": {
+        "mae": 13.39279281623894,
+        "rmse": 28.162064183207843,
+        "bias_pred_minus_actual": -6.155262477655741,
+        "overprediction_kwh": 8858.73713442583,
+        "underprediction_kwh": 23926.819679727087,
+        "p95_absolute": 67.70197488751887
+      }
+    },
+    "caveat": "Earlier February diagnosis informed model design; February is a development backtest, not untouched external validation."
+  },
+  "period": {
+    "from": "2025-01-01T00:10:00",
+    "to": "2025-03-01T00:10:00",
+    "n": 8496
+  },
+  "months": {
+    "2025-01": {
+      "n": 4464,
+      "pv": {
+        "raw": {
+          "mae": 50.636226919056156,
+          "rmse": 93.25750263506582,
+          "bias_pred_minus_actual": -2.6570769937275984,
+          "overprediction_kwh": 107089.46263333333,
+          "underprediction_kwh": 118950.65433333334,
+          "p95_absolute": 232.78353166666668
+        },
+        "history": {
+          "mae": 18.572291435594096,
+          "rmse": 47.69924736765511,
+          "bias_pred_minus_actual": -1.0215463317652305,
+          "overprediction_kwh": 39173.263071746034,
+          "underprediction_kwh": 43733.44589674602,
+          "p95_absolute": 87.35897321428556
+        },
+        "old": {
+          "mae": 37.760263547727476,
+          "rmse": 70.57409689304588,
+          "bias_pred_minus_actual": -3.0114958227795636,
+          "overprediction_kwh": 77559.24956208374,
+          "underprediction_kwh": 91002.56691497171,
+          "p95_absolute": 170.5181363370856
+        },
+        "shape": {
+          "mae": 50.3863552141692,
+          "rmse": 89.41753010408796,
+          "bias_pred_minus_actual": -2.6570769937275993,
+          "overprediction_kwh": 106531.74898802565,
+          "underprediction_kwh": 118392.94068802566,
+          "p95_absolute": 196.70694289542152
+        },
+        "calibrated": {
+          "mae": 27.690156006305898,
+          "rmse": 56.753876145194006,
+          "bias_pred_minus_actual": -5.1363660927480295,
+          "overprediction_kwh": 50340.05908706115,
+          "underprediction_kwh": 73268.79732508835,
+          "p95_absolute": 140.68519928499066
+        },
+        "blend": {
+          "mae": 16.93686303297475,
+          "rmse": 45.27447364169776,
+          "bias_pred_minus_actual": -0.40701219935624766,
+          "overprediction_kwh": 36894.627060636485,
+          "underprediction_kwh": 38711.529518562784,
+          "p95_absolute": 75.82825667793209
+        },
+        "new_node": {
+          "mae": 16.93686303297475,
+          "rmse": 45.27447364169776,
+          "bias_pred_minus_actual": -0.40701219935624766,
+          "overprediction_kwh": 36894.627060636485,
+          "underprediction_kwh": 38711.529518562784,
+          "p95_absolute": 75.82825667793209
+        },
+        "old_rolling": {
+          "mae": 37.760263547727476,
+          "rmse": 70.57409689304588,
+          "bias_pred_minus_actual": -3.0114958227795636,
+          "overprediction_kwh": 77559.24956208374,
+          "underprediction_kwh": 91002.56691497171,
+          "p95_absolute": 170.5181363370856
+        },
+        "new_rolling": {
+          "mae": 9.65031197055112,
+          "rmse": 21.366491311114842,
+          "bias_pred_minus_actual": -0.0692513396030896,
+          "overprediction_kwh": 21384.927328276004,
+          "underprediction_kwh": 21694.0653082642,
+          "p95_absolute": 47.30995176542401
+        }
+      },
+      "load": {
+        "node": {
+          "mae": 51.49734591724515,
+          "rmse": 94.31887076556822,
+          "bias_pred_minus_actual": 2.0441996224549497,
+          "overprediction_kwh": 119504.7296446106,
+          "underprediction_kwh": 110379.42252997172,
+          "p95_absolute": 218.84119262499988
+        },
+        "rolling": {
+          "mae": 51.676771691603584,
+          "rmse": 94.39791799305908,
+          "bias_pred_minus_actual": 1.216306640785757,
+          "overprediction_kwh": 118057.350837893,
+          "underprediction_kwh": 112627.75799342536,
+          "p95_absolute": 218.84119262499988
+        }
+      },
+      "net": {
+        "old_node": {
+          "mae": 73.82471474449069,
+          "rmse": 118.21540420905222,
+          "bias_pred_minus_actual": 5.055695445234515,
+          "overprediction_kwh": 176061.07554346664,
+          "underprediction_kwh": 153492.45107593975,
+          "p95_absolute": 243.29345944444444
+        },
+        "new_node": {
+          "mae": 62.19176699369689,
+          "rmse": 113.98937483809148,
+          "bias_pred_minus_actual": 2.451211821811199,
+          "overprediction_kwh": 144283.12871621407,
+          "underprediction_kwh": 133340.91914364888,
+          "p95_absolute": 273.98198533333243
+        },
+        "old_rolling": {
+          "mae": 73.62020087163282,
+          "rmse": 117.90895474591268,
+          "bias_pred_minus_actual": 4.2278024635653235,
+          "overprediction_kwh": 173756.74344416222,
+          "underprediction_kwh": 154883.83324680664,
+          "p95_absolute": 243.1429549224407
+        },
+        "new_rolling": {
+          "mae": 55.09560003748332,
+          "rmse": 97.01294771124782,
+          "bias_pred_minus_actual": 1.2855579803888468,
+          "overprediction_kwh": 125842.74469589067,
+          "underprediction_kwh": 120104.01387143484,
+          "p95_absolute": 225.6050262499998
+        }
+      },
+      "morning_pv": {
+        "old": {
+          "mae": 73.4301835872489,
+          "rmse": 92.25050832810935,
+          "bias_pred_minus_actual": 61.41657617043716,
+          "overprediction_kwh": 25081.49731492961,
+          "underprediction_kwh": 2234.5309795269845,
+          "p95_absolute": 178.99394560228978
+        },
+        "new_node": {
+          "mae": 41.19392479359269,
+          "rmse": 63.64368720298711,
+          "bias_pred_minus_actual": 3.2998834856521198,
+          "overprediction_kwh": 8275.848339939535,
+          "underprediction_kwh": 7048.291683276946,
+          "p95_absolute": 97.8468865344465
+        },
+        "new_rolling": {
+          "mae": 22.313563442488974,
+          "rmse": 28.551109278336135,
+          "bias_pred_minus_actual": -0.7788413575991752,
+          "overprediction_kwh": 4005.458307789502,
+          "underprediction_kwh": 4295.187292816396,
+          "p95_absolute": 55.652383647302756
+        }
+      }
+    },
+    "2025-02": {
+      "n": 4032,
+      "pv": {
+        "raw": {
+          "mae": 60.088293911210314,
+          "rmse": 105.67006922797316,
+          "bias_pred_minus_actual": 1.3740981522817488,
+          "overprediction_kwh": 123908.18240000002,
+          "underprediction_kwh": 118367.81865,
+          "p95_absolute": 254.1746449999999
+        },
+        "history": {
+          "mae": 19.42805357910525,
+          "rmse": 38.55735808930811,
+          "bias_pred_minus_actual": -10.935858263062169,
+          "overprediction_kwh": 17120.265757142857,
+          "underprediction_kwh": 61213.64627380953,
+          "p95_absolute": 92.84561690476185
+        },
+        "old": {
+          "mae": 40.06990784069879,
+          "rmse": 70.12167717064447,
+          "bias_pred_minus_actual": 2.166338959347959,
+          "overprediction_kwh": 85148.27354889424,
+          "underprediction_kwh": 76413.59486480328,
+          "p95_absolute": 167.50152622378084
+        },
+        "shape": {
+          "mae": 59.81090231001574,
+          "rmse": 104.18895436994295,
+          "bias_pred_minus_actual": 1.3740981522817468,
+          "overprediction_kwh": 123348.96093199172,
+          "underprediction_kwh": 117808.59718199173,
+          "p95_absolute": 224.921277187511
+        },
+        "calibrated": {
+          "mae": 20.560164523505044,
+          "rmse": 39.12281976770524,
+          "bias_pred_minus_actual": -2.407141621451675,
+          "overprediction_kwh": 36596.49417053959,
+          "underprediction_kwh": 46302.08918823274,
+          "p95_absolute": 89.66693755988592
+        },
+        "blend": {
+          "mae": 15.282902491796897,
+          "rmse": 30.56519709680309,
+          "bias_pred_minus_actual": -6.9822142544357915,
+          "overprediction_kwh": 16734.18748651999,
+          "underprediction_kwh": 44886.47536040511,
+          "p95_absolute": 70.99712970715446
+        },
+        "new_node": {
+          "mae": 15.282902491796897,
+          "rmse": 30.56519709680309,
+          "bias_pred_minus_actual": -6.9822142544357915,
+          "overprediction_kwh": 16734.18748651999,
+          "underprediction_kwh": 44886.47536040511,
+          "p95_absolute": 70.99712970715446
+        },
+        "old_rolling": {
+          "mae": 40.06990784069879,
+          "rmse": 70.12167717064447,
+          "bias_pred_minus_actual": 2.166338959347959,
+          "overprediction_kwh": 85148.27354889424,
+          "underprediction_kwh": 76413.59486480328,
+          "p95_absolute": 167.50152622378084
+        },
+        "new_rolling": {
+          "mae": 11.021773558178309,
+          "rmse": 22.796427655403743,
+          "bias_pred_minus_actual": -0.3188089633144379,
+          "overprediction_kwh": 21577.176623245563,
+          "underprediction_kwh": 22862.614363329376,
+          "p95_absolute": 53.13819439147275
+        }
+      },
+      "load": {
+        "node": {
+          "mae": 21.062214617527736,
+          "rmse": 26.45478095444467,
+          "bias_pred_minus_actual": 8.003205475909278,
+          "overprediction_kwh": 58595.886908369015,
+          "underprediction_kwh": 26326.962429502804,
+          "p95_absolute": 51.51930134862631
+        },
+        "rolling": {
+          "mae": 20.26942381035052,
+          "rmse": 25.543850378827912,
+          "bias_pred_minus_actual": 4.469617740575362,
+          "overprediction_kwh": 49873.90776666658,
+          "underprediction_kwh": 31852.409036666722,
+          "p95_absolute": 49.507257583333455
+        }
+      },
+      "net": {
+        "old_node": {
+          "mae": 51.16402608652924,
+          "rmse": 74.06442382415017,
+          "bias_pred_minus_actual": 5.83686651656132,
+          "overprediction_kwh": 114913.79948783058,
+          "underprediction_kwh": 91379.55369305532,
+          "p95_absolute": 168.36384919740448
+        },
+        "new_node": {
+          "mae": 30.236016798224345,
+          "rmse": 41.39932541423794,
+          "bias_pred_minus_actual": 14.985419730345068,
+          "overprediction_kwh": 91166.41604159595,
+          "underprediction_kwh": 30745.20368884462,
+          "p95_absolute": 86.79658744484574
+        },
+        "old_rolling": {
+          "mae": 50.53003552978824,
+          "rmse": 73.98376978828014,
+          "bias_pred_minus_actual": 2.303278781227403,
+          "overprediction_kwh": 106511.96165100754,
+          "underprediction_kwh": 97225.14160509864,
+          "p95_absolute": 170.6841293522627
+        },
+        "new_rolling": {
+          "mae": 25.11994491208024,
+          "rmse": 33.90856259234218,
+          "bias_pred_minus_actual": 4.7884267038898,
+          "overprediction_kwh": 60295.27717779561,
+          "underprediction_kwh": 40988.34070771193,
+          "p95_absolute": 69.27471652048408
+        }
+      },
+      "morning_pv": {
+        "old": {
+          "mae": 83.91445759372924,
+          "rmse": 100.54697998227903,
+          "bias_pred_minus_actual": 74.54816136951987,
+          "overprediction_kwh": 26621.719985825854,
+          "underprediction_kwh": 1573.5377656671712,
+          "p95_absolute": 184.48338699078124
+        },
+        "new_node": {
+          "mae": 42.87698184788386,
+          "rmse": 55.2632244200936,
+          "bias_pred_minus_actual": -12.387926139838891,
+          "overprediction_kwh": 5122.1613589515555,
+          "underprediction_kwh": 9284.504541937424,
+          "p95_absolute": 119.78143867570225
+        },
+        "new_rolling": {
+          "mae": 30.138348298396515,
+          "rmse": 39.195544638168634,
+          "bias_pred_minus_actual": -2.4509078437888965,
+          "overprediction_kwh": 4651.489996374081,
+          "underprediction_kwh": 5474.995031887149,
+          "p95_absolute": 78.69506854659863
+        }
+      }
+    }
+  },
+  "horizons": [
+    {
+      "month": "2025-01",
+      "horizon": "0—6小时",
+      "method": "旧融合",
+      "n": 4465,
+      "pv": {
+        "mae": 37.75192296238644,
+        "rmse": 70.56619384448835,
+        "bias_pred_minus_actual": -3.0107049950476985,
+        "overprediction_kwh": 77559.76911208374,
+        "underprediction_kwh": 91002.56691497171,
+        "p95_absolute": 170.51099289389205
+      },
+      "net": {
+        "mae": 73.84455335261063,
+        "rmse": 118.22714999092123,
+        "bias_pred_minus_actual": 5.01819045185372,
+        "overprediction_kwh": 176061.07554346666,
+        "underprediction_kwh": 153654.85517593977,
+        "p95_absolute": 243.28967555555562
+      }
+    },
+    {
+      "month": "2025-01",
+      "horizon": "0—6小时",
+      "method": "优化",
+      "n": 4465,
+      "pv": {
+        "mae": 16.947573306278297,
+        "rmse": 45.279775941289174,
+        "bias_pred_minus_actual": -0.3924175195057016,
+        "overprediction_kwh": 36959.385293969826,
+        "underprediction_kwh": 38711.52951856278,
+        "p95_absolute": 75.82794813441657
+      },
+      "net": {
+        "mae": 62.22859812837542,
+        "rmse": 114.0270662456827,
+        "bias_pred_minus_actual": 2.3999029763117306,
+        "overprediction_kwh": 144283.12871621407,
+        "underprediction_kwh": 133567.5619269822,
+        "p95_absolute": 273.8965360000003
+      }
+    },
+    {
+      "month": "2025-01",
+      "horizon": "6—12小时",
+      "method": "旧融合",
+      "n": 4429,
+      "pv": {
+        "mae": 41.90457081977818,
+        "rmse": 76.90831380790196,
+        "bias_pred_minus_actual": -4.037220695611313,
+        "overprediction_kwh": 83857.2468499675,
+        "underprediction_kwh": 101738.09731083001,
+        "p95_absolute": 185.34282165621002
+      },
+      "net": {
+        "mae": 77.23239206553383,
+        "rmse": 123.34118127445029,
+        "bias_pred_minus_actual": 7.674073627579044,
+        "overprediction_kwh": 188025.36827739846,
+        "underprediction_kwh": 154036.89618085086,
+        "p95_absolute": 265.98435999999947
+      }
+    },
+    {
+      "month": "2025-01",
+      "horizon": "6—12小时",
+      "method": "优化",
+      "n": 4429,
+      "pv": {
+        "mae": 18.49771834580993,
+        "rmse": 47.52154849694368,
+        "bias_pred_minus_actual": -1.3715883575402297,
+        "overprediction_kwh": 37925.81485902325,
+        "underprediction_kwh": 44000.57969456893,
+        "p95_absolute": 84.68087615111803
+      },
+      "net": {
+        "mae": 63.06233839233401,
+        "rmse": 115.0002311235146,
+        "bias_pred_minus_actual": 5.008441289507963,
+        "overprediction_kwh": 150742.74160543905,
+        "underprediction_kwh": 128560.35513420831,
+        "p95_absolute": 276.319839999999
+      }
+    },
+    {
+      "month": "2025-01",
+      "horizon": "12—24小时",
+      "method": "旧融合",
+      "n": 8750,
+      "pv": {
+        "mae": 43.03764494282035,
+        "rmse": 80.73175611501604,
+        "bias_pred_minus_actual": -2.0436218334428267,
+        "overprediction_kwh": 179348.85110352666,
+        "underprediction_kwh": 197230.5421461514,
+        "p95_absolute": 192.56763647108903
+      },
+      "net": {
+        "mae": 78.18885680436289,
+        "rmse": 127.75987240604111,
+        "bias_pred_minus_actual": 8.383627106791222,
+        "overprediction_kwh": 378754.6171112992,
+        "underprediction_kwh": 305397.87992687593,
+        "p95_absolute": 269.0941666666667
+      }
+    },
+    {
+      "month": "2025-01",
+      "horizon": "12—24小时",
+      "method": "优化",
+      "n": 8750,
+      "pv": {
+        "mae": 15.185292006018406,
+        "rmse": 35.644857613576676,
+        "bias_pred_minus_actual": -3.8816508001221828,
+        "overprediction_kwh": 49453.43027579597,
+        "underprediction_kwh": 83417.87477686506,
+        "p95_absolute": 74.94519753442346
+      },
+      "net": {
+        "mae": 58.11813713838646,
+        "rmse": 103.36942754385855,
+        "bias_pred_minus_actual": 10.221656073470577,
+        "overprediction_kwh": 298986.59530187456,
+        "underprediction_kwh": 209547.104659007,
+        "p95_absolute": 230.31463354166542
+      }
+    },
+    {
+      "month": "2025-02",
+      "horizon": "12—24小时",
+      "method": "旧融合",
+      "n": 8064,
+      "pv": {
+        "mae": 46.14448742285806,
+        "rmse": 81.90703660467308,
+        "bias_pred_minus_actual": -5.3490856607300605,
+        "overprediction_kwh": 164487.0599049001,
+        "underprediction_kwh": 207622.0866730273,
+        "p95_absolute": 192.80877788060712
+      },
+      "net": {
+        "mae": 58.21982932469323,
+        "rmse": 87.55406828314233,
+        "bias_pred_minus_actual": 17.99643818984329,
+        "overprediction_kwh": 307303.9906186112,
+        "underprediction_kwh": 162180.71305571496,
+        "p95_absolute": 202.78493589347488
+      }
+    },
+    {
+      "month": "2025-02",
+      "horizon": "12—24小时",
+      "method": "优化",
+      "n": 8064,
+      "pv": {
+        "mae": 18.615522861824395,
+        "rmse": 37.630374849130554,
+        "bias_pred_minus_actual": -10.835459762459603,
+        "overprediction_kwh": 31369.21441663883,
+        "underprediction_kwh": 118746.36194111305,
+        "p95_absolute": 90.56874619190846
+      },
+      "net": {
+        "mae": 35.35750580145033,
+        "rmse": 49.99398983582926,
+        "bias_pred_minus_actual": 23.482812291572827,
+        "overprediction_kwh": 237244.16255106937,
+        "underprediction_kwh": 47878.76423182609,
+        "p95_absolute": 108.61700449853267
+      }
+    },
+    {
+      "month": "2025-02",
+      "horizon": "6—12小时",
+      "method": "旧融合",
+      "n": 4032,
+      "pv": {
+        "mae": 41.81278868069821,
+        "rmse": 74.11101792839223,
+        "bias_pred_minus_actual": -4.57920042754574,
+        "overprediction_kwh": 75062.91391835536,
+        "underprediction_kwh": 93526.25004221979,
+        "p95_absolute": 177.24650175161435
+      },
+      "net": {
+        "mae": 53.3985445558123,
+        "rmse": 78.86854129004335,
+        "bias_pred_minus_actual": 15.82993141230364,
+        "overprediction_kwh": 139564.60755172174,
+        "underprediction_kwh": 75738.32409731347,
+        "p95_absolute": 182.66874536161134
+      }
+    },
+    {
+      "month": "2025-02",
+      "horizon": "6—12小时",
+      "method": "优化",
+      "n": 4032,
+      "pv": {
+        "mae": 17.661494648799692,
+        "rmse": 35.91354615889757,
+        "bias_pred_minus_actual": -9.544036066245868,
+        "overprediction_kwh": 16364.796502428511,
+        "underprediction_kwh": 54846.349921531844,
+        "p95_absolute": 84.43000016591328
+      },
+      "net": {
+        "mae": 33.52208456859495,
+        "rmse": 47.61523049807699,
+        "bias_pred_minus_actual": 20.79476705100377,
+        "overprediction_kwh": 109502.77286511101,
+        "underprediction_kwh": 25658.27211546382,
+        "p95_absolute": 101.49479155009807
+      }
+    },
+    {
+      "month": "2025-02",
+      "horizon": "0—6小时",
+      "method": "旧融合",
+      "n": 4032,
+      "pv": {
+        "mae": 40.06990784069879,
+        "rmse": 70.12167717064447,
+        "bias_pred_minus_actual": 2.166338959347959,
+        "overprediction_kwh": 85148.27354889424,
+        "underprediction_kwh": 76413.59486480328,
+        "p95_absolute": 167.50152622378084
+      },
+      "net": {
+        "mae": 51.16402608652924,
+        "rmse": 74.06442382415017,
+        "bias_pred_minus_actual": 5.83686651656132,
+        "overprediction_kwh": 114913.79948783058,
+        "underprediction_kwh": 91379.55369305532,
+        "p95_absolute": 168.36384919740448
+      }
+    },
+    {
+      "month": "2025-02",
+      "horizon": "0—6小时",
+      "method": "优化",
+      "n": 4032,
+      "pv": {
+        "mae": 15.282902491796897,
+        "rmse": 30.56519709680309,
+        "bias_pred_minus_actual": -6.9822142544357915,
+        "overprediction_kwh": 16734.18748651999,
+        "underprediction_kwh": 44886.47536040511,
+        "p95_absolute": 70.99712970715446
+      },
+      "net": {
+        "mae": 30.236016798224345,
+        "rmse": 41.39932541423794,
+        "bias_pred_minus_actual": 14.985419730345068,
+        "overprediction_kwh": 91166.41604159595,
+        "underprediction_kwh": 30745.20368884462,
+        "p95_absolute": 86.79658744484574
+      }
+    }
+  ],
+  "wall_seconds": 8.203555699998105,
+  "dispatch_solves": 0
+}

@@ -1,0 +1,461 @@
+{
+  "old_problem3": {
+    "problem": "problem3",
+    "month": "2025-02",
+    "from": "2025-02-01T00:10:00",
+    "to": "2025-03-01T00:10:00",
+    "n": 4032,
+    "execution_start": "2025-01-01T00:10:00",
+    "current": {
+      "plan_kwh": 1937307.884082417,
+      "retained_kwh": 1886744.627494595,
+      "add_kwh": 41504.75096409034,
+      "ordinary_kwh": 1928249.3784586855,
+      "net_adjustment_kwh": -9058.505623731655,
+      "emergency_kwh": 27516.074000830362,
+      "total_kwh": 1955765.4524595158,
+      "plan_cost": 1143709.889549806,
+      "add_cost": 45289.91122353777,
+      "emergency_cost": 133898.42454979298,
+      "reduced_kwh": 54966.73789902829,
+      "penalty_cost": 22029.825663723677,
+      "total_cost": 1344928.0509868604,
+      "spill_kwh": 15394.26446491625,
+      "soc_start": 9413.245064631434,
+      "soc_end": 6802.179718277211,
+      "emergency_intervals": 198,
+      "revised_intervals": 1542,
+      "penalty_nodes": 69,
+      "spill_intervals": 234
+    },
+    "warmup": {
+      "from": "2025-01-01T00:10:00",
+      "to": "2025-02-01T00:10:00",
+      "n": 4464,
+      "soc_start": 6000.0,
+      "soc_end": 9413.245064631434,
+      "total_cost": 2014576.8110533236
+    },
+    "purchase_headers": [
+      "开始时间",
+      "结束时间",
+      "归属日期",
+      "日内时段",
+      "日初计划购电_kWh",
+      "保留原计划执行_kWh",
+      "调整增购执行_kWh",
+      "调整后普通购电_kWh",
+      "相对日初净调整_kWh",
+      "紧急购电_kWh",
+      "实际外网总购电_kWh",
+      "普通电价_元每kWh",
+      "原计划执行费_元",
+      "调整增购单价_元每kWh",
+      "调整增购费_元",
+      "紧急单价_元每kWh",
+      "紧急购电费_元",
+      "本时刻调减总量_kWh",
+      "本时刻违约费_元",
+      "本段总费用_元",
+      "费用标签",
+      "弃购电_kWh",
+      "购电利用量_kWh"
+    ],
+    "check_headers": [
+      "开始时间",
+      "日计划制定时间",
+      "计划负荷预测_kWh",
+      "计划光伏预测_kWh",
+      "实际负荷_kWh",
+      "实际光伏_kWh",
+      "实际净负荷_kWh",
+      "计划净负荷误差_kWh",
+      "执行时负荷预测_kWh",
+      "执行时光伏预测_kWh",
+      "执行时净负荷误差_kWh",
+      "段初SOC_kWh",
+      "段末SOC_kWh",
+      "实际存入_kWh",
+      "实际送达_kWh",
+      "弃光_kWh",
+      "弃购电_kWh",
+      "当段累计备用需求_送达kWh",
+      "窗口最大规划备用缺口_kWh",
+      "当段规划供电缺口_kWh",
+      "母线平衡残差_kWh",
+      "SOC递推残差_kWh"
+    ],
+    "penalty_headers": [
+      "调减发生时间",
+      "被调减的交付段起点",
+      "调减电量_kWh",
+      "发生时电价_元每kWh",
+      "违约单价_元每kWh",
+      "违约费_元"
+    ],
+    "rules": {
+      "eta_charge": 0.9,
+      "eta_discharge": 0.9,
+      "add_multiplier": 1.5,
+      "reduce_multiplier": 0.5,
+      "emergency_multiplier": 5,
+      "risk_quantile": 0.9,
+      "interval_minutes": 10,
+      "soc_min": 1200,
+      "soc_max": 10800,
+      "initial_soc": 6000
+    }
+  },
+  "problem2": {
+    "month": "2025-02",
+    "from": "2025-02-01T00:10:00",
+    "to": "2025-03-01T00:10:00",
+    "n": 4032,
+    "execution_start": "2025-01-01T00:10:00",
+    "current": {
+      "plan_kwh": 1945284.0571815227,
+      "ordinary_kwh": 1945284.0571815227,
+      "emergency_kwh": 4330.416188825259,
+      "total_kwh": 1949614.473370348,
+      "ordinary_cost": 1187146.856550717,
+      "emergency_cost": 27700.441021314044,
+      "total_cost": 1214847.2975720312,
+      "spill_kwh": 16602.782720833857,
+      "soc_start": 10696.993178203204,
+      "soc_end": 7265.629489043839,
+      "emergency_intervals": 58,
+      "revised_intervals": 0,
+      "retained_kwh": 1945284.0571815227,
+      "add_kwh": 0.0,
+      "net_adjustment_kwh": 0.0,
+      "plan_cost": 1187146.856550717,
+      "add_cost": 0.0,
+      "reduced_kwh": 0.0,
+      "penalty_cost": 0.0,
+      "penalty_nodes": 0
+    },
+    "legacy": {
+      "plan_kwh": 2039383.8287763707,
+      "ordinary_kwh": 2039383.8287763707,
+      "emergency_kwh": 106920.50503145199,
+      "total_kwh": 2146304.3338078232,
+      "ordinary_cost": 1225710.7598805288,
+      "emergency_cost": 645841.2714984417,
+      "total_cost": 1871552.0313789705,
+      "spill_kwh": 100115.2316833638,
+      "soc_start": 10799.99999999,
+      "soc_end": 10799.999999991,
+      "emergency_intervals": 494,
+      "revised_intervals": 0
+    },
+    "purchase_headers": [
+      "开始时间",
+      "结束时间",
+      "归属日期",
+      "日内时段",
+      "计划购电_kWh",
+      "实际普通购电_kWh",
+      "普通调整差额_kWh",
+      "紧急购电_kWh",
+      "实际外网总购电_kWh",
+      "普通电价_元每kWh",
+      "普通电费_元",
+      "紧急单价_元每kWh",
+      "紧急电费_元",
+      "本段总电费_元",
+      "电费标签",
+      "弃购电_kWh",
+      "购电利用量_kWh"
+    ],
+    "check_headers": [
+      "开始时间",
+      "日计划制定时间",
+      "计划负荷预测_kWh",
+      "计划光伏预测_kWh",
+      "实际负荷_kWh",
+      "实际光伏_kWh",
+      "实际净负荷_kWh",
+      "计划净负荷误差_kWh",
+      "执行时负荷预测_kWh",
+      "执行时光伏预测_kWh",
+      "执行时净负荷误差_kWh",
+      "段初SOC_kWh",
+      "段末SOC_kWh",
+      "实际存入_kWh",
+      "实际送达_kWh",
+      "弃光_kWh",
+      "弃购电_kWh",
+      "当段累计备用需求_送达kWh",
+      "窗口最大规划备用缺口_kWh",
+      "当段规划供电缺口_kWh",
+      "母线平衡残差_kWh",
+      "SOC递推残差_kWh"
+    ],
+    "rules": {
+      "eta_charge": 0.9,
+      "eta_discharge": 0.9,
+      "emergency_multiplier": 5,
+      "risk_quantile": 0.9,
+      "interval_minutes": 10,
+      "soc_min": 1200,
+      "soc_max": 10800,
+      "discharge_max_kwh": 750,
+      "initial_soc": 6000
+    }
+  },
+  "new_problem3": {
+    "problem": "problem3",
+    "month": "2025-02",
+    "from": "2025-02-01T00:10:00",
+    "to": "2025-03-01T00:10:00",
+    "n": 4032,
+    "execution_start": "2025-01-01T00:10:00",
+    "current": {
+      "plan_kwh": 1939810.9152279934,
+      "retained_kwh": 1913274.5807208559,
+      "add_kwh": 21955.489582708567,
+      "ordinary_kwh": 1935230.0703035644,
+      "net_adjustment_kwh": -4580.844924428975,
+      "emergency_kwh": 1177.5702162254022,
+      "total_kwh": 1936407.64051979,
+      "plan_cost": 1163232.6583899742,
+      "add_cost": 32070.741339971246,
+      "emergency_cost": 5610.186730690276,
+      "reduced_kwh": 26901.266892934025,
+      "penalty_cost": 10785.195896558685,
+      "total_cost": 1211698.7823571942,
+      "spill_kwh": 15046.746790217781,
+      "soc_start": 8804.591419772561,
+      "soc_end": 6791.219847318202,
+      "emergency_intervals": 32,
+      "revised_intervals": 1560,
+      "penalty_nodes": 66,
+      "spill_intervals": 214
+    },
+    "warmup": {
+      "from": "2025-01-01T00:10:00",
+      "to": "2025-02-01T00:10:00",
+      "n": 4464,
+      "soc_start": 6000.0,
+      "soc_end": 8804.591419772561,
+      "total_cost": 1962505.432981572
+    },
+    "purchase_headers": [
+      "开始时间",
+      "结束时间",
+      "归属日期",
+      "日内时段",
+      "日初计划购电_kWh",
+      "保留原计划执行_kWh",
+      "调整增购执行_kWh",
+      "调整后普通购电_kWh",
+      "相对日初净调整_kWh",
+      "紧急购电_kWh",
+      "实际外网总购电_kWh",
+      "普通电价_元每kWh",
+      "原计划执行费_元",
+      "调整增购单价_元每kWh",
+      "调整增购费_元",
+      "紧急单价_元每kWh",
+      "紧急购电费_元",
+      "本时刻调减总量_kWh",
+      "本时刻违约费_元",
+      "本段总费用_元",
+      "费用标签",
+      "弃购电_kWh",
+      "购电利用量_kWh"
+    ],
+    "check_headers": [
+      "开始时间",
+      "日计划制定时间",
+      "计划负荷预测_kWh",
+      "计划光伏预测_kWh",
+      "实际负荷_kWh",
+      "实际光伏_kWh",
+      "实际净负荷_kWh",
+      "计划净负荷误差_kWh",
+      "执行时负荷预测_kWh",
+      "执行时光伏预测_kWh",
+      "执行时净负荷误差_kWh",
+      "段初SOC_kWh",
+      "段末SOC_kWh",
+      "实际存入_kWh",
+      "实际送达_kWh",
+      "弃光_kWh",
+      "弃购电_kWh",
+      "当段累计备用需求_送达kWh",
+      "窗口最大规划备用缺口_kWh",
+      "当段规划供电缺口_kWh",
+      "母线平衡残差_kWh",
+      "SOC递推残差_kWh"
+    ],
+    "penalty_headers": [
+      "调减发生时间",
+      "被调减的交付段起点",
+      "调减电量_kWh",
+      "发生时电价_元每kWh",
+      "违约单价_元每kWh",
+      "违约费_元"
+    ],
+    "rules": {
+      "eta_charge": 0.9,
+      "eta_discharge": 0.9,
+      "add_multiplier": 1.5,
+      "reduce_multiplier": 0.5,
+      "emergency_multiplier": 5,
+      "risk_quantile": 0.9,
+      "interval_minutes": 10,
+      "soc_min": 1200,
+      "soc_max": 10800,
+      "initial_soc": 6000
+    }
+  },
+  "changes": {
+    "plan_kwh": {
+      "old": 1937307.884082417,
+      "new": 1939810.9152279934,
+      "difference": 2503.0311455763876,
+      "relative_change": 0.0012920151547114148
+    },
+    "retained_kwh": {
+      "old": 1886744.627494595,
+      "new": 1913274.5807208559,
+      "difference": 26529.95322626084,
+      "relative_change": 0.014061231625972573
+    },
+    "add_kwh": {
+      "old": 41504.75096409034,
+      "new": 21955.489582708567,
+      "difference": -19549.26138138177,
+      "relative_change": -0.4710126172855651
+    },
+    "ordinary_kwh": {
+      "old": 1928249.3784586855,
+      "new": 1935230.0703035644,
+      "difference": 6980.691844878951,
+      "relative_change": 0.0036202225307905207
+    },
+    "net_adjustment_kwh": {
+      "old": -9058.505623731655,
+      "new": -4580.844924428975,
+      "difference": 4477.66069930268,
+      "relative_change": 0.49430456692238667
+    },
+    "emergency_kwh": {
+      "old": 27516.074000830362,
+      "new": 1177.5702162254022,
+      "difference": -26338.50378460496,
+      "relative_change": -0.9572042793535929
+    },
+    "total_kwh": {
+      "old": 1955765.4524595158,
+      "new": 1936407.64051979,
+      "difference": -19357.811939725885,
+      "relative_change": -0.009897818736588298
+    },
+    "plan_cost": {
+      "old": 1143709.889549806,
+      "new": 1163232.6583899742,
+      "difference": 19522.768840168137,
+      "relative_change": 0.017069686131552825
+    },
+    "add_cost": {
+      "old": 45289.91122353777,
+      "new": 32070.741339971246,
+      "difference": -13219.169883566523,
+      "relative_change": -0.29187890915309067
+    },
+    "emergency_cost": {
+      "old": 133898.42454979298,
+      "new": 5610.186730690276,
+      "difference": -128288.23781910271,
+      "relative_change": -0.9581011744570302
+    },
+    "reduced_kwh": {
+      "old": 54966.73789902829,
+      "new": 26901.266892934025,
+      "difference": -28065.471006094263,
+      "relative_change": -0.5105900782696877
+    },
+    "penalty_cost": {
+      "old": 22029.825663723677,
+      "new": 10785.195896558685,
+      "difference": -11244.629767164992,
+      "relative_change": -0.510427542133546
+    },
+    "total_cost": {
+      "old": 1344928.0509868604,
+      "new": 1211698.7823571942,
+      "difference": -133229.26862966619,
+      "relative_change": -0.09906051742463642
+    },
+    "spill_kwh": {
+      "old": 15394.26446491625,
+      "new": 15046.746790217781,
+      "difference": -347.5176746984689,
+      "relative_change": -0.02257449035583783
+    },
+    "soc_start": {
+      "old": 9413.245064631434,
+      "new": 8804.591419772561,
+      "difference": -608.6536448588722,
+      "relative_change": -0.0646592796299098
+    },
+    "soc_end": {
+      "old": 6802.179718277211,
+      "new": 6791.219847318202,
+      "difference": -10.959870959009095,
+      "relative_change": -0.0016112292548755096
+    },
+    "emergency_intervals": {
+      "old": 198,
+      "new": 32,
+      "difference": -166,
+      "relative_change": -0.8383838383838383
+    },
+    "revised_intervals": {
+      "old": 1542,
+      "new": 1560,
+      "difference": 18,
+      "relative_change": 0.011673151750972763
+    },
+    "penalty_nodes": {
+      "old": 69,
+      "new": 66,
+      "difference": -3,
+      "relative_change": -0.043478260869565216
+    },
+    "spill_intervals": {
+      "old": 234,
+      "new": 214,
+      "difference": -20,
+      "relative_change": -0.08547008547008547
+    }
+  },
+  "two_month_cost": {
+    "old": 3359504.862040184,
+    "new": 3174204.2153387666,
+    "difference": -185300.6467014174,
+    "relative_change": -0.055157130086392114
+  },
+  "versus_problem2_cost": {
+    "difference": -3148.5152148369234,
+    "relative_change": -0.0025916962741979743
+  },
+  "prediction_checks": {
+    "all_intervals": 8496,
+    "dispatch_forecasts_match_selected_test": true,
+    "same_actual_load_and_pv": true,
+    "february_rolling_pv_mae_kwh": 11.021773558178309,
+    "february_rolling_load_mae_kwh": 20.26942381035052
+  },
+  "source_hashes": {
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\month_summary.json": "012aee4ea62eda92a016a9701ef53ed1d4522d7d48f5fb6c93ae68ca0b3737cb",
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\month_summary.json": "62de64393dea796bb6e59a0460d7d9149b9e677fd31de28f982ce992f8250079",
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\forecast_arrays.npz": "e08af327710bddd49b7cf0b68b7caf7bee3094a1e4d4ec8cdc5a3e189a2dc08d"
+  },
+  "caveats": [
+    "各策略从年初6000 kWh连续运行，二月起末库存不同，未作等库存折算。",
+    "二月属于开发回测，不能作为未参与设计的独立验证或外推全年。"
+  ]
+}

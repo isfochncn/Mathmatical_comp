@@ -1,0 +1,6 @@
+{
+  "original_source_templates_results_unchanged": true,
+  "urgent_reconstructed_from_fixed_grid_and_soc": true,
+  "archived_decision_replays_match": true,
+  "counterfactuals_are_local_expost_bounds": true
+}

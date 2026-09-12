@@ -1,0 +1,3052 @@
+[
+  {
+    "problem": "problem4-2",
+    "initial_soc": 6000.0,
+    "source_max_urgent_reconstruction_error": 1.0000167804946614e-08,
+    "periods": {
+      "January": {
+        "intervals": 4464,
+        "urgent_kwh": 116225.18117127908,
+        "urgent_intervals": 330,
+        "urgent_fee_yuan": 794662.1814024246,
+        "ordinary_kwh": 2492452.1088595754,
+        "power_floor_kwh": 4410.958340227946,
+        "energy_extra_kwh": 111814.22282851656,
+        "morning_9_11_kwh": 51618.79190291687,
+        "morning_load_error_kwh": -126.67996501634843,
+        "morning_pv_error_kwh": 25013.070929788977,
+        "morning_decision_pv_kwh": 314132.43724645564,
+        "morning_actual_pv_kwh": 289119.36631666665,
+        "morning_decision_load_kwh": 393358.79473168304,
+        "morning_actual_load_kwh": 393232.11476666667,
+        "urgent_with_soc_above_5000": 1699.0959768366663,
+        "urgent_with_discharge_750": 2675.758207174614,
+        "urgent_with_zero_grid": 94183.0958496727,
+        "urgent_with_net_above_upper": 59574.01946812564,
+        "urgent_with_decision_power_slack": 0.0,
+        "urgent_with_less7_samples": 80649.10931241442,
+        "hours": [
+          {
+            "hour": 0,
+            "urgent": 0.0
+          },
+          {
+            "hour": 1,
+            "urgent": 0.0
+          },
+          {
+            "hour": 2,
+            "urgent": 0.0
+          },
+          {
+            "hour": 3,
+            "urgent": 0.0
+          },
+          {
+            "hour": 4,
+            "urgent": 0.0
+          },
+          {
+            "hour": 5,
+            "urgent": 0.0
+          },
+          {
+            "hour": 6,
+            "urgent": 1420.4928300999995
+          },
+          {
+            "hour": 7,
+            "urgent": 2566.1296992273406
+          },
+          {
+            "hour": 8,
+            "urgent": 17452.813873856863
+          },
+          {
+            "hour": 9,
+            "urgent": 16678.419040501554
+          },
+          {
+            "hour": 10,
+            "urgent": 34940.372862415315
+          },
+          {
+            "hour": 11,
+            "urgent": 0.0
+          },
+          {
+            "hour": 12,
+            "urgent": 0.0
+          },
+          {
+            "hour": 13,
+            "urgent": 0.0
+          },
+          {
+            "hour": 14,
+            "urgent": 0.0
+          },
+          {
+            "hour": 15,
+            "urgent": 0.0
+          },
+          {
+            "hour": 16,
+            "urgent": 0.0
+          },
+          {
+            "hour": 17,
+            "urgent": 0.0
+          },
+          {
+            "hour": 18,
+            "urgent": 180.85906659690238
+          },
+          {
+            "hour": 19,
+            "urgent": 13150.74105834651
+          },
+          {
+            "hour": 20,
+            "urgent": 27580.617191470465
+          },
+          {
+            "hour": 21,
+            "urgent": 2254.7355487641166
+          },
+          {
+            "hour": 22,
+            "urgent": 0.0
+          },
+          {
+            "hour": 23,
+            "urgent": 0.0
+          }
+        ],
+        "top_days": [
+          {
+            "date": "2025-01-05",
+            "urgent_kwh": 22092.9873475196,
+            "power_floor_kwh": 1546.084976894614,
+            "energy_extra_kwh": 20546.90237026375
+          },
+          {
+            "date": "2025-01-01",
+            "urgent_kwh": 18061.621036526532,
+            "power_floor_kwh": 1318.6737666666659,
+            "energy_extra_kwh": 16742.94726952629
+          },
+          {
+            "date": "2025-01-07",
+            "urgent_kwh": 17383.950089965998,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 17383.95008990464
+          },
+          {
+            "date": "2025-01-06",
+            "urgent_kwh": 16969.971880862064,
+            "power_floor_kwh": 1004.6049633333326,
+            "energy_extra_kwh": 15965.36691718577
+          },
+          {
+            "date": "2025-01-23",
+            "urgent_kwh": 3547.2457851711297,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 3547.2457850634755
+          },
+          {
+            "date": "2025-01-15",
+            "urgent_kwh": 3163.589543649587,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 3163.5895435989705
+          },
+          {
+            "date": "2025-01-19",
+            "urgent_kwh": 3142.026875661146,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 3142.0268755734905
+          },
+          {
+            "date": "2025-01-30",
+            "urgent_kwh": 3045.5591391589296,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 3045.5591390712752
+          }
+        ],
+        "top_intervals": [
+          {
+            "time": "2025-01-05 08:00:00",
+            "formed_at": "2025-01-05 00:00:00",
+            "urgent": 985.3991666666666,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1239.3866666666665,
+            "pv": 253.98749999999998,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 235.3991666666666,
+            "energy_extra": 749.99999999,
+            "decision_load": 932.8508333333333,
+            "decision_pv": 608.9625,
+            "load_error": 306.53583333333324,
+            "pv_error": 354.975,
+            "current_load": 932.8508333333333,
+            "current_pv": 557.4129166666667,
+            "net_upper": 523.4912833333335,
+            "reserve_energy": 650.3139500000007,
+            "decision_power_slack": 0.0,
+            "risk_samples": 2,
+            "price": 1.478
+          },
+          {
+            "time": "2025-01-01 08:00:00",
+            "formed_at": "2025-01-01 00:10:00",
+            "urgent": 953.9520833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1219.3333333333333,
+            "pv": 265.38124999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 203.95208333333335,
+            "energy_extra": 749.99999999,
+            "decision_load": 966.6221166666666,
+            "decision_pv": 568.18215,
+            "load_error": 252.7112166666667,
+            "pv_error": 302.8009,
+            "current_load": 966.6221166666666,
+            "current_pv": 549.6648833333334,
+            "net_upper": 398.4399666666666,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5209
+          },
+          {
+            "time": "2025-01-05 08:10:00",
+            "formed_at": "2025-01-05 00:00:00",
+            "urgent": 939.3144166666666,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1245.83305,
+            "pv": 306.5186333333333,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 189.3144166666666,
+            "energy_extra": 749.99999999,
+            "decision_load": 954.8808250000001,
+            "decision_pv": 608.9625,
+            "load_error": 290.9522249999999,
+            "pv_error": 302.4438666666667,
+            "current_load": 954.8808250000001,
+            "current_pv": 557.4129166666667,
+            "net_upper": 524.9246583333334,
+            "reserve_energy": 450.71100000000047,
+            "decision_power_slack": 0.0,
+            "risk_samples": 2,
+            "price": 1.414
+          },
+          {
+            "time": "2025-01-01 08:10:00",
+            "formed_at": "2025-01-01 00:10:00",
+            "urgent": 921.9955833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1244.9157833333334,
+            "pv": 322.92019999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 171.99558333333334,
+            "energy_extra": 749.99999999,
+            "decision_load": 980.8043333333334,
+            "decision_pv": 568.18215,
+            "load_error": 264.11145,
+            "pv_error": 245.26195,
+            "current_load": 980.8043333333334,
+            "current_pv": 549.6648833333334,
+            "net_upper": 412.6221833333334,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5206
+          },
+          {
+            "time": "2025-01-06 08:20:00",
+            "formed_at": "2025-01-06 00:00:00",
+            "urgent": 864.8591833333332,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1212.5025333333333,
+            "pv": 347.64334999999994,
+            "soc_start": 1200.0000000111113,
+            "soc_end": 1200.0000000111113,
+            "discharge": 0.0,
+            "power_floor": 114.85918333333336,
+            "energy_extra": 749.9999999899999,
+            "decision_load": 979.1505366666665,
+            "decision_pv": 516.3225333333334,
+            "load_error": 233.35199666666676,
+            "pv_error": 168.6791833333334,
+            "current_load": 979.1505366666665,
+            "current_pv": 503.5090666666667,
+            "net_upper": 586.0549866666668,
+            "reserve_energy": 271.7046666666672,
+            "decision_power_slack": 0.0,
+            "risk_samples": 3,
+            "price": 1.4735
+          }
+        ]
+      },
+      "February": {
+        "intervals": 4032,
+        "urgent_kwh": 18772.231562480494,
+        "urgent_intervals": 127,
+        "urgent_fee_yuan": 109353.1416627515,
+        "ordinary_kwh": 1937810.8100048485,
+        "power_floor_kwh": 254.95889210124483,
+        "energy_extra_kwh": 18517.272669306778,
+        "morning_9_11_kwh": 10241.315150887538,
+        "morning_load_error_kwh": -5456.73382044911,
+        "morning_pv_error_kwh": 16759.78120075781,
+        "morning_decision_pv_kwh": 330708.54888409114,
+        "morning_actual_pv_kwh": 313948.7676833333,
+        "morning_decision_load_kwh": 346301.55383711576,
+        "morning_actual_load_kwh": 340844.82001666666,
+        "urgent_with_soc_above_5000": 240.2393332930411,
+        "urgent_with_discharge_750": 254.95889229124475,
+        "urgent_with_zero_grid": 11263.915210956782,
+        "urgent_with_net_above_upper": 3468.6299152412757,
+        "urgent_with_decision_power_slack": 0.0,
+        "urgent_with_less7_samples": 0.0,
+        "hours": [
+          {
+            "hour": 0,
+            "urgent": 0.0
+          },
+          {
+            "hour": 1,
+            "urgent": 0.0
+          },
+          {
+            "hour": 2,
+            "urgent": 0.0
+          },
+          {
+            "hour": 3,
+            "urgent": 0.0
+          },
+          {
+            "hour": 4,
+            "urgent": 0.0
+          },
+          {
+            "hour": 5,
+            "urgent": 0.0
+          },
+          {
+            "hour": 6,
+            "urgent": 225.77221660637454
+          },
+          {
+            "hour": 7,
+            "urgent": 0.0
+          },
+          {
+            "hour": 8,
+            "urgent": 66.88954222647975
+          },
+          {
+            "hour": 9,
+            "urgent": 4425.362130090679
+          },
+          {
+            "hour": 10,
+            "urgent": 5815.953020796859
+          },
+          {
+            "hour": 11,
+            "urgent": 0.0
+          },
+          {
+            "hour": 12,
+            "urgent": 0.0
+          },
+          {
+            "hour": 13,
+            "urgent": 0.0
+          },
+          {
+            "hour": 14,
+            "urgent": 0.0
+          },
+          {
+            "hour": 15,
+            "urgent": 0.0
+          },
+          {
+            "hour": 16,
+            "urgent": 0.0
+          },
+          {
+            "hour": 17,
+            "urgent": 0.0
+          },
+          {
+            "hour": 18,
+            "urgent": 0.0
+          },
+          {
+            "hour": 19,
+            "urgent": 14.467116686666586
+          },
+          {
+            "hour": 20,
+            "urgent": 7788.673584804049
+          },
+          {
+            "hour": 21,
+            "urgent": 435.1139512693869
+          },
+          {
+            "hour": 22,
+            "urgent": 0.0
+          },
+          {
+            "hour": 23,
+            "urgent": 0.0
+          }
+        ],
+        "top_days": [
+          {
+            "date": "2025-02-26",
+            "urgent_kwh": 3134.317573554626,
+            "power_floor_kwh": 9.451993761963763,
+            "energy_extra_kwh": 3124.8655796773533
+          },
+          {
+            "date": "2025-02-27",
+            "urgent_kwh": 2920.601018813182,
+            "power_floor_kwh": 17.230820043908693,
+            "energy_extra_kwh": 2903.370198633964
+          },
+          {
+            "date": "2025-02-19",
+            "urgent_kwh": 2548.790060247152,
+            "power_floor_kwh": 67.10231915203337,
+            "energy_extra_kwh": 2481.687740962155
+          },
+          {
+            "date": "2025-02-23",
+            "urgent_kwh": 1905.322204375831,
+            "power_floor_kwh": 4.266966298319858,
+            "energy_extra_kwh": 1901.055237957511
+          },
+          {
+            "date": "2025-02-18",
+            "urgent_kwh": 1837.9578161290058,
+            "power_floor_kwh": 15.496429095360895,
+            "energy_extra_kwh": 1822.4613869959906
+          },
+          {
+            "date": "2025-02-05",
+            "urgent_kwh": 1040.9459952074803,
+            "power_floor_kwh": 6.848485197151149,
+            "energy_extra_kwh": 1034.097509940329
+          },
+          {
+            "date": "2025-02-02",
+            "urgent_kwh": 1002.0094472242988,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 1002.0094471542988
+          },
+          {
+            "date": "2025-02-16",
+            "urgent_kwh": 882.6951131559986,
+            "power_floor_kwh": 3.919455195975388,
+            "energy_extra_kwh": 878.7756578800232
+          }
+        ],
+        "top_intervals": [
+          {
+            "time": "2025-02-27 20:40:00",
+            "formed_at": "2025-02-27 00:00:00",
+            "urgent": 726.9234117561779,
+            "grid": 3.536071577155326,
+            "initial_plan": 3.536071577155326,
+            "load": 730.4594833333333,
+            "pv": 0.0,
+            "soc_start": 1200.0000000111113,
+            "soc_end": 1200.0000000111113,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 726.9234117461779,
+            "decision_load": 710.6911609899242,
+            "decision_pv": 0.0,
+            "load_error": 19.768322343409068,
+            "pv_error": 0.0,
+            "current_load": 719.6722849999999,
+            "current_pv": 0.0,
+            "net_upper": 753.5360715771553,
+            "reserve_energy": 197.99859569887474,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.338
+          },
+          {
+            "time": "2025-02-18 20:30:00",
+            "formed_at": "2025-02-18 00:00:00",
+            "urgent": 725.944873232467,
+            "grid": 8.770126755186993,
+            "initial_plan": 8.770126755186993,
+            "load": 734.7149999999999,
+            "pv": 0.0,
+            "soc_start": 1200.0000000111113,
+            "soc_end": 1200.0000000111113,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 725.9448732348128,
+            "decision_load": 731.6243508267478,
+            "decision_pv": 0.0,
+            "load_error": 3.0906491732521317,
+            "pv_error": 0.0,
+            "current_load": 738.842875,
+            "current_pv": 0.0,
+            "net_upper": 758.770126755187,
+            "reserve_energy": 133.99303695570848,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.2528
+          },
+          {
+            "time": "2025-02-18 20:40:00",
+            "formed_at": "2025-02-18 00:00:00",
+            "urgent": 719.6218192488011,
+            "grid": 13.91413075119874,
+            "initial_plan": 13.91413075119874,
+            "load": 733.53595,
+            "pv": 0.0,
+            "soc_start": 1200.0000000111113,
+            "soc_end": 1200.0000000111113,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 719.6218192388011,
+            "decision_load": 721.0692201639677,
+            "decision_pv": 0.0,
+            "load_error": 12.4667298360323,
+            "pv_error": 0.0,
+            "current_load": 725.4682558333334,
+            "current_pv": 0.0,
+            "net_upper": 763.9141307511987,
+            "reserve_energy": 132.01546825539515,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.3234
+          },
+          {
+            "time": "2025-02-19 20:40:00",
+            "formed_at": "2025-02-19 00:00:00",
+            "urgent": 713.9995472448375,
+            "grid": 8.01700275516248,
+            "initial_plan": 8.01700275516248,
+            "load": 722.0165499999999,
+            "pv": 0.0,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 713.9995472348375,
+            "decision_load": 715.1720921679314,
+            "decision_pv": 0.0,
+            "load_error": 6.844457832068542,
+            "pv_error": 0.0,
+            "current_load": 718.630455,
+            "current_pv": 0.0,
+            "net_upper": 758.0170027551625,
+            "reserve_energy": 132.01546825539515,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.2849
+          },
+          {
+            "time": "2025-02-26 20:30:00",
+            "formed_at": "2025-02-26 00:00:00",
+            "urgent": 706.5874640938099,
+            "grid": 1.879202560511203,
+            "initial_plan": 1.879202560511203,
+            "load": 708.4666666666667,
+            "pv": 0.0,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 706.5874640961555,
+            "decision_load": 715.516332083318,
+            "decision_pv": 0.0,
+            "load_error": -7.049665416651351,
+            "pv_error": 0.0,
+            "current_load": 711.8893916666665,
+            "current_pv": 0.0,
+            "net_upper": 751.8792025605112,
+            "reserve_energy": 163.91420649994177,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.2771
+          }
+        ]
+      },
+      "Both": {
+        "intervals": 8496,
+        "urgent_kwh": 134997.4127337596,
+        "urgent_intervals": 457,
+        "urgent_fee_yuan": 904015.3230651763,
+        "ordinary_kwh": 4430262.918864424,
+        "power_floor_kwh": 4665.9172323291905,
+        "energy_extra_kwh": 130331.49549782334,
+        "morning_9_11_kwh": 61860.1070538044,
+        "morning_load_error_kwh": -5583.413785465458,
+        "morning_pv_error_kwh": 41772.85213054679,
+        "morning_decision_pv_kwh": 644840.9861305468,
+        "morning_actual_pv_kwh": 603068.134,
+        "morning_decision_load_kwh": 739660.3485687987,
+        "morning_actual_load_kwh": 734076.9347833333,
+        "urgent_with_soc_above_5000": 1939.3353101297073,
+        "urgent_with_discharge_750": 2930.717099465859,
+        "urgent_with_zero_grid": 105447.01106062946,
+        "urgent_with_net_above_upper": 63042.64938336692,
+        "urgent_with_decision_power_slack": 0.0,
+        "urgent_with_less7_samples": 80649.10931241442,
+        "hours": [
+          {
+            "hour": 0,
+            "urgent": 0.0
+          },
+          {
+            "hour": 1,
+            "urgent": 0.0
+          },
+          {
+            "hour": 2,
+            "urgent": 0.0
+          },
+          {
+            "hour": 3,
+            "urgent": 0.0
+          },
+          {
+            "hour": 4,
+            "urgent": 0.0
+          },
+          {
+            "hour": 5,
+            "urgent": 0.0
+          },
+          {
+            "hour": 6,
+            "urgent": 1646.265046706374
+          },
+          {
+            "hour": 7,
+            "urgent": 2566.1296992273406
+          },
+          {
+            "hour": 8,
+            "urgent": 17519.703416083343
+          },
+          {
+            "hour": 9,
+            "urgent": 21103.781170592236
+          },
+          {
+            "hour": 10,
+            "urgent": 40756.32588321218
+          },
+          {
+            "hour": 11,
+            "urgent": 0.0
+          },
+          {
+            "hour": 12,
+            "urgent": 0.0
+          },
+          {
+            "hour": 13,
+            "urgent": 0.0
+          },
+          {
+            "hour": 14,
+            "urgent": 0.0
+          },
+          {
+            "hour": 15,
+            "urgent": 0.0
+          },
+          {
+            "hour": 16,
+            "urgent": 0.0
+          },
+          {
+            "hour": 17,
+            "urgent": 0.0
+          },
+          {
+            "hour": 18,
+            "urgent": 180.85906659690238
+          },
+          {
+            "hour": 19,
+            "urgent": 13165.208175033176
+          },
+          {
+            "hour": 20,
+            "urgent": 35369.290776274516
+          },
+          {
+            "hour": 21,
+            "urgent": 2689.8495000335033
+          },
+          {
+            "hour": 22,
+            "urgent": 0.0
+          },
+          {
+            "hour": 23,
+            "urgent": 0.0
+          }
+        ],
+        "top_days": [
+          {
+            "date": "2025-01-05",
+            "urgent_kwh": 22092.9873475196,
+            "power_floor_kwh": 1546.084976894614,
+            "energy_extra_kwh": 20546.90237026375
+          },
+          {
+            "date": "2025-01-01",
+            "urgent_kwh": 18061.621036526532,
+            "power_floor_kwh": 1318.6737666666659,
+            "energy_extra_kwh": 16742.94726952629
+          },
+          {
+            "date": "2025-01-07",
+            "urgent_kwh": 17383.950089965998,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 17383.95008990464
+          },
+          {
+            "date": "2025-01-06",
+            "urgent_kwh": 16969.971880862064,
+            "power_floor_kwh": 1004.6049633333326,
+            "energy_extra_kwh": 15965.36691718577
+          },
+          {
+            "date": "2025-01-23",
+            "urgent_kwh": 3547.2457851711297,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 3547.2457850634755
+          },
+          {
+            "date": "2025-01-15",
+            "urgent_kwh": 3163.589543649587,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 3163.5895435989705
+          },
+          {
+            "date": "2025-01-19",
+            "urgent_kwh": 3142.026875661146,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 3142.0268755734905
+          },
+          {
+            "date": "2025-02-26",
+            "urgent_kwh": 3134.317573554626,
+            "power_floor_kwh": 9.451993761963763,
+            "energy_extra_kwh": 3124.8655796773533
+          }
+        ],
+        "top_intervals": [
+          {
+            "time": "2025-01-05 08:00:00",
+            "formed_at": "2025-01-05 00:00:00",
+            "urgent": 985.3991666666666,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1239.3866666666665,
+            "pv": 253.98749999999998,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 235.3991666666666,
+            "energy_extra": 749.99999999,
+            "decision_load": 932.8508333333333,
+            "decision_pv": 608.9625,
+            "load_error": 306.53583333333324,
+            "pv_error": 354.975,
+            "current_load": 932.8508333333333,
+            "current_pv": 557.4129166666667,
+            "net_upper": 523.4912833333335,
+            "reserve_energy": 650.3139500000007,
+            "decision_power_slack": 0.0,
+            "risk_samples": 2,
+            "price": 1.478
+          },
+          {
+            "time": "2025-01-01 08:00:00",
+            "formed_at": "2025-01-01 00:10:00",
+            "urgent": 953.9520833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1219.3333333333333,
+            "pv": 265.38124999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 203.95208333333335,
+            "energy_extra": 749.99999999,
+            "decision_load": 966.6221166666666,
+            "decision_pv": 568.18215,
+            "load_error": 252.7112166666667,
+            "pv_error": 302.8009,
+            "current_load": 966.6221166666666,
+            "current_pv": 549.6648833333334,
+            "net_upper": 398.4399666666666,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5209
+          },
+          {
+            "time": "2025-01-05 08:10:00",
+            "formed_at": "2025-01-05 00:00:00",
+            "urgent": 939.3144166666666,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1245.83305,
+            "pv": 306.5186333333333,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 189.3144166666666,
+            "energy_extra": 749.99999999,
+            "decision_load": 954.8808250000001,
+            "decision_pv": 608.9625,
+            "load_error": 290.9522249999999,
+            "pv_error": 302.4438666666667,
+            "current_load": 954.8808250000001,
+            "current_pv": 557.4129166666667,
+            "net_upper": 524.9246583333334,
+            "reserve_energy": 450.71100000000047,
+            "decision_power_slack": 0.0,
+            "risk_samples": 2,
+            "price": 1.414
+          },
+          {
+            "time": "2025-01-01 08:10:00",
+            "formed_at": "2025-01-01 00:10:00",
+            "urgent": 921.9955833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1244.9157833333334,
+            "pv": 322.92019999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 171.99558333333334,
+            "energy_extra": 749.99999999,
+            "decision_load": 980.8043333333334,
+            "decision_pv": 568.18215,
+            "load_error": 264.11145,
+            "pv_error": 245.26195,
+            "current_load": 980.8043333333334,
+            "current_pv": 549.6648833333334,
+            "net_upper": 412.6221833333334,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5206
+          },
+          {
+            "time": "2025-01-06 08:20:00",
+            "formed_at": "2025-01-06 00:00:00",
+            "urgent": 864.8591833333332,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1212.5025333333333,
+            "pv": 347.64334999999994,
+            "soc_start": 1200.0000000111113,
+            "soc_end": 1200.0000000111113,
+            "discharge": 0.0,
+            "power_floor": 114.85918333333336,
+            "energy_extra": 749.9999999899999,
+            "decision_load": 979.1505366666665,
+            "decision_pv": 516.3225333333334,
+            "load_error": 233.35199666666676,
+            "pv_error": 168.6791833333334,
+            "current_load": 979.1505366666665,
+            "current_pv": 503.5090666666667,
+            "net_upper": 586.0549866666668,
+            "reserve_energy": 271.7046666666672,
+            "decision_power_slack": 0.0,
+            "risk_samples": 3,
+            "price": 1.4735
+          }
+        ]
+      }
+    },
+    "feb12_8_to_12": [
+      {
+        "time": "2025-02-12 08:00:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 139.23824800261127,
+        "initial_plan": 139.23824800261127,
+        "load": 1151.67,
+        "pv": 391.14375,
+        "soc_start": 8445.285400738407,
+        "soc_end": 7754.965398530197,
+        "discharge": 621.2880019873888,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1208.563645576906,
+        "decision_pv": 579.4534668673948,
+        "load_error": -56.89364557690601,
+        "pv_error": 188.3097168673948,
+        "current_load": 1193.6447500000002,
+        "current_pv": 634.0284966382314,
+        "net_upper": 889.2382480026113,
+        "reserve_energy": 3071.3089190372184,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.3246
+      },
+      {
+        "time": "2025-02-12 08:10:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 75.21926329872599,
+        "initial_plan": 75.21926329872599,
+        "load": 1173.1089166666666,
+        "pv": 448.72679999999997,
+        "soc_start": 7754.965398530197,
+        "soc_end": 7033.673339243596,
+        "discharge": 649.1628533579407,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1216.657506399138,
+        "decision_pv": 597.5278229679897,
+        "load_error": -43.54858973247133,
+        "pv_error": 148.8010229679897,
+        "current_load": 1200.2206458333335,
+        "current_pv": 650.8887470465835,
+        "net_upper": 825.219263298726,
+        "reserve_energy": 2910.75029115678,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.3208
+      },
+      {
+        "time": "2025-02-12 08:20:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1151.1616999999999,
+        "pv": 518.9445,
+        "soc_start": 7033.673339243596,
+        "soc_end": 6331.209783699152,
+        "discharge": 632.2171999899999,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1168.7349752019422,
+        "decision_pv": 614.4753962008273,
+        "load_error": -17.57327520194235,
+        "pv_error": 95.53089620082733,
+        "current_load": 1147.6625625,
+        "current_pv": 666.6979037838528,
+        "net_upper": 718.0330506110552,
+        "reserve_energy": 2783.0207995585743,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2436
+      },
+      {
+        "time": "2025-02-12 08:30:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1176.6966666666667,
+        "pv": 588.925,
+        "soc_start": 6331.209783699152,
+        "soc_end": 5678.130154080633,
+        "discharge": 587.7716666566668,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1176.660919692153,
+        "decision_pv": 630.7602736226077,
+        "load_error": 0.03574697451381326,
+        "pv_error": 41.8352736226077,
+        "current_load": 1155.6502166666664,
+        "current_pv": 681.8888798646824,
+        "net_upper": 689.221798042494,
+        "reserve_energy": 2726.16293950723,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2561
+      },
+      {
+        "time": "2025-02-12 08:40:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1193.6030333333333,
+        "pv": 636.614,
+        "soc_start": 5678.130154080633,
+        "soc_end": 5059.25345038804,
+        "discharge": 556.9890333233333,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1180.4183789178837,
+        "decision_pv": 647.0492573317899,
+        "load_error": 13.184654415449586,
+        "pv_error": 10.435257331789899,
+        "current_load": 1164.166695,
+        "current_pv": 697.0836864019586,
+        "net_upper": 638.3772772164393,
+        "reserve_energy": 2715.8074838859143,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2497
+      },
+      {
+        "time": "2025-02-12 08:50:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1175.6205833333333,
+        "pv": 687.9527833333333,
+        "soc_start": 5059.25345038804,
+        "soc_end": 4517.4003392880395,
+        "discharge": 487.66779999000005,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1172.9692215651173,
+        "decision_pv": 665.2323072560193,
+        "load_error": 2.65136176821602,
+        "pv_error": -22.720476077313947,
+        "current_load": 1164.4256291666668,
+        "current_pv": 714.0453293619523,
+        "net_upper": 583.9967323562545,
+        "reserve_energy": 2692.0589065060835,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1783
+      },
+      {
+        "time": "2025-02-12 09:00:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1138.6166666666666,
+        "pv": 733.4937499999999,
+        "soc_start": 4517.4003392880395,
+        "soc_end": 4067.2637652250764,
+        "discharge": 405.1229166566667,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1167.1719167552985,
+        "decision_pv": 809.6368205777214,
+        "load_error": -28.555250088631965,
+        "pv_error": 76.14307057772157,
+        "current_load": 1165.8202583333332,
+        "current_pv": 891.8762918550049,
+        "net_upper": 602.8989014764912,
+        "reserve_energy": 2653.227320195316,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1299
+      },
+      {
+        "time": "2025-02-12 09:10:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1125.8253333333332,
+        "pv": 742.29565,
+        "soc_start": 4067.2637652250764,
+        "soc_end": 3641.119672643595,
+        "discharge": 383.5296833233332,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1172.2763506772449,
+        "decision_pv": 829.7275873718811,
+        "load_error": -46.451017343911644,
+        "pv_error": 87.43193737188108,
+        "current_load": 1172.8917291666664,
+        "current_pv": 910.617504939447,
+        "net_upper": 525.7101934948075,
+        "reserve_energy": 2453.6569333592865,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2211
+      },
+      {
+        "time": "2025-02-12 09:20:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1155.5801999999999,
+        "pv": 783.8513333333333,
+        "soc_start": 3641.119672643595,
+        "soc_end": 3228.0875985806324,
+        "discharge": 371.7288666566666,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1166.494895720002,
+        "decision_pv": 842.6266032904971,
+        "load_error": -10.9146957200021,
+        "pv_error": 58.7752699571638,
+        "current_load": 1167.1639816666664,
+        "current_pv": 922.6500574242364,
+        "net_upper": 475.43957869010075,
+        "reserve_energy": 2307.5573009728573,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2363
+      },
+      {
+        "time": "2025-02-12 09:30:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1183.2033333333334,
+        "pv": 860.1,
+        "soc_start": 3228.0875985806324,
+        "soc_end": 2869.08389488804,
+        "discharge": 323.10333332333335,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1162.7648362733003,
+        "decision_pv": 852.9267943641896,
+        "load_error": 20.438497060033114,
+        "pv_error": -7.173205635810405,
+        "current_load": 1162.9503333333334,
+        "current_pv": 932.2583554897267,
+        "net_upper": 457.356511612547,
+        "reserve_energy": 2168.9700884312433,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1348
+      },
+      {
+        "time": "2025-02-12 09:40:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1145.32655,
+        "pv": 902.7191833333333,
+        "soc_start": 2869.08389488804,
+        "soc_end": 2599.52015415841,
+        "discharge": 242.60736665666673,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1190.8551461955703,
+        "decision_pv": 872.0397225330967,
+        "load_error": -45.528596195570344,
+        "pv_error": -30.679460800236598,
+        "current_load": 1191.0914483333333,
+        "current_pv": 950.087414138959,
+        "net_upper": 432.3439239775799,
+        "reserve_energy": 2021.4516187278066,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0871
+      },
+      {
+        "time": "2025-02-12 09:50:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1125.0030333333334,
+        "pv": 933.60205,
+        "soc_start": 2599.52015415841,
+        "soc_end": 2359.2755540179833,
+        "discharge": 216.22014012638408,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1182.1758212828438,
+        "decision_pv": 889.3569522961191,
+        "load_error": -57.17278794951039,
+        "pv_error": -44.2450977038809,
+        "current_load": 1182.4615366666667,
+        "current_pv": 966.2413965302826,
+        "net_upper": 403.6800932544453,
+        "reserve_energy": 1943.5506329397956,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0729
+      },
+      {
+        "time": "2025-02-12 10:00:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1139.8166666666666,
+        "pv": 964.5562499999999,
+        "soc_start": 2359.2755540179833,
+        "soc_end": 2164.541757732798,
+        "discharge": 175.26041665666673,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1144.4175584051632,
+        "decision_pv": 974.6548661518021,
+        "load_error": -4.600891738496557,
+        "pv_error": 10.098616151802275,
+        "current_load": 1142.8395166666664,
+        "current_pv": 1078.8401440502766,
+        "net_upper": 370.7088796720468,
+        "reserve_energy": 1905.6024852414118,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0777
+      },
+      {
+        "time": "2025-02-12 10:10:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1127.7908166666666,
+        "pv": 981.8645166666666,
+        "soc_start": 2164.541757732798,
+        "soc_end": 2002.4014244105758,
+        "discharge": 145.92629998999996,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1155.28230964383,
+        "decision_pv": 985.0747750884481,
+        "load_error": -27.49149297716349,
+        "pv_error": 3.2102584217814183,
+        "current_load": 1153.7510108333333,
+        "current_pv": 1088.5601181907823,
+        "net_upper": 341.8088759420282,
+        "reserve_energy": 1747.6686582030716,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1138
+      },
+      {
+        "time": "2025-02-12 10:20:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1117.7956833333333,
+        "pv": 1003.5088999999999,
+        "soc_start": 2002.4014244105758,
+        "soc_end": 1875.4161096068722,
+        "discharge": 114.28678332333335,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1169.3432639294504,
+        "decision_pv": 995.7544636983604,
+        "load_error": -51.547580596117086,
+        "pv_error": -7.754436301639544,
+        "current_load": 1167.8574274999999,
+        "current_pv": 1098.5224218681133,
+        "net_upper": 324.34529014038446,
+        "reserve_energy": 1593.3479458870313,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0824
+      },
+      {
+        "time": "2025-02-12 10:30:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1124.0983333333334,
+        "pv": 1036.3125,
+        "soc_start": 1875.4161096068722,
+        "soc_end": 1777.8762948031685,
+        "discharge": 87.78583332333336,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1158.8200528474376,
+        "decision_pv": 1007.960355908189,
+        "load_error": -34.72171951410428,
+        "pv_error": -28.352144091811056,
+        "current_load": 1157.378433333333,
+        "current_pv": 1109.908409726806,
+        "net_upper": 260.86648120348826,
+        "reserve_energy": 1460.797992361968,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0267
+      },
+      {
+        "time": "2025-02-12 10:40:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1125.2804166666665,
+        "pv": 1066.63585,
+        "soc_start": 1777.8762948031685,
+        "soc_end": 1712.71566518465,
+        "discharge": 58.644566656666605,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1144.4609164442745,
+        "decision_pv": 1022.5003736668898,
+        "load_error": -19.18049977760802,
+        "pv_error": -44.13547633311009,
+        "current_load": 1135.0295441666665,
+        "current_pv": 1123.4717333101846,
+        "net_upper": 211.96001731871297,
+        "reserve_energy": 1339.6977447888744,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0581
+      },
+      {
+        "time": "2025-02-12 10:50:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 101.64483878896658,
+        "initial_plan": 101.64483878896658,
+        "load": 1111.9185499999999,
+        "pv": 1078.4831833333333,
+        "soc_start": 1712.71566518465,
+        "soc_end": 1774.10419009372,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1142.1444448678506,
+        "decision_pv": 1031.3208849808257,
+        "load_error": -30.225894867850684,
+        "pv_error": -47.162298352507605,
+        "current_load": 1127.55965,
+        "current_pv": 1131.699745896357,
+        "net_upper": 191.5689470073452,
+        "reserve_energy": 1326.0365912075106,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.9027
+      },
+      {
+        "time": "2025-02-12 11:00:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 671.920189490314,
+        "initial_plan": 671.920189490314,
+        "load": 1099.9233333333332,
+        "pv": 1093.6812499999999,
+        "soc_start": 1774.10419009372,
+        "soc_end": 2373.214485634003,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1147.4407883418544,
+        "decision_pv": 1135.0668714077892,
+        "load_error": -47.51745500852121,
+        "pv_error": 41.38562140778936,
+        "current_load": 1132.896675,
+        "current_pv": 1221.5424218803262,
+        "net_upper": 162.3835155396393,
+        "reserve_energy": 1316.8578701094523,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.6218
+      },
+      {
+        "time": "2025-02-12 11:10:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 835.2750174812978,
+        "initial_plan": 835.2750174812978,
+        "load": 1114.2085499999998,
+        "pv": 1149.9850499999998,
+        "soc_start": 2373.214485634003,
+        "soc_end": 3109.6995688101006,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1140.631697974201,
+        "decision_pv": 1138.6900138262365,
+        "load_error": -26.42314797420113,
+        "pv_error": -11.295036173763265,
+        "current_load": 1126.1271516666666,
+        "current_pv": 1224.9221875605062,
+        "net_upper": 125.77194745787273,
+        "reserve_energy": 1155.639934044686,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.5765
+      },
+      {
+        "time": "2025-02-12 11:20:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 803.8176472886311,
+        "initial_plan": 803.8176472886311,
+        "load": 1128.7869833333332,
+        "pv": 1198.1156833333332,
+        "soc_start": 3109.6995688101006,
+        "soc_end": 3859.6995688001007,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1116.4124598994754,
+        "decision_pv": 1145.9281459441777,
+        "load_error": 12.374523433857803,
+        "pv_error": -52.18753738915552,
+        "current_load": 1103.9724383333335,
+        "current_pv": 1231.6741138431362,
+        "net_upper": 97.76306279261593,
+        "reserve_energy": 978.9729238088648,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.6008
+      },
+      {
+        "time": "2025-02-12 11:30:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 787.0742865052936,
+        "initial_plan": 787.0742865052936,
+        "load": 1121.4899999999998,
+        "pv": 1213.1187499999999,
+        "soc_start": 3859.6995688001007,
+        "soc_end": 4609.699568790101,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1104.6988927553705,
+        "decision_pv": 1150.9579395834103,
+        "load_error": 16.791107244629302,
+        "pv_error": -62.160810416589584,
+        "current_load": 1092.2963,
+        "current_pv": 1236.3660419974678,
+        "net_upper": 79.31052903257478,
+        "reserve_energy": 798.976371288579,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.584
+      },
+      {
+        "time": "2025-02-12 11:40:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 820.7435513121671,
+        "initial_plan": 820.7435513121671,
+        "load": 1094.0055333333332,
+        "pv": 1214.5306,
+        "soc_start": 4609.699568790101,
+        "soc_end": 5359.699568780101,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1133.706106826441,
+        "decision_pv": 1146.2958888476073,
+        "load_error": -39.70057349310787,
+        "pv_error": -68.23471115239272,
+        "current_load": 1121.3399175,
+        "current_pv": 1232.0171544141647,
+        "net_upper": 99.82841269006946,
+        "reserve_energy": 706.2930316402293,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.5878
+      },
+      {
+        "time": "2025-02-12 11:50:00",
+        "formed_at": "2025-02-12 00:00:00",
+        "urgent": 0.0,
+        "grid": 794.4932127736032,
+        "initial_plan": 794.4932127736032,
+        "load": 1074.7977666666666,
+        "pv": 1213.7217,
+        "soc_start": 5359.699568780101,
+        "soc_end": 6109.699568770101,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1105.566368188482,
+        "decision_pv": 1144.4064887482123,
+        "load_error": -30.768601521815526,
+        "pv_error": -69.31521125178779,
+        "current_load": 1091.2095433333334,
+        "current_pv": 1230.2546706708952,
+        "net_upper": 37.103421294931024,
+        "reserve_energy": 616.3796718477016,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.5943
+      }
+    ],
+    "urgent_current_forecast_errors": {
+      "load_underprediction": 686.4944341666662,
+      "pv_overprediction": 8000.473221580283
+    },
+    "cold_start": {
+      "first_seven_result_days_urgent_kwh": 76178.22839143733,
+      "examples": [
+        {
+          "day": 1,
+          "samples": 0,
+          "load_forecast": 110450.68711666667,
+          "load_actual": 126670.03571666667,
+          "pv_forecast": 37349.4687,
+          "pv_actual": 35250.98236666667
+        },
+        {
+          "day": 5,
+          "samples": 2,
+          "load_forecast": 104660.0858013889,
+          "load_actual": 127665.11716666666,
+          "pv_forecast": 37203.0863,
+          "pv_actual": 36638.408533333335
+        }
+      ]
+    }
+  },
+  {
+    "problem": "problem4-3",
+    "initial_soc": 6000.0,
+    "source_max_urgent_reconstruction_error": 1.000017846308765e-08,
+    "periods": {
+      "January": {
+        "intervals": 4464,
+        "urgent_kwh": 57326.187218951396,
+        "urgent_intervals": 212,
+        "urgent_fee_yuan": 379113.45930377516,
+        "ordinary_kwh": 2562000.1571401786,
+        "power_floor_kwh": 2171.104329166665,
+        "energy_extra_kwh": 55155.08288796102,
+        "morning_9_11_kwh": 38877.194606387144,
+        "morning_load_error_kwh": 69.94561643540726,
+        "morning_pv_error_kwh": 22846.96633540264,
+        "morning_decision_pv_kwh": 311966.3326520693,
+        "morning_actual_pv_kwh": 289119.36631666665,
+        "morning_decision_load_kwh": 393162.16915023123,
+        "morning_actual_load_kwh": 393232.11476666667,
+        "urgent_with_soc_above_5000": 1186.696216796666,
+        "urgent_with_discharge_750": 1472.073921053332,
+        "urgent_with_zero_grid": 44785.62935892407,
+        "urgent_with_net_above_upper": 27928.106321211686,
+        "urgent_with_decision_power_slack": 0.0,
+        "urgent_with_less7_samples": 41352.98756195146,
+        "hours": [
+          {
+            "hour": 0,
+            "urgent": 0.0
+          },
+          {
+            "hour": 1,
+            "urgent": 0.0
+          },
+          {
+            "hour": 2,
+            "urgent": 0.0
+          },
+          {
+            "hour": 3,
+            "urgent": 0.0
+          },
+          {
+            "hour": 4,
+            "urgent": 0.0
+          },
+          {
+            "hour": 5,
+            "urgent": 0.0
+          },
+          {
+            "hour": 6,
+            "urgent": 779.7189833933334
+          },
+          {
+            "hour": 7,
+            "urgent": 932.6544135228271
+          },
+          {
+            "hour": 8,
+            "urgent": 10547.994933207658
+          },
+          {
+            "hour": 9,
+            "urgent": 12138.837183492702
+          },
+          {
+            "hour": 10,
+            "urgent": 26738.35742289444
+          },
+          {
+            "hour": 11,
+            "urgent": 0.0
+          },
+          {
+            "hour": 12,
+            "urgent": 0.0
+          },
+          {
+            "hour": 13,
+            "urgent": 0.0
+          },
+          {
+            "hour": 14,
+            "urgent": 0.0
+          },
+          {
+            "hour": 15,
+            "urgent": 0.0
+          },
+          {
+            "hour": 16,
+            "urgent": 0.0
+          },
+          {
+            "hour": 17,
+            "urgent": 0.0
+          },
+          {
+            "hour": 18,
+            "urgent": 1.8122333433333244
+          },
+          {
+            "hour": 19,
+            "urgent": 473.3562333033323
+          },
+          {
+            "hour": 20,
+            "urgent": 3599.214163076297
+          },
+          {
+            "hour": 21,
+            "urgent": 2081.786907042704
+          },
+          {
+            "hour": 22,
+            "urgent": 32.454745674766485
+          },
+          {
+            "hour": 23,
+            "urgent": 0.0
+          }
+        ],
+        "top_days": [
+          {
+            "date": "2025-01-05",
+            "urgent_kwh": 11703.616899688885,
+            "power_floor_kwh": 307.85987916666625,
+            "energy_extra_kwh": 11395.75702031333
+          },
+          {
+            "date": "2025-01-06",
+            "urgent_kwh": 9509.227687138888,
+            "power_floor_kwh": 37.21239999999966,
+            "energy_extra_kwh": 9472.01528698
+          },
+          {
+            "date": "2025-01-01",
+            "urgent_kwh": 9486.689895574762,
+            "power_floor_kwh": 1260.6399666666664,
+            "energy_extra_kwh": 8226.049928458093
+          },
+          {
+            "date": "2025-01-07",
+            "urgent_kwh": 6665.28552200362,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 6665.285521897693
+          },
+          {
+            "date": "2025-01-02",
+            "urgent_kwh": 2303.6979221054494,
+            "power_floor_kwh": 565.3920833333328,
+            "energy_extra_kwh": 1738.305838612116
+          },
+          {
+            "date": "2025-01-20",
+            "urgent_kwh": 1862.6328321531962,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 1862.6328320831963
+          },
+          {
+            "date": "2025-01-16",
+            "urgent_kwh": 1849.5365502728291,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 1849.5365502128288
+          },
+          {
+            "date": "2025-01-08",
+            "urgent_kwh": 1684.469635439853,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 1684.4696353898528
+          }
+        ],
+        "top_intervals": [
+          {
+            "time": "2025-01-01 08:00:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 953.9520833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1219.3333333333333,
+            "pv": 265.38124999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 203.95208333333335,
+            "energy_extra": 749.99999999,
+            "decision_load": 966.6221166666666,
+            "decision_pv": 549.6648833333334,
+            "load_error": 252.7112166666667,
+            "pv_error": 284.2836333333334,
+            "current_load": 966.6221166666666,
+            "current_pv": 549.6648833333334,
+            "net_upper": 416.9572333333332,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5209
+          },
+          {
+            "time": "2025-01-01 08:10:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 921.9955833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1244.9157833333334,
+            "pv": 322.92019999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 171.99558333333334,
+            "energy_extra": 749.99999999,
+            "decision_load": 980.8043333333334,
+            "decision_pv": 549.6648833333334,
+            "load_error": 264.11145,
+            "pv_error": 226.7446833333334,
+            "current_load": 980.8043333333334,
+            "current_pv": 549.6648833333334,
+            "net_upper": 431.13945,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5206
+          },
+          {
+            "time": "2025-01-01 08:20:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 833.4274833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1204.2818333333332,
+            "pv": 370.85434999999995,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 83.42748333333327,
+            "energy_extra": 749.99999999,
+            "decision_load": 958.0118833333332,
+            "decision_pv": 549.6648833333334,
+            "load_error": 246.26995,
+            "pv_error": 178.8105333333334,
+            "current_load": 958.0118833333332,
+            "current_pv": 549.6648833333334,
+            "net_upper": 408.34699999999987,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.4132
+          },
+          {
+            "time": "2025-01-05 08:20:00",
+            "formed_at": "2025-01-05 06:00:00",
+            "urgent": 808.9000499876544,
+            "grid": 39.06238333333329,
+            "initial_plan": 0.0,
+            "load": 1210.1734166666665,
+            "pv": 362.2109833333333,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 58.900049999999965,
+            "energy_extra": 749.99999999,
+            "decision_load": 921.3948166666665,
+            "decision_pv": 557.4129166666667,
+            "load_error": 288.7786,
+            "pv_error": 195.2019333333334,
+            "current_load": 921.3948166666665,
+            "current_pv": 557.4129166666667,
+            "net_upper": 789.0623833333333,
+            "reserve_energy": 5522.316449999999,
+            "decision_power_slack": 0.0,
+            "risk_samples": 3,
+            "price": 1.34
+          },
+          {
+            "time": "2025-01-01 07:50:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 804.7576333333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1014.0193833333333,
+            "pv": 209.26175,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 54.757633333333274,
+            "energy_extra": 749.99999999,
+            "decision_load": 818.4099833333333,
+            "decision_pv": 264.79731666666663,
+            "load_error": 195.60939999999994,
+            "pv_error": 55.535566666666625,
+            "current_load": 818.4099833333333,
+            "current_pv": 264.79731666666663,
+            "net_upper": 553.6126666666667,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.136
+          }
+        ]
+      },
+      "February": {
+        "intervals": 4032,
+        "urgent_kwh": 27732.079482172103,
+        "urgent_intervals": 195,
+        "urgent_fee_yuan": 150932.48366564937,
+        "ordinary_kwh": 1925859.030858114,
+        "power_floor_kwh": 393.6419529851229,
+        "energy_extra_kwh": 27338.437527274014,
+        "morning_9_11_kwh": 26550.003763854875,
+        "morning_load_error_kwh": -3492.4039728171997,
+        "morning_pv_error_kwh": 25048.1822201587,
+        "morning_decision_pv_kwh": 338996.949903492,
+        "morning_actual_pv_kwh": 313948.7676833333,
+        "morning_decision_load_kwh": 344337.2239894838,
+        "morning_actual_load_kwh": 340844.82001666666,
+        "urgent_with_soc_above_5000": 388.3091235549043,
+        "urgent_with_discharge_750": 393.64195325512287,
+        "urgent_with_zero_grid": 27157.715767753438,
+        "urgent_with_net_above_upper": 4293.375035129045,
+        "urgent_with_decision_power_slack": 0.0,
+        "urgent_with_less7_samples": 0.0,
+        "hours": [
+          {
+            "hour": 0,
+            "urgent": 0.0
+          },
+          {
+            "hour": 1,
+            "urgent": 0.0
+          },
+          {
+            "hour": 2,
+            "urgent": 0.0
+          },
+          {
+            "hour": 3,
+            "urgent": 0.0
+          },
+          {
+            "hour": 4,
+            "urgent": 0.0
+          },
+          {
+            "hour": 5,
+            "urgent": 0.0
+          },
+          {
+            "hour": 6,
+            "urgent": 360.9248161803874
+          },
+          {
+            "hour": 7,
+            "urgent": 0.0
+          },
+          {
+            "hour": 8,
+            "urgent": 619.5495132806591
+          },
+          {
+            "hour": 9,
+            "urgent": 14590.091520949632
+          },
+          {
+            "hour": 10,
+            "urgent": 11959.912242905244
+          },
+          {
+            "hour": 11,
+            "urgent": 85.46375000000015
+          },
+          {
+            "hour": 12,
+            "urgent": 0.0
+          },
+          {
+            "hour": 13,
+            "urgent": 0.0
+          },
+          {
+            "hour": 14,
+            "urgent": 0.0
+          },
+          {
+            "hour": 15,
+            "urgent": 0.0
+          },
+          {
+            "hour": 16,
+            "urgent": 0.0
+          },
+          {
+            "hour": 17,
+            "urgent": 0.0
+          },
+          {
+            "hour": 18,
+            "urgent": 0.0
+          },
+          {
+            "hour": 19,
+            "urgent": 14.467116686666586
+          },
+          {
+            "hour": 20,
+            "urgent": 5.332829700218546
+          },
+          {
+            "hour": 21,
+            "urgent": 96.33769246929324
+          },
+          {
+            "hour": 22,
+            "urgent": 0.0
+          },
+          {
+            "hour": 23,
+            "urgent": 0.0
+          }
+        ],
+        "top_days": [
+          {
+            "date": "2025-02-16",
+            "urgent_kwh": 2669.360567270057,
+            "power_floor_kwh": 18.777198076025115,
+            "energy_extra_kwh": 2650.5833690640316
+          },
+          {
+            "date": "2025-02-27",
+            "urgent_kwh": 2159.108951985019,
+            "power_floor_kwh": 32.482020767660856,
+            "energy_extra_kwh": 2126.6269310997036
+          },
+          {
+            "date": "2025-02-20",
+            "urgent_kwh": 2004.217141680605,
+            "power_floor_kwh": 56.01689779332662,
+            "energy_extra_kwh": 1948.2002437472781
+          },
+          {
+            "date": "2025-02-23",
+            "urgent_kwh": 1919.5757186979188,
+            "power_floor_kwh": 4.266966298319858,
+            "energy_extra_kwh": 1915.308752289599
+          },
+          {
+            "date": "2025-02-11",
+            "urgent_kwh": 1826.838243192982,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 1826.8382431029818
+          },
+          {
+            "date": "2025-02-12",
+            "urgent_kwh": 1822.7039267714235,
+            "power_floor_kwh": 12.671842483908108,
+            "energy_extra_kwh": 1810.032084157515
+          },
+          {
+            "date": "2025-02-19",
+            "urgent_kwh": 1630.0712021613913,
+            "power_floor_kwh": 58.4593186047822,
+            "energy_extra_kwh": 1571.6118834466088
+          },
+          {
+            "date": "2025-02-05",
+            "urgent_kwh": 1573.757046482298,
+            "power_floor_kwh": 6.848485197151149,
+            "energy_extra_kwh": 1566.908561205147
+          }
+        ],
+        "top_intervals": [
+          {
+            "time": "2025-02-27 09:00:00",
+            "formed_at": "2025-02-27 06:00:00",
+            "urgent": 430.9733333209877,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1175.3483333333334,
+            "pv": 744.375,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 430.9733333233334,
+            "decision_load": 1115.0797688483174,
+            "decision_pv": 991.721535236109,
+            "load_error": 60.268564485015986,
+            "pv_error": 247.34653523610905,
+            "current_load": 1122.5402499999998,
+            "current_pv": 991.721535236109,
+            "net_upper": 344.0330176772165,
+            "reserve_energy": 1872.217697825282,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.1946
+          },
+          {
+            "time": "2025-02-27 09:10:00",
+            "formed_at": "2025-02-27 06:00:00",
+            "urgent": 386.53563333333335,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1154.2244666666666,
+            "pv": 767.6888333333333,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 386.53563332333334,
+            "decision_load": 1120.2062805353755,
+            "decision_pv": 1006.5765505655904,
+            "load_error": 34.01818613129103,
+            "pv_error": 238.88771723225716,
+            "current_load": 1127.3541016666668,
+            "current_pv": 1006.5765505655904,
+            "net_upper": 309.38581899632993,
+            "reserve_energy": 1728.7782649236499,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.2305
+          },
+          {
+            "time": "2025-02-12 09:20:00",
+            "formed_at": "2025-02-12 06:00:00",
+            "urgent": 371.7288666666664,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1155.5801999999999,
+            "pv": 783.8513333333333,
+            "soc_start": 1200.0000000111113,
+            "soc_end": 1200.0000000111113,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 371.7288666566664,
+            "decision_load": 1160.6134702819509,
+            "decision_pv": 922.6500574242364,
+            "load_error": -5.0332702819509905,
+            "pv_error": 138.79872409090308,
+            "current_load": 1167.1639816666664,
+            "current_pv": 922.6500574242364,
+            "net_upper": 396.5404256649518,
+            "reserve_energy": 1234.1421237431741,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.2363
+          },
+          {
+            "time": "2025-02-26 09:00:00",
+            "formed_at": "2025-02-26 06:00:00",
+            "urgent": 358.4975000000001,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1204.385,
+            "pv": 845.8874999999999,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 358.4974999900001,
+            "decision_load": 1154.6892311933548,
+            "decision_pv": 1050.8544884236564,
+            "load_error": 49.69576880664522,
+            "pv_error": 204.96698842365652,
+            "current_load": 1145.7540333333336,
+            "current_pv": 1050.8544884236564,
+            "net_upper": 324.5095268347065,
+            "reserve_energy": 1872.217697825282,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.0983
+          },
+          {
+            "time": "2025-02-16 09:20:00",
+            "formed_at": "2025-02-16 06:00:00",
+            "urgent": 353.7246166666667,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1138.3096666666665,
+            "pv": 784.5850499999999,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 0.0,
+            "energy_extra": 353.7246166566667,
+            "decision_load": 1175.0889527411737,
+            "decision_pv": 892.0612649397091,
+            "load_error": -36.77928607450713,
+            "pv_error": 107.47621493970917,
+            "current_load": 1177.0627566666665,
+            "current_pv": 892.0612649397091,
+            "net_upper": 441.6047006087019,
+            "reserve_energy": 1234.1421237431741,
+            "decision_power_slack": 0.0,
+            "risk_samples": 27,
+            "price": 1.1583
+          }
+        ]
+      },
+      "Both": {
+        "intervals": 8496,
+        "urgent_kwh": 85058.2667011235,
+        "urgent_intervals": 407,
+        "urgent_fee_yuan": 530045.9429694247,
+        "ordinary_kwh": 4487859.187998293,
+        "power_floor_kwh": 2564.746282151788,
+        "energy_extra_kwh": 82493.52041523503,
+        "morning_9_11_kwh": 65427.19837024201,
+        "morning_load_error_kwh": -3422.4583563817923,
+        "morning_pv_error_kwh": 47895.14855556133,
+        "morning_decision_pv_kwh": 650963.2825555613,
+        "morning_actual_pv_kwh": 603068.134,
+        "morning_decision_load_kwh": 737499.3931397151,
+        "morning_actual_load_kwh": 734076.9347833333,
+        "urgent_with_soc_above_5000": 1575.0053403515703,
+        "urgent_with_discharge_750": 1865.7158743084556,
+        "urgent_with_zero_grid": 71943.34512667751,
+        "urgent_with_net_above_upper": 32221.481356340726,
+        "urgent_with_decision_power_slack": 0.0,
+        "urgent_with_less7_samples": 41352.98756195146,
+        "hours": [
+          {
+            "hour": 0,
+            "urgent": 0.0
+          },
+          {
+            "hour": 1,
+            "urgent": 0.0
+          },
+          {
+            "hour": 2,
+            "urgent": 0.0
+          },
+          {
+            "hour": 3,
+            "urgent": 0.0
+          },
+          {
+            "hour": 4,
+            "urgent": 0.0
+          },
+          {
+            "hour": 5,
+            "urgent": 0.0
+          },
+          {
+            "hour": 6,
+            "urgent": 1140.6437995737208
+          },
+          {
+            "hour": 7,
+            "urgent": 932.6544135228271
+          },
+          {
+            "hour": 8,
+            "urgent": 11167.544446488317
+          },
+          {
+            "hour": 9,
+            "urgent": 26728.928704442333
+          },
+          {
+            "hour": 10,
+            "urgent": 38698.26966579968
+          },
+          {
+            "hour": 11,
+            "urgent": 85.46375000000015
+          },
+          {
+            "hour": 12,
+            "urgent": 0.0
+          },
+          {
+            "hour": 13,
+            "urgent": 0.0
+          },
+          {
+            "hour": 14,
+            "urgent": 0.0
+          },
+          {
+            "hour": 15,
+            "urgent": 0.0
+          },
+          {
+            "hour": 16,
+            "urgent": 0.0
+          },
+          {
+            "hour": 17,
+            "urgent": 0.0
+          },
+          {
+            "hour": 18,
+            "urgent": 1.8122333433333244
+          },
+          {
+            "hour": 19,
+            "urgent": 487.8233499899989
+          },
+          {
+            "hour": 20,
+            "urgent": 3604.5469927765157
+          },
+          {
+            "hour": 21,
+            "urgent": 2178.1245995119975
+          },
+          {
+            "hour": 22,
+            "urgent": 32.454745674766485
+          },
+          {
+            "hour": 23,
+            "urgent": 0.0
+          }
+        ],
+        "top_days": [
+          {
+            "date": "2025-01-05",
+            "urgent_kwh": 11703.616899688885,
+            "power_floor_kwh": 307.85987916666625,
+            "energy_extra_kwh": 11395.75702031333
+          },
+          {
+            "date": "2025-01-06",
+            "urgent_kwh": 9509.227687138888,
+            "power_floor_kwh": 37.21239999999966,
+            "energy_extra_kwh": 9472.01528698
+          },
+          {
+            "date": "2025-01-01",
+            "urgent_kwh": 9486.689895574762,
+            "power_floor_kwh": 1260.6399666666664,
+            "energy_extra_kwh": 8226.049928458093
+          },
+          {
+            "date": "2025-01-07",
+            "urgent_kwh": 6665.28552200362,
+            "power_floor_kwh": 0.0,
+            "energy_extra_kwh": 6665.285521897693
+          },
+          {
+            "date": "2025-02-16",
+            "urgent_kwh": 2669.360567270057,
+            "power_floor_kwh": 18.777198076025115,
+            "energy_extra_kwh": 2650.5833690640316
+          },
+          {
+            "date": "2025-01-02",
+            "urgent_kwh": 2303.6979221054494,
+            "power_floor_kwh": 565.3920833333328,
+            "energy_extra_kwh": 1738.305838612116
+          },
+          {
+            "date": "2025-02-27",
+            "urgent_kwh": 2159.108951985019,
+            "power_floor_kwh": 32.482020767660856,
+            "energy_extra_kwh": 2126.6269310997036
+          },
+          {
+            "date": "2025-02-20",
+            "urgent_kwh": 2004.217141680605,
+            "power_floor_kwh": 56.01689779332662,
+            "energy_extra_kwh": 1948.2002437472781
+          }
+        ],
+        "top_intervals": [
+          {
+            "time": "2025-01-01 08:00:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 953.9520833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1219.3333333333333,
+            "pv": 265.38124999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 203.95208333333335,
+            "energy_extra": 749.99999999,
+            "decision_load": 966.6221166666666,
+            "decision_pv": 549.6648833333334,
+            "load_error": 252.7112166666667,
+            "pv_error": 284.2836333333334,
+            "current_load": 966.6221166666666,
+            "current_pv": 549.6648833333334,
+            "net_upper": 416.9572333333332,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5209
+          },
+          {
+            "time": "2025-01-01 08:10:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 921.9955833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1244.9157833333334,
+            "pv": 322.92019999999997,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 171.99558333333334,
+            "energy_extra": 749.99999999,
+            "decision_load": 980.8043333333334,
+            "decision_pv": 549.6648833333334,
+            "load_error": 264.11145,
+            "pv_error": 226.7446833333334,
+            "current_load": 980.8043333333334,
+            "current_pv": 549.6648833333334,
+            "net_upper": 431.13945,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.5206
+          },
+          {
+            "time": "2025-01-01 08:20:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 833.4274833333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1204.2818333333332,
+            "pv": 370.85434999999995,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 83.42748333333327,
+            "energy_extra": 749.99999999,
+            "decision_load": 958.0118833333332,
+            "decision_pv": 549.6648833333334,
+            "load_error": 246.26995,
+            "pv_error": 178.8105333333334,
+            "current_load": 958.0118833333332,
+            "current_pv": 549.6648833333334,
+            "net_upper": 408.34699999999987,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.4132
+          },
+          {
+            "time": "2025-01-05 08:20:00",
+            "formed_at": "2025-01-05 06:00:00",
+            "urgent": 808.9000499876544,
+            "grid": 39.06238333333329,
+            "initial_plan": 0.0,
+            "load": 1210.1734166666665,
+            "pv": 362.2109833333333,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 58.900049999999965,
+            "energy_extra": 749.99999999,
+            "decision_load": 921.3948166666665,
+            "decision_pv": 557.4129166666667,
+            "load_error": 288.7786,
+            "pv_error": 195.2019333333334,
+            "current_load": 921.3948166666665,
+            "current_pv": 557.4129166666667,
+            "net_upper": 789.0623833333333,
+            "reserve_energy": 5522.316449999999,
+            "decision_power_slack": 0.0,
+            "risk_samples": 3,
+            "price": 1.34
+          },
+          {
+            "time": "2025-01-01 07:50:00",
+            "formed_at": "2025-01-01 06:00:00",
+            "urgent": 804.7576333333333,
+            "grid": 0.0,
+            "initial_plan": 0.0,
+            "load": 1014.0193833333333,
+            "pv": 209.26175,
+            "soc_start": 1200.000000011111,
+            "soc_end": 1200.000000011111,
+            "discharge": 0.0,
+            "power_floor": 54.757633333333274,
+            "energy_extra": 749.99999999,
+            "decision_load": 818.4099833333333,
+            "decision_pv": 264.79731666666663,
+            "load_error": 195.60939999999994,
+            "pv_error": 55.535566666666625,
+            "current_load": 818.4099833333333,
+            "current_pv": 264.79731666666663,
+            "net_upper": 553.6126666666667,
+            "reserve_energy": 0.0,
+            "decision_power_slack": 0.0,
+            "risk_samples": 0,
+            "price": 1.136
+          }
+        ]
+      }
+    },
+    "feb12_8_to_12": [
+      {
+        "time": "2025-02-12 08:00:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 67.58650698710153,
+        "initial_plan": 139.23824800261127,
+        "load": 1151.67,
+        "pv": 391.14375,
+        "soc_start": 6064.2004680002865,
+        "soc_end": 5294.267420219288,
+        "discharge": 692.9397430028986,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1201.2186340704784,
+        "decision_pv": 634.0284966382314,
+        "load_error": -49.54863407047833,
+        "pv_error": 242.88474663823143,
+        "current_load": 1193.6447500000002,
+        "current_pv": 634.0284966382314,
+        "net_upper": 817.5865069871015,
+        "reserve_energy": 2355.7423362578643,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.3246
+      },
+      {
+        "time": "2025-02-12 08:10:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 26.9874708184567,
+        "initial_plan": 75.21926329872599,
+        "load": 1173.1089166666666,
+        "pv": 448.72679999999997,
+        "soc_start": 5294.267420219288,
+        "soc_end": 4519.384480399055,
+        "discharge": 697.3946458382098,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1209.513715323515,
+        "decision_pv": 650.8887470465835,
+        "load_error": -36.40479865684847,
+        "pv_error": 202.16194704658352,
+        "current_load": 1200.2206458333335,
+        "current_pv": 650.8887470465835,
+        "net_upper": 776.9874708184567,
+        "reserve_energy": 2114.10043654245,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.3208
+      },
+      {
+        "time": "2025-02-12 08:20:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1151.1616999999999,
+        "pv": 518.9445,
+        "soc_start": 4519.384480399055,
+        "soc_end": 3816.920924854611,
+        "discharge": 632.2171999899999,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1161.7868920182075,
+        "decision_pv": 666.6979037838528,
+        "load_error": -10.6251920182076,
+        "pv_error": 147.75340378385283,
+        "current_load": 1147.6625625,
+        "current_pv": 666.6979037838528,
+        "net_upper": 678.9638917455384,
+        "reserve_energy": 1957.1145292780473,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2436
+      },
+      {
+        "time": "2025-02-12 08:30:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1176.6966666666667,
+        "pv": 588.925,
+        "soc_start": 3816.920924854611,
+        "soc_end": 3163.8412952360923,
+        "discharge": 587.7716666566668,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1169.9031828802758,
+        "decision_pv": 681.8888798646824,
+        "load_error": 6.79348378639088,
+        "pv_error": 92.96387986468244,
+        "current_load": 1155.6502166666664,
+        "current_pv": 681.8888798646824,
+        "net_upper": 611.018051403537,
+        "reserve_energy": 1865.7051747761968,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2561
+      },
+      {
+        "time": "2025-02-12 08:40:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1193.6030333333333,
+        "pv": 636.614,
+        "soc_start": 3163.8412952360923,
+        "soc_end": 2544.9645915435,
+        "discharge": 556.9890333233333,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1173.8457738394782,
+        "decision_pv": 697.0836864019586,
+        "load_error": 19.757259493855145,
+        "pv_error": 60.4696864019586,
+        "current_load": 1164.166695,
+        "current_pv": 697.0836864019586,
+        "net_upper": 573.4911469922157,
+        "reserve_energy": 1805.549407595689,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2497
+      },
+      {
+        "time": "2025-02-12 08:50:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1175.6205833333333,
+        "pv": 687.9527833333333,
+        "soc_start": 2544.9645915435,
+        "soc_end": 2003.1114804434997,
+        "discharge": 487.66779999000005,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1166.5766764395423,
+        "decision_pv": 714.0453293619523,
+        "load_error": 9.043906893791018,
+        "pv_error": 26.09254602861904,
+        "current_load": 1164.4256291666668,
+        "current_pv": 714.0453293619523,
+        "net_upper": 517.4013635575141,
+        "reserve_energy": 1775.9788055751708,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1783
+      },
+      {
+        "time": "2025-02-12 09:00:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1138.6166666666666,
+        "pv": 733.4937499999999,
+        "soc_start": 2003.1114804434997,
+        "soc_end": 1552.9749063805366,
+        "discharge": 405.1229166566667,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1160.9544987459963,
+        "decision_pv": 891.8762918550049,
+        "load_error": -22.3378320793297,
+        "pv_error": 158.382541855005,
+        "current_load": 1165.8202583333332,
+        "current_pv": 891.8762918550049,
+        "net_upper": 502.6539592810195,
+        "reserve_energy": 1726.6782843689011,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1299
+      },
+      {
+        "time": "2025-02-12 09:10:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 65.85226760085031,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1125.8253333333332,
+        "pv": 742.29565,
+        "soc_start": 1552.9749063805366,
+        "soc_end": 1200.0000000111113,
+        "discharge": 317.67741573248287,
+        "power_floor": 0.0,
+        "energy_extra": 65.85226759085026,
+        "decision_load": 1166.2292620852934,
+        "decision_pv": 910.617504939447,
+        "load_error": -40.403928751960166,
+        "pv_error": 168.321854939447,
+        "current_load": 1172.8917291666664,
+        "current_pv": 910.617504939447,
+        "net_upper": 444.31117111180856,
+        "reserve_energy": 1437.6189506322664,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2211
+      },
+      {
+        "time": "2025-02-12 09:20:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 371.7288666666664,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1155.5801999999999,
+        "pv": 783.8513333333333,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 371.7288666566664,
+        "decision_load": 1160.6134702819509,
+        "decision_pv": 922.6500574242364,
+        "load_error": -5.0332702819509905,
+        "pv_error": 138.79872409090308,
+        "current_load": 1167.1639816666664,
+        "current_pv": 922.6500574242364,
+        "net_upper": 396.5404256649518,
+        "reserve_energy": 1234.1421237431741,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.2363
+      },
+      {
+        "time": "2025-02-12 09:30:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 323.1033333333332,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1183.2033333333334,
+        "pv": 860.1,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 323.1033333233332,
+        "decision_load": 1157.0445355604256,
+        "decision_pv": 932.2583554897267,
+        "load_error": 26.158797772907747,
+        "pv_error": 72.15835548972666,
+        "current_load": 1162.9503333333334,
+        "current_pv": 932.2583554897267,
+        "net_upper": 370.3682142023946,
+        "reserve_energy": 1084.169212057366,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1348
+      },
+      {
+        "time": "2025-02-12 09:40:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 242.60736666666656,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1145.32655,
+        "pv": 902.7191833333333,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 242.60736665666656,
+        "decision_load": 1185.2915561117768,
+        "decision_pv": 950.087414138959,
+        "load_error": -39.9650061117768,
+        "pv_error": 47.368230805625785,
+        "current_load": 1191.0914483333333,
+        "current_pv": 950.087414138959,
+        "net_upper": 340.2651558568369,
+        "reserve_energy": 986.5242291851511,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0871
+      },
+      {
+        "time": "2025-02-12 09:50:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 191.40098333333327,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1125.0030333333334,
+        "pv": 933.60205,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 191.40098332333326,
+        "decision_load": 1176.7646486585058,
+        "decision_pv": 966.2413965302826,
+        "load_error": -51.76161532517244,
+        "pv_error": 32.63934653028264,
+        "current_load": 1182.4615366666667,
+        "current_pv": 966.2413965302826,
+        "net_upper": 272.1539270413956,
+        "reserve_energy": 971.4914649370861,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0729
+      },
+      {
+        "time": "2025-02-12 10:00:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 175.26041666666657,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1139.8166666666666,
+        "pv": 964.5562499999999,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 175.26041665666656,
+        "decision_load": 1139.154627684283,
+        "decision_pv": 1078.8401440502766,
+        "load_error": 0.6620389823835922,
+        "pv_error": 114.28389405027679,
+        "current_load": 1142.8395166666664,
+        "current_pv": 1078.8401440502766,
+        "net_upper": 228.49212717987808,
+        "reserve_energy": 954.0165643464894,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0777
+      },
+      {
+        "time": "2025-02-12 10:10:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 145.9262999999998,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1127.7908166666666,
+        "pv": 981.8645166666666,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 145.9262999899998,
+        "decision_load": 1150.1635596619487,
+        "decision_pv": 1088.5601181907823,
+        "load_error": -22.372742995282124,
+        "pv_error": 106.69560152411566,
+        "current_load": 1153.7510108333333,
+        "current_pv": 1088.5601181907823,
+        "net_upper": 216.32610156573082,
+        "reserve_energy": 799.5860162350801,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.1138
+      },
+      {
+        "time": "2025-02-12 10:20:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 114.28678333333318,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1117.7956833333333,
+        "pv": 1003.5088999999999,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 114.28678332333318,
+        "decision_load": 1164.3647447798332,
+        "decision_pv": 1098.5224218681133,
+        "load_error": -46.56906144649997,
+        "pv_error": 95.01352186811334,
+        "current_load": 1167.8574274999999,
+        "current_pv": 1098.5224218681133,
+        "net_upper": 187.60277778725904,
+        "reserve_energy": 694.3691933546564,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0824
+      },
+      {
+        "time": "2025-02-12 10:30:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 87.78583333333319,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1124.0983333333334,
+        "pv": 1036.3125,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 87.7858333233332,
+        "decision_load": 1153.9779228331106,
+        "decision_pv": 1109.908409726806,
+        "load_error": -29.87958949977724,
+        "pv_error": 73.59590972680598,
+        "current_load": 1157.378433333333,
+        "current_pv": 1109.908409726806,
+        "net_upper": 133.03341515196917,
+        "reserve_energy": 612.9246085594522,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0267
+      },
+      {
+        "time": "2025-02-12 10:40:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 58.64456666666644,
+        "grid": 0.0,
+        "initial_plan": 0.0,
+        "load": 1125.2804166666665,
+        "pv": 1066.63585,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 58.64456665666644,
+        "decision_load": 1139.7514391135605,
+        "decision_pv": 1123.4717333101846,
+        "load_error": -14.47102244689404,
+        "pv_error": 56.83588331018473,
+        "current_load": 1135.0295441666665,
+        "current_pv": 1123.4717333101846,
+        "net_upper": 103.54630132448386,
+        "reserve_energy": 523.9607065137876,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 1.0581
+      },
+      {
+        "time": "2025-02-12 10:50:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 33.43536666666643,
+        "grid": 0.0,
+        "initial_plan": 22.684770501359964,
+        "load": 1111.9185499999999,
+        "pv": 1078.4831833333333,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1200.0000000111113,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 33.43536665666643,
+        "decision_load": 1137.5639861311201,
+        "decision_pv": 1131.699745896357,
+        "load_error": -25.645436131120277,
+        "pv_error": 53.21656256302367,
+        "current_load": 1127.55965,
+        "current_pv": 1131.699745896357,
+        "net_upper": 80.71509290961171,
+        "reserve_energy": 462.420991817282,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.9027
+      },
+      {
+        "time": "2025-02-12 11:00:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 754.776725120271,
+        "initial_plan": 845.7072502673985,
+        "load": 1099.9233333333332,
+        "pv": 1093.6812499999999,
+        "soc_start": 1200.0000000111113,
+        "soc_end": 1873.6811776183554,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1142.9858136672638,
+        "decision_pv": 1221.5424218803262,
+        "load_error": -43.06248033393058,
+        "pv_error": 127.86117188032631,
+        "current_load": 1132.896675,
+        "current_pv": 1221.5424218803262,
+        "net_upper": 62.57984651324696,
+        "reserve_energy": 428.9607785702864,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.6218
+      },
+      {
+        "time": "2025-02-12 11:10:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 744.7099154330814,
+        "initial_plan": 835.2750174812978,
+        "load": 1114.2085499999998,
+        "pv": 1149.9850499999998,
+        "soc_start": 1873.6811776183554,
+        "soc_end": 2576.1189515071283,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1136.2987696602543,
+        "decision_pv": 1224.9221875605062,
+        "load_error": -22.090219660254434,
+        "pv_error": 74.93713756050647,
+        "current_load": 1126.1271516666666,
+        "current_pv": 1224.9221875605062,
+        "net_upper": 11.892606474998672,
+        "reserve_energy": 379.7048254345448,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.5765
+      },
+      {
+        "time": "2025-02-12 11:20:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 713.857453912504,
+        "initial_plan": 803.8176472886311,
+        "load": 1128.7869833333332,
+        "pv": 1198.1156833333332,
+        "soc_start": 2576.1189515071283,
+        "soc_end": 3280.986490027382,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1112.1982344223068,
+        "decision_pv": 1231.6741138431362,
+        "load_error": 16.588748911026414,
+        "pv_error": 33.558430509802974,
+        "current_load": 1103.9724383333335,
+        "current_pv": 1231.6741138431362,
+        "net_upper": 0.0,
+        "reserve_energy": 279.1888010592942,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.6008
+      },
+      {
+        "time": "2025-02-12 11:30:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 697.5674095245639,
+        "initial_plan": 787.0742865052936,
+        "load": 1121.4899999999998,
+        "pv": 1213.1187499999999,
+        "soc_start": 3280.986490027382,
+        "soc_end": 3991.2630335984895,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1100.6001181886984,
+        "decision_pv": 1236.3660419974678,
+        "load_error": 20.889881811301393,
+        "pv_error": 23.247291997467983,
+        "current_load": 1092.2963,
+        "current_pv": 1236.3660419974678,
+        "net_upper": 0.0,
+        "reserve_energy": 176.25473429246668,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.584
+      },
+      {
+        "time": "2025-02-12 11:40:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 731.0357992513738,
+        "initial_plan": 820.7435513121671,
+        "load": 1094.0055333333332,
+        "pv": 1214.5306,
+        "soc_start": 3991.2630335984895,
+        "soc_end": 4741.26303358849,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1129.719620332205,
+        "decision_pv": 1232.0171544141647,
+        "load_error": -35.714086998871835,
+        "pv_error": 17.48655441416463,
+        "current_load": 1121.3399175,
+        "current_pv": 1232.0171544141647,
+        "net_upper": 0.0,
+        "reserve_energy": 113.11435727468759,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.5878
+      },
+      {
+        "time": "2025-02-12 11:50:00",
+        "formed_at": "2025-02-12 06:00:00",
+        "urgent": 0.0,
+        "grid": 704.7677562386626,
+        "initial_plan": 794.4932127736032,
+        "load": 1074.7977666666666,
+        "pv": 1213.7217,
+        "soc_start": 4741.26303358849,
+        "soc_end": 5491.26303357849,
+        "discharge": 0.0,
+        "power_floor": 0.0,
+        "energy_extra": 0.0,
+        "decision_load": 1101.6890935762244,
+        "decision_pv": 1230.2546706708952,
+        "load_error": -26.891326909557847,
+        "pv_error": 16.53297067089511,
+        "current_load": 1091.2095433333334,
+        "current_pv": 1230.2546706708952,
+        "net_upper": 0.0,
+        "reserve_energy": 45.58485273970844,
+        "decision_power_slack": 0.0,
+        "risk_samples": 27,
+        "price": 0.5943
+      }
+    ],
+    "urgent_current_forecast_errors": {
+      "load_underprediction": -525.9497525000007,
+      "pv_overprediction": 14259.24087465644
+    },
+    "cold_start": {
+      "first_seven_result_days_urgent_kwh": 39668.5179265116,
+      "examples": [
+        {
+          "day": 1,
+          "samples": 0,
+          "load_forecast": 110450.68711666667,
+          "load_actual": 126670.03571666667,
+          "pv_forecast": 37349.4687,
+          "pv_actual": 35250.98236666667
+        },
+        {
+          "day": 5,
+          "samples": 2,
+          "load_forecast": 104660.0858013889,
+          "load_actual": 127665.11716666666,
+          "pv_forecast": 37203.0863,
+          "pv_actual": 36638.408533333335
+        }
+      ]
+    }
+  }
+]

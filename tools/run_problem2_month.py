@@ -17,6 +17,7 @@ def main():
     ap.add_argument('--month', default='2025-07')
     ap.add_argument('--out', required=True)
     ap.add_argument('--problem', choices=('problem2','problem3'), default='problem2')
+    ap.add_argument('--pv-method', choices=('auto','pooled','report_blend'), default='auto')
     args = ap.parse_args()
     year, month = map(int, args.month.split('-'))
     first = date(year, month, 1)
@@ -35,7 +36,7 @@ def main():
     start = time.perf_counter()
     try:
         with (out/'run.log').open('w', encoding='utf-8', buffering=1) as log, contextlib.redirect_stdout(log):
-            result = run(RunConfig(problem=args.problem, out_dir=out/'运行记录',
+            result = run(RunConfig(problem=args.problem, pv_method=args.pv_method, out_dir=out/'运行记录',
                          run_from=first, run_to=last, progress_every_days=1))
             path = save_run(result)
         assert all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == h for p,h in hashes.items())
