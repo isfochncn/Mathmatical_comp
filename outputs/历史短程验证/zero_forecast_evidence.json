@@ -1,0 +1,32 @@
+[
+  {
+    "problem": "problem2",
+    "minute": 492970,
+    "max_initial_plan_reproduction_error": 0.0,
+    "forecast_load": 984.8596886904759,
+    "forecast_pv": 370.92107619047613,
+    "planned_grid": 0.0,
+    "planned_discharge": 613.9386124999997,
+    "planned_soc_before": 5953.704091931218,
+    "planned_emergency": 0.0,
+    "actual_load": 1244.24875,
+    "actual_pv": 289.57421666666664,
+    "actual_soc_before": 1200.0000000111113,
+    "actual_emergency": 954.6745333333332
+  },
+  {
+    "problem": "problem3",
+    "minute": 485770,
+    "max_initial_plan_reproduction_error": 0.0,
+    "forecast_load": 966.8621095238095,
+    "forecast_pv": 575.75005,
+    "planned_grid": 0.0,
+    "planned_discharge": 391.11205952380953,
+    "planned_soc_before": 3774.2780799140223,
+    "planned_emergency": 0.0,
+    "actual_load": 1251.1764666666666,
+    "actual_pv": 317.6981666666667,
+    "actual_soc_before": 1200.0000000111113,
+    "actual_emergency": 933.4782999999998
+  }
+]

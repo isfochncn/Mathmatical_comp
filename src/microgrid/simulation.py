@@ -177,6 +177,8 @@ def run_absolute(*, timeline: Timeline, forecaster: Forecaster, policy: Policy,
                     published=policy.use_published_pv, adjustable=policy.can_adjust_plan)
                 forecast.reserve_energy_kwh = risk.get('reserve_energy_kwh')
                 forecast.net_upper_kwh = risk.get('net_upper_kwh')
+                forecast.stress_demand_kwh = risk.get('stress_demand_kwh')
+                forecast.stress_weight = risk.get('stress_weight',.2)
             today = forecast.abs_minutes < b
             o, a = np.zeros(forecast.n), np.zeros(forecast.n)
             if is_start:
@@ -204,6 +206,18 @@ def run_absolute(*, timeline: Timeline, forecaster: Forecaster, policy: Policy,
                 adjustable_mask=today if can_revise else None,
                 allow_spill=options.allow_spill,
                 solver_name=options.solver_name, problem_name=f"{policy.name}@{now}", **extra).require_ok()
+            guard={}
+            if can_revise and forecast.stress_demand_kwh is not None:
+                from .cumulative_risk import check_reduction
+                checked,guard=check_reduction(forecast,socs[-1],o+a,result.grid_kwh)
+                if guard['blocked']:
+                    # Retained original deliveries remain legal even if they now
+                    # require paid disposal. Recompute fees and dispatch exactly.
+                    result=solve_window(forecast=forecast,soc_start_kwh=socs[-1],fee_mode=mode,
+                        o_kwh=o,a_kwh=a,price_now_yuan_per_kwh=planning_price,
+                        committed_mask=today,committed_grid_kwh=checked,adjustable_mask=today,
+                        allow_spill=options.allow_spill,solver_name=options.solver_name).require_ok()
+                    n_solves+=1
             solved_at = now
             n_solves += 1
             audits.append(dict(formed_at=now, observed_end=now, window_end=b+1440,
@@ -217,13 +231,21 @@ def run_absolute(*, timeline: Timeline, forecaster: Forecaster, policy: Policy,
                                reserve_shortfall_kwh=result.reserve_shortfall_kwh,
                                reserve_stock_shortfall_kwh=result.reserve_stock_shortfall_kwh,
                                reserve_power_shortfall_now_kwh=float(result.reserve_power_shortfall_kwh[0]),
-                               risk_penalty_yuan=result.risk_penalty_yuan))
+                               risk_penalty_yuan=result.risk_penalty_yuan,
+                               reserve_policy=risk.get('reserve_policy','legacy-remaining'),
+                               cold_start_margin=risk.get('cold_start_margin',False),
+                               stress_weight=forecast.stress_weight if forecast.stress_demand_kwh is not None else 0.,
+                                   stress_emergency_kwh=float(np.sum(getattr(result,'stress_emergency_kwh',0.))),
+                               reduction_guard=guard))
             if (is_start or can_revise) and risk:
                 audits[-1]['reserve_path_kwh'] = forecast.reserve_energy_kwh.tolist()
                 audits[-1]['net_upper_path_kwh'] = forecast.net_upper_kwh.tolist()
                 audits[-1]['demand_forecast_path_kwh'] = forecast.demand_kwh.tolist()
                 audits[-1]['pv_forecast_path_kwh'] = forecast.pv_kwh.tolist()
                 audits[-1]['reserve_power_shortfall_path_kwh'] = result.reserve_power_shortfall_kwh.tolist()
+                if forecast.stress_demand_kwh is not None:
+                    audits[-1]['stress_demand_path_kwh']=forecast.stress_demand_kwh.tolist()
+                    audits[-1]['stress_soc_path_kwh']=result.stress_soc_boundary_kwh.tolist()
             if is_start:
                 commitment = CommittedBalances.from_initial_plan(
                     forecast.abs_minutes[today], result.grid_kwh[today])

@@ -1,0 +1,32 @@
+{
+  "demand_kwh": {
+    "intervals": 52560,
+    "all_finite_nonnegative": true,
+    "last_value": 659.6633333333333,
+    "last_provenance": "carry-over",
+    "provenance_counts": {
+      "attachment": 52195,
+      "carry-over": 365
+    }
+  },
+  "pv_kwh": {
+    "intervals": 52560,
+    "all_finite_nonnegative": true,
+    "last_value": 0.0,
+    "last_provenance": "carry-over",
+    "provenance_counts": {
+      "attachment": 52195,
+      "carry-over": 365
+    }
+  },
+  "price_yuan_per_kwh": {
+    "intervals": 52560,
+    "all_finite_nonnegative": true,
+    "last_value": 0.462,
+    "last_provenance": "carry-over",
+    "provenance_counts": {
+      "attachment": 52195,
+      "carry-over": 365
+    }
+  }
+}

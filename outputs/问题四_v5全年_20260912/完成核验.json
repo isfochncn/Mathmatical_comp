@@ -1,0 +1,24 @@
+{
+  "completed_at": "2026-09-13T00:52:16.296810",
+  "model": "report-economic-reserve-v5",
+  "annual_execution_intervals_per_branch": 52560,
+  "template_report_days": 334,
+  "template_report_intervals_per_branch": 48096,
+  "source_unchanged_from_previously_passed_107_tests": true,
+  "prior_v5_short_prefix_exact_match": true,
+  "source_archive": "v5全年运行冻结源码.zip",
+  "all_physics_ledger_correction_spreadsheet_and_visual_checks_passed": true,
+  "documents": {
+    "Pr\\问题四v5全年计算档案.md": "eec2e151ad4af39e4241058386f03e817da8b7c1246aac395a25a38a86219bf4",
+    "Pr\\模型优化定稿与验证档案.md": "b87a936d135a5e71cbdbfce24455d14d81716dfed1033a6d3b41752301a43a74",
+    "Pr\\问题四经济性修正与两周复测.md": "da2bc50521627758494d329e5347a525d717683d9e6a7ef4dd5ef5edc5b95026",
+    "Pr\\四问代码实现路线与使用指南.md": "67b40b7ad22bf7d8028e17bfb26e1c6ca6815940d6bf2e6944a9c2e492359929"
+  },
+  "files": {
+    "全年汇总.json": "4fdc1bf82dadefcb4be2d1ef3ac440c69f12f4b784395f5264356673172db43c",
+    "全年输入覆盖核验.json": "3df02caad532f5844ee2a6614a017e21820202b723ff97582a13807b70b5b885",
+    "v5全年运行冻结源码.zip": "abe7179c2318fae0d0815b91d93609cf38a9fc8703f7ceb4f54d5a5b4a61c499",
+    "problem4-2\\result4-2.xlsx": "5cbfb96d82bd37a43a5aec64cc3c80d0c6b8a67d593e1bbf8c8db262f9d4e2d3",
+    "problem4-3\\result4-3.xlsx": "9d30595f8717f6d66cffa39428901bdf6516280285023822d36d4d584a223d1f"
+  }
+}

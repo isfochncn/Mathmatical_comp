@@ -1,0 +1,76 @@
+{
+  "validation_version": "main-model-v2",
+  "initialization": "attachment1 deterministic typical-day cycle",
+  "problem": "problem1",
+  "wall_seconds": 0.2609717000004821,
+  "input_fingerprint": "69bc36666500e262",
+  "summary": {
+    "problem": "problem1",
+    "n_intervals": 144,
+    "plan_kwh": 59482.698998353924,
+    "add_kwh": 0.0,
+    "emergency_kwh": 0.0,
+    "plan_cost_yuan": 35126.84858928963,
+    "add_cost_yuan": 0.0,
+    "emergency_cost_yuan": 0.0,
+    "execution_cost_yuan": 35126.84858928963,
+    "reduce_cost_yuan": 0.0,
+    "surplus_disposed_kwh": 0.0,
+    "window_solves": 1,
+    "plan_revisions": 1,
+    "infeasible_intervals": [],
+    "total_purchased_kwh": 59482.698998353924,
+    "total_cost_yuan": 35126.84858928963,
+    "objective_yuan": 35126.84858928963,
+    "soc_start_kwh": 6000.0,
+    "soc_end_kwh": 6000.0,
+    "soc_min_kwh": 1200.0,
+    "soc_max_kwh": 10800.0,
+    "charge_total_kwh": 18666.599518518524,
+    "discharge_total_kwh": 16799.939566666668,
+    "curtail_total_kwh": 0.0,
+    "total_loss_kwh": 3940.7265650205736,
+    "n_simultaneous_intervals": 0,
+    "day_balance_residual_kwh": 7.275957614183426e-12
+  },
+  "notes": [
+    "问题一为单日确定性 LP：E_0 = E_144 = 6000，结果行末段由周期延伸映射"
+  ],
+  "policy": {
+    "name": "problem1",
+    "can_adjust_plan": false,
+    "use_published_pv": false,
+    "price_mode": "repeated",
+    "adjust_nodes_abs": []
+  },
+  "natural_day_bills": [
+    {
+      "date": "2025-01-01",
+      "plan_kwh": 59482.698998353924,
+      "add_kwh": 0.0,
+      "emergency_kwh": 0.0,
+      "total_kwh": 59482.698998353924,
+      "plan_cost_yuan": 35126.84858928963,
+      "add_cost_yuan": 0.0,
+      "emergency_cost_yuan": 0.0,
+      "execution_cost_yuan": 35126.84858928963,
+      "reduce_cost_yuan": 0.0,
+      "total_cost_yuan": 35126.84858928963
+    }
+  ],
+  "result_row_bills": [
+    {
+      "date": "2025-01-01",
+      "plan_kwh": 59482.698998353924,
+      "add_kwh": 0.0,
+      "emergency_kwh": 0.0,
+      "total_kwh": 59482.698998353924,
+      "plan_cost_yuan": 35126.84858928963,
+      "add_cost_yuan": 0.0,
+      "emergency_cost_yuan": 0.0,
+      "execution_cost_yuan": 35126.84858928963,
+      "reduce_cost_yuan": 0.0,
+      "total_cost_yuan": 35126.84858928963
+    }
+  ]
+}

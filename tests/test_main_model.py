@@ -272,7 +272,7 @@ def test_revision_archive_penalty_and_export_round_trip(synthetic, monkeypatch, 
 
     monkeypatch.setattr(simulation, "solve_window", controlled_solver)
     monkeypatch.setattr(constants, "OUTPUT_START", (2025, 1, 1))
-    r = run(RunConfig(problem="problem4-3", run_to=date(2025, 1, 1), out_dir=tmp_path), synthetic)
+    r = run(RunConfig(problem="problem4-3", pv_method="pooled", run_to=date(2025, 1, 1), out_dir=tmp_path), synthetic)
     assert len(r.run.steps) == 144  # includes the result row's next-midnight actual
     assert np.array_equal(r.run.abs_minutes, np.arange(10, 1450, 10))
     assert len(r.run.soc_boundary_kwh) == 145
@@ -319,7 +319,7 @@ def test_revision_archive_penalty_and_export_round_trip(synthetic, monkeypatch, 
     ledger_path.write_text(json.dumps(ledger))
     with pytest.raises(Exception, match="actual price"):
         cmd_export(args)
-    later = run(RunConfig(problem="problem4-3", run_from=date(2025, 1, 2),
+    later = run(RunConfig(problem="problem4-3", pv_method="pooled", run_from=date(2025, 1, 2),
                           run_to=date(2025, 1, 2)), synthetic)
     assert later.run.abs_minutes[0] == 10
     assert [d for d, _ in later.row_bills] == [date(2025, 1, 2)]

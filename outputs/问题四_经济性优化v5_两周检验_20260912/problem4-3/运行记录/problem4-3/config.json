@@ -1,0 +1,19 @@
+{
+  "problem": "problem4-3",
+  "out_dir": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_经济性优化v5_两周检验_20260912\\problem4-3\\运行记录",
+  "history_days": 28,
+  "load_method": "adaptive",
+  "pv_method": "report_blend",
+  "risk_quantile": 0.9,
+  "absorption_safety_kwh": 0.0,
+  "commitment_floor_kwh": 0.0,
+  "allow_spill": true,
+  "max_infeasible_intervals": 0,
+  "solver_name": "appsi_highs",
+  "plan_refresh_intervals": 1,
+  "experiment": "main",
+  "run_from": "2025-01-08",
+  "run_to": "2025-01-14",
+  "warmup_days": 0,
+  "progress_every_days": 1
+}

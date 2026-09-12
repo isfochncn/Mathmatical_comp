@@ -1,0 +1,8467 @@
+{
+  "problem": "problem4-3",
+  "version": "report-economic-reserve-v5",
+  "all_correction_audits_passed": true,
+  "stress_paths_checked": 1461,
+  "continuous_soc_verified": true,
+  "sections": {
+    "warmup": {
+      "n_intervals": 4464,
+      "start_abs": 10,
+      "end_abs": 44650,
+      "initial_plan_kwh": 2472004.1358145596,
+      "ordinary_kwh": 2531715.841354004,
+      "added_kwh": 63156.656646233896,
+      "emergency_kwh": 54301.956590387425,
+      "emergency_intervals": 292,
+      "emergency_cost_yuan": 341585.73115453817,
+      "total_cost_yuan": 2189599.466721669,
+      "spill_kwh": 27568.926550860007,
+      "soc_start_kwh": 6000.0,
+      "soc_end_kwh": 7340.11849163144,
+      "soc_min_kwh": 1200.000000011111,
+      "soc_max_kwh": 10799.999999991,
+      "guard_nodes": 93,
+      "guard_checks": 37,
+      "guard_blocks": 6,
+      "guard_restored_kwh": 241.75306015715944,
+      "cold_start_windows": 2160,
+      "load_mae_kwh": 51.67677169160357,
+      "pv_mae_kwh": 9.650311970551119,
+      "load_bias_kwh_per_interval": 1.216306640785806,
+      "pv_bias_kwh_per_interval": -0.06925133960307504
+    },
+    "report": {
+      "n_intervals": 48096,
+      "start_abs": 44650,
+      "end_abs": 525610,
+      "initial_plan_kwh": 19971231.260144006,
+      "ordinary_kwh": 20529479.938962385,
+      "added_kwh": 600401.0873611944,
+      "emergency_kwh": 221840.65160590207,
+      "emergency_intervals": 3262,
+      "emergency_cost_yuan": 1126408.1148621396,
+      "total_cost_yuan": 15104456.360187326,
+      "spill_kwh": 26937.18059224295,
+      "soc_start_kwh": 7340.11849163144,
+      "soc_end_kwh": 3892.3436302965324,
+      "soc_min_kwh": 1200.000000011111,
+      "soc_max_kwh": 10799.999999991,
+      "guard_nodes": 1002,
+      "guard_checks": 324,
+      "guard_blocks": 10,
+      "guard_restored_kwh": 223.48601094637468,
+      "cold_start_windows": 0,
+      "load_mae_kwh": 23.53512424406395,
+      "pv_mae_kwh": 15.353980838684656,
+      "load_bias_kwh_per_interval": 0.1489677211375979,
+      "pv_bias_kwh_per_interval": 0.006326945593589926
+    }
+  },
+  "guard_events": [
+    {
+      "at_abs": 360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 720
+    },
+    {
+      "at_abs": 720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 1080
+    },
+    {
+      "at_abs": 1080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 1440,
+      "original_stress_emergency_kwh": 6267.523536998204,
+      "candidate_stress_emergency_kwh": 508.0839618249999
+    },
+    {
+      "at_abs": 1800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 2160
+    },
+    {
+      "at_abs": 2160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 2520
+    },
+    {
+      "at_abs": 2520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 2880
+    },
+    {
+      "at_abs": 3240,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 26.952424990000395,
+      "until_abs": 3600,
+      "original_stress_emergency_kwh": 71.0544695000001,
+      "candidate_stress_emergency_kwh": 98.0068944900006,
+      "restored_stress_emergency_kwh": 71.0544695000001
+    },
+    {
+      "at_abs": 3600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 3960
+    },
+    {
+      "at_abs": 3960,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 23.38684999000111,
+      "until_abs": 4320,
+      "original_stress_emergency_kwh": 188.84500875000015,
+      "candidate_stress_emergency_kwh": 212.23185874000188,
+      "restored_stress_emergency_kwh": 188.84500875000015
+    },
+    {
+      "at_abs": 4680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 5040
+    },
+    {
+      "at_abs": 5040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 5400
+    },
+    {
+      "at_abs": 5400,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 20.356283323333514,
+      "until_abs": 5760,
+      "original_stress_emergency_kwh": 150.42522333333218,
+      "candidate_stress_emergency_kwh": 170.78150665666635,
+      "restored_stress_emergency_kwh": 150.42522333333218
+    },
+    {
+      "at_abs": 6120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 6480
+    },
+    {
+      "at_abs": 6480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 6840
+    },
+    {
+      "at_abs": 6840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 7200
+    },
+    {
+      "at_abs": 7560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 7920
+    },
+    {
+      "at_abs": 7920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 8280
+    },
+    {
+      "at_abs": 8280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 8640
+    },
+    {
+      "at_abs": 9000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 9360
+    },
+    {
+      "at_abs": 9360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 9720
+    },
+    {
+      "at_abs": 9720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 10080
+    },
+    {
+      "at_abs": 10440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 10800
+    },
+    {
+      "at_abs": 10800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 11160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 11160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 11520,
+      "original_stress_emergency_kwh": 179.02605725602558,
+      "candidate_stress_emergency_kwh": 179.02605725602558
+    },
+    {
+      "at_abs": 11880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 12240,
+      "original_stress_emergency_kwh": 793.9997940446567,
+      "candidate_stress_emergency_kwh": 793.9997940446567
+    },
+    {
+      "at_abs": 12240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 12600
+    },
+    {
+      "at_abs": 12600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 12960,
+      "original_stress_emergency_kwh": 609.5934366515086,
+      "candidate_stress_emergency_kwh": 505.01311877062955
+    },
+    {
+      "at_abs": 13320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 13680
+    },
+    {
+      "at_abs": 13680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 14040
+    },
+    {
+      "at_abs": 14040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 14400
+    },
+    {
+      "at_abs": 14760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 15120
+    },
+    {
+      "at_abs": 15120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 15480,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 15480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 15840
+    },
+    {
+      "at_abs": 16200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 16560
+    },
+    {
+      "at_abs": 16560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 16920,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 16920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 17280
+    },
+    {
+      "at_abs": 17640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 18000
+    },
+    {
+      "at_abs": 18000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 18360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 18360,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 34.829722194130454,
+      "until_abs": 18720,
+      "original_stress_emergency_kwh": 58.5204400507743,
+      "candidate_stress_emergency_kwh": 64.78206435632094,
+      "restored_stress_emergency_kwh": 58.5204400507743
+    },
+    {
+      "at_abs": 19080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 19440
+    },
+    {
+      "at_abs": 19440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 19800
+    },
+    {
+      "at_abs": 19800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 20160,
+      "original_stress_emergency_kwh": 164.87791405051172,
+      "candidate_stress_emergency_kwh": 164.87791405051172
+    },
+    {
+      "at_abs": 20520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 20880
+    },
+    {
+      "at_abs": 20880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 21240
+    },
+    {
+      "at_abs": 21240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 21600
+    },
+    {
+      "at_abs": 21960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 22320,
+      "original_stress_emergency_kwh": 446.6569025349839,
+      "candidate_stress_emergency_kwh": 443.68353350012654
+    },
+    {
+      "at_abs": 22320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 22680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 22680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 23040
+    },
+    {
+      "at_abs": 23400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 23760
+    },
+    {
+      "at_abs": 23760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 24120
+    },
+    {
+      "at_abs": 24120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 24480,
+      "original_stress_emergency_kwh": 41.05332615847874,
+      "candidate_stress_emergency_kwh": 41.05332615847874
+    },
+    {
+      "at_abs": 24840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 25200
+    },
+    {
+      "at_abs": 25200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 25560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 25560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 25920
+    },
+    {
+      "at_abs": 26280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 26640,
+      "original_stress_emergency_kwh": 172.39883465170894,
+      "candidate_stress_emergency_kwh": 172.39883465170894
+    },
+    {
+      "at_abs": 26640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 27000
+    },
+    {
+      "at_abs": 27000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 27360,
+      "original_stress_emergency_kwh": 940.9667987313312,
+      "candidate_stress_emergency_kwh": 442.74343380790543
+    },
+    {
+      "at_abs": 27720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 28080,
+      "original_stress_emergency_kwh": 109.76950408943688,
+      "candidate_stress_emergency_kwh": 109.76950408943688
+    },
+    {
+      "at_abs": 28080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 28440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 28440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 28800
+    },
+    {
+      "at_abs": 29160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 29520,
+      "original_stress_emergency_kwh": 848.6887899739842,
+      "candidate_stress_emergency_kwh": 573.1693206250193
+    },
+    {
+      "at_abs": 29520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 29880,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 29880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 30240
+    },
+    {
+      "at_abs": 30600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 30960
+    },
+    {
+      "at_abs": 30960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 31320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 31320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 31680
+    },
+    {
+      "at_abs": 32040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 32400
+    },
+    {
+      "at_abs": 32400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 32760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 32760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 33120
+    },
+    {
+      "at_abs": 33480,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 33840,
+      "original_stress_emergency_kwh": 873.7185774829803,
+      "candidate_stress_emergency_kwh": 873.7185774829803
+    },
+    {
+      "at_abs": 33840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 34200
+    },
+    {
+      "at_abs": 34200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 34560
+    },
+    {
+      "at_abs": 34920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 35280
+    },
+    {
+      "at_abs": 35280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 35640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 35640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 36000,
+      "original_stress_emergency_kwh": 212.57011852699782,
+      "candidate_stress_emergency_kwh": 212.57011852699782
+    },
+    {
+      "at_abs": 36360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 36720,
+      "original_stress_emergency_kwh": 1214.4086391569892,
+      "candidate_stress_emergency_kwh": 979.2462484870264
+    },
+    {
+      "at_abs": 36720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 37080,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 37080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 37440
+    },
+    {
+      "at_abs": 37800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 38160,
+      "original_stress_emergency_kwh": 822.7295150499106,
+      "candidate_stress_emergency_kwh": 822.7295150499106
+    },
+    {
+      "at_abs": 38160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 38520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 38520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 38880
+    },
+    {
+      "at_abs": 39240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 39600,
+      "original_stress_emergency_kwh": 364.16186972702087,
+      "candidate_stress_emergency_kwh": 364.16186972702087
+    },
+    {
+      "at_abs": 39600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 39960
+    },
+    {
+      "at_abs": 39960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 40320,
+      "original_stress_emergency_kwh": 719.3755529482507,
+      "candidate_stress_emergency_kwh": 427.4287073026135
+    },
+    {
+      "at_abs": 40680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 41040
+    },
+    {
+      "at_abs": 41040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 41400
+    },
+    {
+      "at_abs": 41400,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 94.53489580443136,
+      "until_abs": 41760,
+      "original_stress_emergency_kwh": 177.5850826879461,
+      "candidate_stress_emergency_kwh": 182.43265580282392,
+      "restored_stress_emergency_kwh": 177.5850826879461
+    },
+    {
+      "at_abs": 42120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 42480
+    },
+    {
+      "at_abs": 42480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 42840
+    },
+    {
+      "at_abs": 42840,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 41.69288385526261,
+      "until_abs": 43200,
+      "original_stress_emergency_kwh": 285.3757103909185,
+      "candidate_stress_emergency_kwh": 292.15632242089487,
+      "restored_stress_emergency_kwh": 285.3757103909185
+    },
+    {
+      "at_abs": 43560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 43920
+    },
+    {
+      "at_abs": 43920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 44280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 44280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 44640
+    },
+    {
+      "at_abs": 45000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 45360
+    },
+    {
+      "at_abs": 45360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 45720
+    },
+    {
+      "at_abs": 45720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 46080,
+      "original_stress_emergency_kwh": 629.5976661772969,
+      "candidate_stress_emergency_kwh": 435.73073543054
+    },
+    {
+      "at_abs": 46440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 46800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 46800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 47160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 47160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 47520,
+      "original_stress_emergency_kwh": 62.79168453507537,
+      "candidate_stress_emergency_kwh": 62.79168453507537
+    },
+    {
+      "at_abs": 47880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 48240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 48240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 48600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 48600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 48960,
+      "original_stress_emergency_kwh": 640.3183237357862,
+      "candidate_stress_emergency_kwh": 441.2293936924773
+    },
+    {
+      "at_abs": 49320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 49680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 49680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 50040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 50040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 50400
+    },
+    {
+      "at_abs": 50760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 51120
+    },
+    {
+      "at_abs": 51120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 51480,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 51480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 51840
+    },
+    {
+      "at_abs": 52200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 52560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 52560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 52920,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 52920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 53280
+    },
+    {
+      "at_abs": 53640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 54000
+    },
+    {
+      "at_abs": 54000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 54360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 54360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 54720,
+      "original_stress_emergency_kwh": 367.24487490860867,
+      "candidate_stress_emergency_kwh": 367.24487490860867
+    },
+    {
+      "at_abs": 55080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 55440
+    },
+    {
+      "at_abs": 55440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 55800
+    },
+    {
+      "at_abs": 55800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 56160
+    },
+    {
+      "at_abs": 56520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 56880
+    },
+    {
+      "at_abs": 56880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 57240
+    },
+    {
+      "at_abs": 57240,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 4.521757978245773,
+      "until_abs": 57600,
+      "original_stress_emergency_kwh": 400.7705884458686,
+      "candidate_stress_emergency_kwh": 404.4332124082478,
+      "restored_stress_emergency_kwh": 400.7705884458686
+    },
+    {
+      "at_abs": 57960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 58320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 58320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 58680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 58680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 59040,
+      "original_stress_emergency_kwh": 111.6969353781371,
+      "candidate_stress_emergency_kwh": 111.6969353781371
+    },
+    {
+      "at_abs": 59400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 59760,
+      "original_stress_emergency_kwh": 0.9202596187697054,
+      "candidate_stress_emergency_kwh": 0.9202596187697054
+    },
+    {
+      "at_abs": 59760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 60120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 60120,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 42.8974621991963,
+      "until_abs": 60480,
+      "original_stress_emergency_kwh": 171.5611424075571,
+      "candidate_stress_emergency_kwh": 172.28405886289715,
+      "restored_stress_emergency_kwh": 171.5611424075571
+    },
+    {
+      "at_abs": 60840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 61200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 61200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 61560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 61560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 61920
+    },
+    {
+      "at_abs": 62280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 62640,
+      "original_stress_emergency_kwh": 10.892055431992844,
+      "candidate_stress_emergency_kwh": 5.902218277880934
+    },
+    {
+      "at_abs": 62640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 63000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 63000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 63360,
+      "original_stress_emergency_kwh": 176.84758316203522,
+      "candidate_stress_emergency_kwh": 176.84758316203522
+    },
+    {
+      "at_abs": 63720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 64080
+    },
+    {
+      "at_abs": 64080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 64440
+    },
+    {
+      "at_abs": 64440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 64800,
+      "original_stress_emergency_kwh": 595.0027115535531,
+      "candidate_stress_emergency_kwh": 387.58695259704376
+    },
+    {
+      "at_abs": 65160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 65520
+    },
+    {
+      "at_abs": 65520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 65880
+    },
+    {
+      "at_abs": 65880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 66240
+    },
+    {
+      "at_abs": 66600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 66960,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 66960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 67320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 67320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 67680
+    },
+    {
+      "at_abs": 68040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 68400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 68400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 68760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 68760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 69120
+    },
+    {
+      "at_abs": 69480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 69840
+    },
+    {
+      "at_abs": 69840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 70200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 70200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 70560
+    },
+    {
+      "at_abs": 70920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 71280,
+      "original_stress_emergency_kwh": 161.50095357699473,
+      "candidate_stress_emergency_kwh": 161.50095357699473
+    },
+    {
+      "at_abs": 71280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 71640
+    },
+    {
+      "at_abs": 71640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 72000,
+      "original_stress_emergency_kwh": 389.1697911730687,
+      "candidate_stress_emergency_kwh": 329.3958410337195
+    },
+    {
+      "at_abs": 72360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 72720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 72720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 73080,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 73080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 73440
+    },
+    {
+      "at_abs": 73800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 74160
+    },
+    {
+      "at_abs": 74160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 74520
+    },
+    {
+      "at_abs": 74520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 74880
+    },
+    {
+      "at_abs": 75240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 75600
+    },
+    {
+      "at_abs": 75600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 75960
+    },
+    {
+      "at_abs": 75960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 76320,
+      "original_stress_emergency_kwh": 504.311580258657,
+      "candidate_stress_emergency_kwh": 340.63596037412316
+    },
+    {
+      "at_abs": 76680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 77040
+    },
+    {
+      "at_abs": 77040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 77400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 77400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 77760
+    },
+    {
+      "at_abs": 78120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 78480,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 78480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 78840
+    },
+    {
+      "at_abs": 78840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 79200,
+      "original_stress_emergency_kwh": 645.2347675590114,
+      "candidate_stress_emergency_kwh": 328.5284955005757
+    },
+    {
+      "at_abs": 79560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 79920,
+      "original_stress_emergency_kwh": 18.284975422977936,
+      "candidate_stress_emergency_kwh": 18.284975422977936
+    },
+    {
+      "at_abs": 79920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 80280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 80280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 80640,
+      "original_stress_emergency_kwh": 285.150683395735,
+      "candidate_stress_emergency_kwh": 285.150683395735
+    },
+    {
+      "at_abs": 81000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 81360,
+      "original_stress_emergency_kwh": 7.140361513038442,
+      "candidate_stress_emergency_kwh": 7.140361513038442
+    },
+    {
+      "at_abs": 81360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 81720
+    },
+    {
+      "at_abs": 81720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 82080,
+      "original_stress_emergency_kwh": 601.9969500183691,
+      "candidate_stress_emergency_kwh": 323.24717011732025
+    },
+    {
+      "at_abs": 82440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 82800,
+      "original_stress_emergency_kwh": 54.155664394153426,
+      "candidate_stress_emergency_kwh": 54.155664394153426
+    },
+    {
+      "at_abs": 82800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 83160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 83160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 83520
+    },
+    {
+      "at_abs": 83880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 84240
+    },
+    {
+      "at_abs": 84240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 84600
+    },
+    {
+      "at_abs": 84600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 84960,
+      "original_stress_emergency_kwh": 495.0914462658448,
+      "candidate_stress_emergency_kwh": 297.17005990700807
+    },
+    {
+      "at_abs": 85320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 85680
+    },
+    {
+      "at_abs": 85680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 86040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 86040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 86400
+    },
+    {
+      "at_abs": 86760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 87120
+    },
+    {
+      "at_abs": 87120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 87480
+    },
+    {
+      "at_abs": 87480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 87840
+    },
+    {
+      "at_abs": 88200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 88560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 88560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 88920
+    },
+    {
+      "at_abs": 88920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 89280
+    },
+    {
+      "at_abs": 89640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 90000
+    },
+    {
+      "at_abs": 90000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 90360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 90360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 90720
+    },
+    {
+      "at_abs": 91080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 91440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 91440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 91800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 91800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 92160
+    },
+    {
+      "at_abs": 92520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 92880,
+      "original_stress_emergency_kwh": 472.79707550900775,
+      "candidate_stress_emergency_kwh": 472.79707550900775
+    },
+    {
+      "at_abs": 92880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 93240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 93240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 93600
+    },
+    {
+      "at_abs": 93960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 94320
+    },
+    {
+      "at_abs": 94320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 94680
+    },
+    {
+      "at_abs": 94680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 95040
+    },
+    {
+      "at_abs": 95400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 95760
+    },
+    {
+      "at_abs": 95760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 96120
+    },
+    {
+      "at_abs": 96120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 96480,
+      "original_stress_emergency_kwh": 220.60475330023712,
+      "candidate_stress_emergency_kwh": 220.60475330023712
+    },
+    {
+      "at_abs": 96840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 97200,
+      "original_stress_emergency_kwh": 985.3205293104464,
+      "candidate_stress_emergency_kwh": 959.6262912188796
+    },
+    {
+      "at_abs": 97200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 97560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 97560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 97920
+    },
+    {
+      "at_abs": 98280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 98640
+    },
+    {
+      "at_abs": 98640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 99000
+    },
+    {
+      "at_abs": 99000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 99360,
+      "original_stress_emergency_kwh": 837.666821226674,
+      "candidate_stress_emergency_kwh": 265.03816501838764
+    },
+    {
+      "at_abs": 99720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 100080
+    },
+    {
+      "at_abs": 100080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 100440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 100440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 100800
+    },
+    {
+      "at_abs": 101160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 101520,
+      "original_stress_emergency_kwh": 710.7737501757172,
+      "candidate_stress_emergency_kwh": 701.813052748907
+    },
+    {
+      "at_abs": 101520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 101880
+    },
+    {
+      "at_abs": 101880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 102240,
+      "original_stress_emergency_kwh": 378.0142847378492,
+      "candidate_stress_emergency_kwh": 258.1364239677965
+    },
+    {
+      "at_abs": 102600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 102960
+    },
+    {
+      "at_abs": 102960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 103320
+    },
+    {
+      "at_abs": 103320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 103680,
+      "original_stress_emergency_kwh": 308.91169944826714,
+      "candidate_stress_emergency_kwh": 232.46357338579833
+    },
+    {
+      "at_abs": 104040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 104400
+    },
+    {
+      "at_abs": 104400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 104760
+    },
+    {
+      "at_abs": 104760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 105120
+    },
+    {
+      "at_abs": 105480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 105840
+    },
+    {
+      "at_abs": 105840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 106200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 106200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 106560
+    },
+    {
+      "at_abs": 106920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 107280
+    },
+    {
+      "at_abs": 107280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 107640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 107640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 108000
+    },
+    {
+      "at_abs": 108360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 108720,
+      "original_stress_emergency_kwh": 5.708486103612017,
+      "candidate_stress_emergency_kwh": 5.708486103612017
+    },
+    {
+      "at_abs": 108720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 109080
+    },
+    {
+      "at_abs": 109080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 109440
+    },
+    {
+      "at_abs": 109800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 110160,
+      "original_stress_emergency_kwh": 465.6101072115074,
+      "candidate_stress_emergency_kwh": 465.6101072115074
+    },
+    {
+      "at_abs": 110160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 110520
+    },
+    {
+      "at_abs": 110520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 110880
+    },
+    {
+      "at_abs": 111240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 111600
+    },
+    {
+      "at_abs": 111600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 111960
+    },
+    {
+      "at_abs": 111960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 112320
+    },
+    {
+      "at_abs": 112680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 113040
+    },
+    {
+      "at_abs": 113040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 113400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 113400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 113760,
+      "original_stress_emergency_kwh": 773.646018382645,
+      "candidate_stress_emergency_kwh": 238.7098728211147
+    },
+    {
+      "at_abs": 114120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 114480
+    },
+    {
+      "at_abs": 114480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 114840
+    },
+    {
+      "at_abs": 114840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 115200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 115560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 115920
+    },
+    {
+      "at_abs": 115920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 116280
+    },
+    {
+      "at_abs": 116280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 116640,
+      "original_stress_emergency_kwh": 671.5020695943188,
+      "candidate_stress_emergency_kwh": 264.6690607930774
+    },
+    {
+      "at_abs": 117000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 117360
+    },
+    {
+      "at_abs": 117360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 117720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 117720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 118080
+    },
+    {
+      "at_abs": 118440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 118800
+    },
+    {
+      "at_abs": 118800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 119160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 119160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 119520,
+      "original_stress_emergency_kwh": 756.1744774782621,
+      "candidate_stress_emergency_kwh": 307.8420388658863
+    },
+    {
+      "at_abs": 119880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 120240
+    },
+    {
+      "at_abs": 120240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 120600
+    },
+    {
+      "at_abs": 120600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 120960
+    },
+    {
+      "at_abs": 121320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 121680
+    },
+    {
+      "at_abs": 121680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 122040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 122040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 122400
+    },
+    {
+      "at_abs": 122760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 123120
+    },
+    {
+      "at_abs": 123120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 123480
+    },
+    {
+      "at_abs": 123480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 123840
+    },
+    {
+      "at_abs": 124200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 124560
+    },
+    {
+      "at_abs": 124560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 124920
+    },
+    {
+      "at_abs": 124920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 125280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 125640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 126000
+    },
+    {
+      "at_abs": 126000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 126360
+    },
+    {
+      "at_abs": 126360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 126720
+    },
+    {
+      "at_abs": 127080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 127440
+    },
+    {
+      "at_abs": 127440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 127800
+    },
+    {
+      "at_abs": 127800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 128160,
+      "original_stress_emergency_kwh": 504.9599316270329,
+      "candidate_stress_emergency_kwh": 300.8169506424737
+    },
+    {
+      "at_abs": 128520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 128880
+    },
+    {
+      "at_abs": 128880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 129240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 129240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 129600,
+      "original_stress_emergency_kwh": 1436.3232743243348,
+      "candidate_stress_emergency_kwh": 318.01945045251443
+    },
+    {
+      "at_abs": 129960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 130320
+    },
+    {
+      "at_abs": 130320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 130680
+    },
+    {
+      "at_abs": 130680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 131040
+    },
+    {
+      "at_abs": 131400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 131760
+    },
+    {
+      "at_abs": 131760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 132120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 132120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 132480
+    },
+    {
+      "at_abs": 132840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 133200
+    },
+    {
+      "at_abs": 133200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 133560
+    },
+    {
+      "at_abs": 133560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 133920
+    },
+    {
+      "at_abs": 134280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 134640
+    },
+    {
+      "at_abs": 134640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 135000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 135000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 135360
+    },
+    {
+      "at_abs": 135720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 136080
+    },
+    {
+      "at_abs": 136080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 136440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 136440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 136800
+    },
+    {
+      "at_abs": 137160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 137520
+    },
+    {
+      "at_abs": 137520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 137880
+    },
+    {
+      "at_abs": 137880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 138240
+    },
+    {
+      "at_abs": 138600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 138960
+    },
+    {
+      "at_abs": 138960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 139320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 139320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 139680,
+      "original_stress_emergency_kwh": 355.9167227388353,
+      "candidate_stress_emergency_kwh": 281.05308056436775
+    },
+    {
+      "at_abs": 140040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 140400
+    },
+    {
+      "at_abs": 140400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 140760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 140760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 141120
+    },
+    {
+      "at_abs": 141480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 141840
+    },
+    {
+      "at_abs": 141840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 142200
+    },
+    {
+      "at_abs": 142200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 142560
+    },
+    {
+      "at_abs": 142920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 143280
+    },
+    {
+      "at_abs": 143280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 143640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 143640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 144000,
+      "original_stress_emergency_kwh": 1225.7323496605748,
+      "candidate_stress_emergency_kwh": 308.6503766709856
+    },
+    {
+      "at_abs": 144360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 144720
+    },
+    {
+      "at_abs": 144720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 145080,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 145080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 145440,
+      "original_stress_emergency_kwh": 315.42117387173687,
+      "candidate_stress_emergency_kwh": 237.8242871638262
+    },
+    {
+      "at_abs": 145800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 146160
+    },
+    {
+      "at_abs": 146160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 146520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 146520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 146880,
+      "original_stress_emergency_kwh": 267.29816079205017,
+      "candidate_stress_emergency_kwh": 237.82428716382555
+    },
+    {
+      "at_abs": 147240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 147600
+    },
+    {
+      "at_abs": 147600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 147960
+    },
+    {
+      "at_abs": 147960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 148320
+    },
+    {
+      "at_abs": 148680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 149040
+    },
+    {
+      "at_abs": 149040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 149400
+    },
+    {
+      "at_abs": 149400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 149760
+    },
+    {
+      "at_abs": 150120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 150480
+    },
+    {
+      "at_abs": 150480,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 150840,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 150840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 151200
+    },
+    {
+      "at_abs": 151560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 151920
+    },
+    {
+      "at_abs": 151920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 152280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 152280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 152640,
+      "original_stress_emergency_kwh": 585.4372066108841,
+      "candidate_stress_emergency_kwh": 224.45809855491223
+    },
+    {
+      "at_abs": 153000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 153360
+    },
+    {
+      "at_abs": 153360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 153720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 153720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 154080
+    },
+    {
+      "at_abs": 154440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 154800
+    },
+    {
+      "at_abs": 154800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 155160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 155160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 155520
+    },
+    {
+      "at_abs": 155880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 156240
+    },
+    {
+      "at_abs": 156240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 156600
+    },
+    {
+      "at_abs": 156600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 156960,
+      "original_stress_emergency_kwh": 88.37865161134297,
+      "candidate_stress_emergency_kwh": 88.37865161134297
+    },
+    {
+      "at_abs": 157320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 157680
+    },
+    {
+      "at_abs": 157680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 158040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 158040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 158400,
+      "original_stress_emergency_kwh": 401.1233333716212,
+      "candidate_stress_emergency_kwh": 202.34400329748837
+    },
+    {
+      "at_abs": 158760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 159120
+    },
+    {
+      "at_abs": 159120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 159480
+    },
+    {
+      "at_abs": 159480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 159840
+    },
+    {
+      "at_abs": 160200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 160560
+    },
+    {
+      "at_abs": 160560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 160920
+    },
+    {
+      "at_abs": 160920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 161280,
+      "original_stress_emergency_kwh": 416.96089420425886,
+      "candidate_stress_emergency_kwh": 205.51754619512496
+    },
+    {
+      "at_abs": 161640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 162000
+    },
+    {
+      "at_abs": 162000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 162360
+    },
+    {
+      "at_abs": 162360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 162720
+    },
+    {
+      "at_abs": 163080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 163440
+    },
+    {
+      "at_abs": 163440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 163800
+    },
+    {
+      "at_abs": 163800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 164160,
+      "original_stress_emergency_kwh": 634.7008758241785,
+      "candidate_stress_emergency_kwh": 209.7097884599085
+    },
+    {
+      "at_abs": 164520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 164880
+    },
+    {
+      "at_abs": 164880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 165240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 165240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 165600
+    },
+    {
+      "at_abs": 165960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 166320
+    },
+    {
+      "at_abs": 166320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 166680
+    },
+    {
+      "at_abs": 166680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 167040,
+      "original_stress_emergency_kwh": 1797.5865399756021,
+      "candidate_stress_emergency_kwh": 213.64981704676998
+    },
+    {
+      "at_abs": 167400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 167760
+    },
+    {
+      "at_abs": 167760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 168120
+    },
+    {
+      "at_abs": 168120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 168480
+    },
+    {
+      "at_abs": 168840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 169200
+    },
+    {
+      "at_abs": 169200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 169560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 169560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 169920,
+      "original_stress_emergency_kwh": 2076.322035512906,
+      "candidate_stress_emergency_kwh": 202.3925291493183
+    },
+    {
+      "at_abs": 170280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 170640
+    },
+    {
+      "at_abs": 170640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 171000
+    },
+    {
+      "at_abs": 171000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 171360,
+      "original_stress_emergency_kwh": 1224.3858420326515,
+      "candidate_stress_emergency_kwh": 201.28298297302933
+    },
+    {
+      "at_abs": 171720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 172080
+    },
+    {
+      "at_abs": 172080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 172440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 172440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 172800,
+      "original_stress_emergency_kwh": 256.46758976188175,
+      "candidate_stress_emergency_kwh": 205.12688621792734
+    },
+    {
+      "at_abs": 173160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 173520
+    },
+    {
+      "at_abs": 173520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 173880
+    },
+    {
+      "at_abs": 173880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 174240
+    },
+    {
+      "at_abs": 174600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 174960
+    },
+    {
+      "at_abs": 174960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 175320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 175320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 175680
+    },
+    {
+      "at_abs": 176040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 176400
+    },
+    {
+      "at_abs": 176400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 176760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 176760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 177120
+    },
+    {
+      "at_abs": 177480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 177840
+    },
+    {
+      "at_abs": 177840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 178200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 178200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 178560
+    },
+    {
+      "at_abs": 178920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 179280
+    },
+    {
+      "at_abs": 179280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 179640
+    },
+    {
+      "at_abs": 179640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 180000
+    },
+    {
+      "at_abs": 180360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 180720
+    },
+    {
+      "at_abs": 180720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 181080,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 181080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 181440
+    },
+    {
+      "at_abs": 181800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 182160
+    },
+    {
+      "at_abs": 182160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 182520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 182520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 182880
+    },
+    {
+      "at_abs": 183240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 183600
+    },
+    {
+      "at_abs": 183600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 183960,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 183960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 184320
+    },
+    {
+      "at_abs": 184680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 185040
+    },
+    {
+      "at_abs": 185040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 185400
+    },
+    {
+      "at_abs": 185400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 185760
+    },
+    {
+      "at_abs": 186120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 186480
+    },
+    {
+      "at_abs": 186480,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 186840,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 186840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 187200,
+      "original_stress_emergency_kwh": 1921.0310214867675,
+      "candidate_stress_emergency_kwh": 1444.9988840906371
+    },
+    {
+      "at_abs": 187560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 187920
+    },
+    {
+      "at_abs": 187920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 188280
+    },
+    {
+      "at_abs": 188280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 188640
+    },
+    {
+      "at_abs": 189000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 189360
+    },
+    {
+      "at_abs": 189360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 189720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 189720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 190080,
+      "original_stress_emergency_kwh": 2520.0146156925,
+      "candidate_stress_emergency_kwh": 1293.7534779096673
+    },
+    {
+      "at_abs": 190440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 190800
+    },
+    {
+      "at_abs": 190800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 191160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 191160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 191520,
+      "original_stress_emergency_kwh": 1031.6738953175825,
+      "candidate_stress_emergency_kwh": 1031.6738953175825
+    },
+    {
+      "at_abs": 191880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 192240
+    },
+    {
+      "at_abs": 192240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 192600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 192600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 192960
+    },
+    {
+      "at_abs": 193320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 193680
+    },
+    {
+      "at_abs": 193680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 194040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 194040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 194400
+    },
+    {
+      "at_abs": 194760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 195120
+    },
+    {
+      "at_abs": 195120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 195480
+    },
+    {
+      "at_abs": 195480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 195840
+    },
+    {
+      "at_abs": 196200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 196560
+    },
+    {
+      "at_abs": 196560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 196920
+    },
+    {
+      "at_abs": 196920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 197280
+    },
+    {
+      "at_abs": 197640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 198000
+    },
+    {
+      "at_abs": 198000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 198360
+    },
+    {
+      "at_abs": 198360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 198720,
+      "original_stress_emergency_kwh": 1466.5662999834299,
+      "candidate_stress_emergency_kwh": 1466.5662999834299
+    },
+    {
+      "at_abs": 199080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 199440
+    },
+    {
+      "at_abs": 199440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 199800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 199800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 200160
+    },
+    {
+      "at_abs": 200520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 200880
+    },
+    {
+      "at_abs": 200880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 201240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 201240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 201600,
+      "original_stress_emergency_kwh": 2574.939485562326,
+      "candidate_stress_emergency_kwh": 1479.581819895498
+    },
+    {
+      "at_abs": 201960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 202320
+    },
+    {
+      "at_abs": 202320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 202680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 202680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 203040,
+      "original_stress_emergency_kwh": 1615.0260031120274,
+      "candidate_stress_emergency_kwh": 1435.6412017628495
+    },
+    {
+      "at_abs": 203400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 203760
+    },
+    {
+      "at_abs": 203760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 204120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 204120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 204480
+    },
+    {
+      "at_abs": 204840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 205200
+    },
+    {
+      "at_abs": 205200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 205560
+    },
+    {
+      "at_abs": 205560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 205920
+    },
+    {
+      "at_abs": 206280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 206640
+    },
+    {
+      "at_abs": 206640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 207000
+    },
+    {
+      "at_abs": 207000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 207360
+    },
+    {
+      "at_abs": 207720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 208080
+    },
+    {
+      "at_abs": 208080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 208440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 208440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 208800
+    },
+    {
+      "at_abs": 209160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 209520
+    },
+    {
+      "at_abs": 209520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 209880
+    },
+    {
+      "at_abs": 209880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 210240,
+      "original_stress_emergency_kwh": 2086.14590146628,
+      "candidate_stress_emergency_kwh": 1591.7786430047931
+    },
+    {
+      "at_abs": 210600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 210960
+    },
+    {
+      "at_abs": 210960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 211320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 211320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 211680
+    },
+    {
+      "at_abs": 212040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 212400
+    },
+    {
+      "at_abs": 212400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 212760
+    },
+    {
+      "at_abs": 212760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 213120
+    },
+    {
+      "at_abs": 213480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 213840
+    },
+    {
+      "at_abs": 213840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 214200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 214200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 214560
+    },
+    {
+      "at_abs": 214920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 215280
+    },
+    {
+      "at_abs": 215280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 215640
+    },
+    {
+      "at_abs": 215640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 216000
+    },
+    {
+      "at_abs": 216360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 216720
+    },
+    {
+      "at_abs": 216720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 217080
+    },
+    {
+      "at_abs": 217080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 217440
+    },
+    {
+      "at_abs": 217800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 218160
+    },
+    {
+      "at_abs": 218160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 218520
+    },
+    {
+      "at_abs": 218520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 218880
+    },
+    {
+      "at_abs": 219240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 219600
+    },
+    {
+      "at_abs": 219600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 219960
+    },
+    {
+      "at_abs": 219960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 220320
+    },
+    {
+      "at_abs": 220680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 221040
+    },
+    {
+      "at_abs": 221040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 221400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 221400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 221760
+    },
+    {
+      "at_abs": 222120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 222480,
+      "original_stress_emergency_kwh": 200.49377063871805,
+      "candidate_stress_emergency_kwh": 200.49377063871805
+    },
+    {
+      "at_abs": 222480,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 222840,
+      "original_stress_emergency_kwh": 41.98533075889068,
+      "candidate_stress_emergency_kwh": 41.98533075889068
+    },
+    {
+      "at_abs": 222840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 223200
+    },
+    {
+      "at_abs": 223560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 223920
+    },
+    {
+      "at_abs": 223920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 224280
+    },
+    {
+      "at_abs": 224280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 224640
+    },
+    {
+      "at_abs": 225000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 225360
+    },
+    {
+      "at_abs": 225360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 225720
+    },
+    {
+      "at_abs": 225720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 226080
+    },
+    {
+      "at_abs": 226440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 226800
+    },
+    {
+      "at_abs": 226800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 227160
+    },
+    {
+      "at_abs": 227160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 227520
+    },
+    {
+      "at_abs": 227880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 228240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 228240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 228600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 228600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 228960
+    },
+    {
+      "at_abs": 229320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 229680
+    },
+    {
+      "at_abs": 229680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 230040,
+      "original_stress_emergency_kwh": 447.4424471120654,
+      "candidate_stress_emergency_kwh": 447.4424471120654
+    },
+    {
+      "at_abs": 230040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 230400
+    },
+    {
+      "at_abs": 230760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 231120
+    },
+    {
+      "at_abs": 231120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 231480
+    },
+    {
+      "at_abs": 231480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 231840
+    },
+    {
+      "at_abs": 232200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 232560
+    },
+    {
+      "at_abs": 232560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 232920
+    },
+    {
+      "at_abs": 232920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 233280
+    },
+    {
+      "at_abs": 233640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 234000,
+      "original_stress_emergency_kwh": 1797.0108635699473,
+      "candidate_stress_emergency_kwh": 1797.0108635699473
+    },
+    {
+      "at_abs": 234000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 234360,
+      "original_stress_emergency_kwh": 792.4960272591898,
+      "candidate_stress_emergency_kwh": 336.1640832304238
+    },
+    {
+      "at_abs": 234360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 234720
+    },
+    {
+      "at_abs": 235080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 235440
+    },
+    {
+      "at_abs": 235440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 235800
+    },
+    {
+      "at_abs": 235800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 236160,
+      "original_stress_emergency_kwh": 2342.989920047956,
+      "candidate_stress_emergency_kwh": 1552.649731409812
+    },
+    {
+      "at_abs": 236520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 236880
+    },
+    {
+      "at_abs": 236880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 237240
+    },
+    {
+      "at_abs": 237240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 237600
+    },
+    {
+      "at_abs": 237960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 238320
+    },
+    {
+      "at_abs": 238320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 238680
+    },
+    {
+      "at_abs": 238680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 239040
+    },
+    {
+      "at_abs": 239400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 239760
+    },
+    {
+      "at_abs": 239760,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 0.028977068508979187,
+      "until_abs": 240120,
+      "original_stress_emergency_kwh": 224.40049709126197,
+      "candidate_stress_emergency_kwh": 224.42947415977096,
+      "restored_stress_emergency_kwh": 224.40049709126197
+    },
+    {
+      "at_abs": 240120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 240480
+    },
+    {
+      "at_abs": 240840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 241200
+    },
+    {
+      "at_abs": 241200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 241560
+    },
+    {
+      "at_abs": 241560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 241920
+    },
+    {
+      "at_abs": 242280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 242640
+    },
+    {
+      "at_abs": 242640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 243000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 243000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 243360
+    },
+    {
+      "at_abs": 243720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 244080
+    },
+    {
+      "at_abs": 244080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 244440,
+      "original_stress_emergency_kwh": 804.7380351553791,
+      "candidate_stress_emergency_kwh": 74.57260358983402
+    },
+    {
+      "at_abs": 244440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 244800
+    },
+    {
+      "at_abs": 245160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 245520
+    },
+    {
+      "at_abs": 245520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 245880
+    },
+    {
+      "at_abs": 245880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 246240
+    },
+    {
+      "at_abs": 246600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 246960
+    },
+    {
+      "at_abs": 246960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 247320
+    },
+    {
+      "at_abs": 247320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 247680
+    },
+    {
+      "at_abs": 248040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 248400
+    },
+    {
+      "at_abs": 248400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 248760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 248760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 249120
+    },
+    {
+      "at_abs": 249480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 249840
+    },
+    {
+      "at_abs": 249840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 250200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 250200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 250560
+    },
+    {
+      "at_abs": 250920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 251280
+    },
+    {
+      "at_abs": 251280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 251640,
+      "original_stress_emergency_kwh": 202.298962103807,
+      "candidate_stress_emergency_kwh": 202.298962103807
+    },
+    {
+      "at_abs": 251640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 252000
+    },
+    {
+      "at_abs": 252360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 252720
+    },
+    {
+      "at_abs": 252720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 253080
+    },
+    {
+      "at_abs": 253080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 253440
+    },
+    {
+      "at_abs": 253800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 254160
+    },
+    {
+      "at_abs": 254160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 254520,
+      "original_stress_emergency_kwh": 812.5456450391239,
+      "candidate_stress_emergency_kwh": 263.16616973082785
+    },
+    {
+      "at_abs": 254520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 254880
+    },
+    {
+      "at_abs": 255240,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 0.00010177418347877151,
+      "until_abs": 255600,
+      "original_stress_emergency_kwh": 133.31813971456543,
+      "candidate_stress_emergency_kwh": 133.31824148874892,
+      "restored_stress_emergency_kwh": 133.31813971456543
+    },
+    {
+      "at_abs": 255600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 255960
+    },
+    {
+      "at_abs": 255960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 256320
+    },
+    {
+      "at_abs": 256680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 257040
+    },
+    {
+      "at_abs": 257040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 257400
+    },
+    {
+      "at_abs": 257400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 257760
+    },
+    {
+      "at_abs": 258120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 258480
+    },
+    {
+      "at_abs": 258480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 258840
+    },
+    {
+      "at_abs": 258840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 259200
+    },
+    {
+      "at_abs": 259560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 259920
+    },
+    {
+      "at_abs": 259920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 260280
+    },
+    {
+      "at_abs": 260280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 260640
+    },
+    {
+      "at_abs": 261000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 261360
+    },
+    {
+      "at_abs": 261360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 261720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 261720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 262080
+    },
+    {
+      "at_abs": 262440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 262800
+    },
+    {
+      "at_abs": 262800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 263160
+    },
+    {
+      "at_abs": 263160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 263520
+    },
+    {
+      "at_abs": 263880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 264240
+    },
+    {
+      "at_abs": 264240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 264600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 264600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 264960
+    },
+    {
+      "at_abs": 265320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 265680
+    },
+    {
+      "at_abs": 265680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 266040
+    },
+    {
+      "at_abs": 266040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 266400
+    },
+    {
+      "at_abs": 266760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 267120
+    },
+    {
+      "at_abs": 267120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 267480
+    },
+    {
+      "at_abs": 267480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 267840
+    },
+    {
+      "at_abs": 268200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 268560
+    },
+    {
+      "at_abs": 268560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 268920
+    },
+    {
+      "at_abs": 268920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 269280
+    },
+    {
+      "at_abs": 269640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 270000
+    },
+    {
+      "at_abs": 270000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 270360
+    },
+    {
+      "at_abs": 270360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 270720
+    },
+    {
+      "at_abs": 271080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 271440
+    },
+    {
+      "at_abs": 271440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 271800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 271800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 272160,
+      "original_stress_emergency_kwh": 1657.8610555220405,
+      "candidate_stress_emergency_kwh": 1428.1264056071348
+    },
+    {
+      "at_abs": 272520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 272880
+    },
+    {
+      "at_abs": 272880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 273240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 273240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 273600
+    },
+    {
+      "at_abs": 273960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 274320
+    },
+    {
+      "at_abs": 274320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 274680
+    },
+    {
+      "at_abs": 274680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 275040
+    },
+    {
+      "at_abs": 275400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 275760
+    },
+    {
+      "at_abs": 275760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 276120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 276120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 276480
+    },
+    {
+      "at_abs": 276840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 277200
+    },
+    {
+      "at_abs": 277200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 277560
+    },
+    {
+      "at_abs": 277560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 277920,
+      "original_stress_emergency_kwh": 1613.1866728420773,
+      "candidate_stress_emergency_kwh": 1322.6376726471071
+    },
+    {
+      "at_abs": 278280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 278640
+    },
+    {
+      "at_abs": 278640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 279000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 279000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 279360
+    },
+    {
+      "at_abs": 279720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 280080
+    },
+    {
+      "at_abs": 280080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 280440
+    },
+    {
+      "at_abs": 280440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 280800
+    },
+    {
+      "at_abs": 281160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 281520
+    },
+    {
+      "at_abs": 281520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 281880,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 281880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 282240
+    },
+    {
+      "at_abs": 282600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 282960
+    },
+    {
+      "at_abs": 282960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 283320
+    },
+    {
+      "at_abs": 283320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 283680
+    },
+    {
+      "at_abs": 284040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 284400
+    },
+    {
+      "at_abs": 284400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 284760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 284760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 285120
+    },
+    {
+      "at_abs": 285480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 285840
+    },
+    {
+      "at_abs": 285840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 286200
+    },
+    {
+      "at_abs": 286200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 286560
+    },
+    {
+      "at_abs": 286920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 287280
+    },
+    {
+      "at_abs": 287280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 287640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 287640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 288000
+    },
+    {
+      "at_abs": 288360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 288720
+    },
+    {
+      "at_abs": 288720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 289080,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 289080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 289440
+    },
+    {
+      "at_abs": 289800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 290160
+    },
+    {
+      "at_abs": 290160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 290520
+    },
+    {
+      "at_abs": 290520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 290880
+    },
+    {
+      "at_abs": 291240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 291600
+    },
+    {
+      "at_abs": 291600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 291960,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 291960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 292320
+    },
+    {
+      "at_abs": 292680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 293040
+    },
+    {
+      "at_abs": 293040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 293400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 293400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 293760
+    },
+    {
+      "at_abs": 294120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 294480
+    },
+    {
+      "at_abs": 294480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 294840
+    },
+    {
+      "at_abs": 294840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 295200
+    },
+    {
+      "at_abs": 295560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 295920
+    },
+    {
+      "at_abs": 295920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 296280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 296280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 296640
+    },
+    {
+      "at_abs": 297000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 297360
+    },
+    {
+      "at_abs": 297360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 297720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 297720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 298080
+    },
+    {
+      "at_abs": 298440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 298800
+    },
+    {
+      "at_abs": 298800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 299160
+    },
+    {
+      "at_abs": 299160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 299520
+    },
+    {
+      "at_abs": 299880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 300240
+    },
+    {
+      "at_abs": 300240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 300600
+    },
+    {
+      "at_abs": 300600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 300960
+    },
+    {
+      "at_abs": 301320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 301680
+    },
+    {
+      "at_abs": 301680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 302040
+    },
+    {
+      "at_abs": 302040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 302400
+    },
+    {
+      "at_abs": 302760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 303120
+    },
+    {
+      "at_abs": 303120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 303480,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 303480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 303840
+    },
+    {
+      "at_abs": 304200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 304560
+    },
+    {
+      "at_abs": 304560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 304920
+    },
+    {
+      "at_abs": 304920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 305280
+    },
+    {
+      "at_abs": 305640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 306000
+    },
+    {
+      "at_abs": 306000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 306360
+    },
+    {
+      "at_abs": 306360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 306720
+    },
+    {
+      "at_abs": 307080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 307440
+    },
+    {
+      "at_abs": 307440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 307800
+    },
+    {
+      "at_abs": 307800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 308160
+    },
+    {
+      "at_abs": 308520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 308880
+    },
+    {
+      "at_abs": 308880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 309240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 309240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 309600
+    },
+    {
+      "at_abs": 309960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 310320
+    },
+    {
+      "at_abs": 310320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 310680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 310680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 311040
+    },
+    {
+      "at_abs": 311400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 311760
+    },
+    {
+      "at_abs": 311760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 312120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 312120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 312480
+    },
+    {
+      "at_abs": 312840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 313200
+    },
+    {
+      "at_abs": 313200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 313560
+    },
+    {
+      "at_abs": 313560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 313920
+    },
+    {
+      "at_abs": 314280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 314640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 314640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 315000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 315000,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 0.0049004133898051805,
+      "until_abs": 315360,
+      "original_stress_emergency_kwh": 673.9838893252443,
+      "candidate_stress_emergency_kwh": 673.9878586600901,
+      "restored_stress_emergency_kwh": 673.9838893252443
+    },
+    {
+      "at_abs": 315720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 316080
+    },
+    {
+      "at_abs": 316080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 316440
+    },
+    {
+      "at_abs": 316440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 316800
+    },
+    {
+      "at_abs": 317160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 317520
+    },
+    {
+      "at_abs": 317520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 317880
+    },
+    {
+      "at_abs": 317880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 318240
+    },
+    {
+      "at_abs": 318600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 318960
+    },
+    {
+      "at_abs": 318960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 319320
+    },
+    {
+      "at_abs": 319320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 319680
+    },
+    {
+      "at_abs": 320040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 320400
+    },
+    {
+      "at_abs": 320400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 320760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 320760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 321120
+    },
+    {
+      "at_abs": 321480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 321840
+    },
+    {
+      "at_abs": 321840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 322200
+    },
+    {
+      "at_abs": 322200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 322560
+    },
+    {
+      "at_abs": 322920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 323280
+    },
+    {
+      "at_abs": 323280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 323640
+    },
+    {
+      "at_abs": 323640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 324000
+    },
+    {
+      "at_abs": 324360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 324720
+    },
+    {
+      "at_abs": 324720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 325080
+    },
+    {
+      "at_abs": 325080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 325440
+    },
+    {
+      "at_abs": 325800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 326160
+    },
+    {
+      "at_abs": 326160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 326520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 326520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 326880
+    },
+    {
+      "at_abs": 327240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 327600
+    },
+    {
+      "at_abs": 327600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 327960,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 327960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 328320
+    },
+    {
+      "at_abs": 328680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 329040
+    },
+    {
+      "at_abs": 329040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 329400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 329400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 329760
+    },
+    {
+      "at_abs": 330120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 330480
+    },
+    {
+      "at_abs": 330480,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 330840,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 330840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 331200
+    },
+    {
+      "at_abs": 331560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 331920
+    },
+    {
+      "at_abs": 331920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 332280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 332280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 332640
+    },
+    {
+      "at_abs": 333000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 333360
+    },
+    {
+      "at_abs": 333360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 333720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 333720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 334080
+    },
+    {
+      "at_abs": 334440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 334800
+    },
+    {
+      "at_abs": 334800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 335160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 335160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 335520,
+      "original_stress_emergency_kwh": 1103.2229945961344,
+      "candidate_stress_emergency_kwh": 441.90933955824994
+    },
+    {
+      "at_abs": 335880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 336240
+    },
+    {
+      "at_abs": 336240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 336600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 336600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 336960
+    },
+    {
+      "at_abs": 337320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 337680
+    },
+    {
+      "at_abs": 337680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 338040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 338040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 338400
+    },
+    {
+      "at_abs": 338760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 339120
+    },
+    {
+      "at_abs": 339120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 339480
+    },
+    {
+      "at_abs": 339480,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 339840,
+      "original_stress_emergency_kwh": 1007.433479442374,
+      "candidate_stress_emergency_kwh": 443.85639369690995
+    },
+    {
+      "at_abs": 340200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 340560
+    },
+    {
+      "at_abs": 340560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 340920
+    },
+    {
+      "at_abs": 340920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 341280
+    },
+    {
+      "at_abs": 341640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 342000
+    },
+    {
+      "at_abs": 342000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 342360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 342360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 342720
+    },
+    {
+      "at_abs": 343080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 343440
+    },
+    {
+      "at_abs": 343440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 343800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 343800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 344160,
+      "original_stress_emergency_kwh": 630.0925279321228,
+      "candidate_stress_emergency_kwh": 426.85288384166233
+    },
+    {
+      "at_abs": 344520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 344880
+    },
+    {
+      "at_abs": 344880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 345240
+    },
+    {
+      "at_abs": 345240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 345600,
+      "original_stress_emergency_kwh": 867.7994092452792,
+      "candidate_stress_emergency_kwh": 492.0732445677405
+    },
+    {
+      "at_abs": 345960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 346320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 346320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 346680
+    },
+    {
+      "at_abs": 346680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 347040
+    },
+    {
+      "at_abs": 347400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 347760
+    },
+    {
+      "at_abs": 347760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 348120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 348120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 348480
+    },
+    {
+      "at_abs": 348840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 349200
+    },
+    {
+      "at_abs": 349200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 349560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 349560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 349920
+    },
+    {
+      "at_abs": 350280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 350640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 350640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 351000
+    },
+    {
+      "at_abs": 351000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 351360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 351720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 352080
+    },
+    {
+      "at_abs": 352080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 352440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 352440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 352800,
+      "original_stress_emergency_kwh": 1.5613937985019675,
+      "candidate_stress_emergency_kwh": 1.5613937985019675
+    },
+    {
+      "at_abs": 353160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 353520
+    },
+    {
+      "at_abs": 353520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 353880
+    },
+    {
+      "at_abs": 353880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 354240,
+      "original_stress_emergency_kwh": 17.616130792716717,
+      "candidate_stress_emergency_kwh": 17.616130792716717
+    },
+    {
+      "at_abs": 354600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 354960
+    },
+    {
+      "at_abs": 354960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 355320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 355320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 355680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": -1.1368683772161603e-13
+    },
+    {
+      "at_abs": 356040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 356400
+    },
+    {
+      "at_abs": 356400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 356760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 356760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 357120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 357480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 357840
+    },
+    {
+      "at_abs": 357840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 358200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 358200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 358560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 358920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 359280
+    },
+    {
+      "at_abs": 359280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 359640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 359640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 360000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 360360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 360720
+    },
+    {
+      "at_abs": 360720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 361080
+    },
+    {
+      "at_abs": 361080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 361440
+    },
+    {
+      "at_abs": 361800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 362160
+    },
+    {
+      "at_abs": 362160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 362520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 362520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 362880
+    },
+    {
+      "at_abs": 363240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 363600
+    },
+    {
+      "at_abs": 363600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 363960
+    },
+    {
+      "at_abs": 363960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 364320
+    },
+    {
+      "at_abs": 364680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 365040
+    },
+    {
+      "at_abs": 365040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 365400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 365400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 365760
+    },
+    {
+      "at_abs": 366120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 366480
+    },
+    {
+      "at_abs": 366480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 366840
+    },
+    {
+      "at_abs": 366840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 367200
+    },
+    {
+      "at_abs": 367560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 367920
+    },
+    {
+      "at_abs": 367920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 368280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 368280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 368640
+    },
+    {
+      "at_abs": 369000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 369360
+    },
+    {
+      "at_abs": 369360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 369720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 369720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 370080
+    },
+    {
+      "at_abs": 370440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 370800
+    },
+    {
+      "at_abs": 370800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 371160
+    },
+    {
+      "at_abs": 371160,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 61.21748210409396,
+      "until_abs": 371520,
+      "original_stress_emergency_kwh": 153.67015151187994,
+      "candidate_stress_emergency_kwh": 210.653415013604,
+      "restored_stress_emergency_kwh": 153.67015151187994
+    },
+    {
+      "at_abs": 371880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 372240
+    },
+    {
+      "at_abs": 372240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 372600
+    },
+    {
+      "at_abs": 372600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 372960,
+      "original_stress_emergency_kwh": 643.9774938780075,
+      "candidate_stress_emergency_kwh": 501.0373507102722
+    },
+    {
+      "at_abs": 373320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 373680
+    },
+    {
+      "at_abs": 373680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 374040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 374040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 374400
+    },
+    {
+      "at_abs": 374760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 375120
+    },
+    {
+      "at_abs": 375120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 375480
+    },
+    {
+      "at_abs": 375480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 375840
+    },
+    {
+      "at_abs": 376200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 376560
+    },
+    {
+      "at_abs": 376560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 376920,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 376920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 377280,
+      "original_stress_emergency_kwh": 773.4480294867824,
+      "candidate_stress_emergency_kwh": 382.31277658991644
+    },
+    {
+      "at_abs": 377640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 378000
+    },
+    {
+      "at_abs": 378000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 378360
+    },
+    {
+      "at_abs": 378360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 378720,
+      "original_stress_emergency_kwh": 1110.647227155739,
+      "candidate_stress_emergency_kwh": 313.3468017826848
+    },
+    {
+      "at_abs": 379080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 379440
+    },
+    {
+      "at_abs": 379440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 379800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 379800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 380160,
+      "original_stress_emergency_kwh": 654.2808675289053,
+      "candidate_stress_emergency_kwh": 302.97460835735194
+    },
+    {
+      "at_abs": 380520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 380880
+    },
+    {
+      "at_abs": 380880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 381240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 381240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 381600
+    },
+    {
+      "at_abs": 381960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 382320
+    },
+    {
+      "at_abs": 382320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 382680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 382680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 383040
+    },
+    {
+      "at_abs": 383400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 383760
+    },
+    {
+      "at_abs": 383760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 384120
+    },
+    {
+      "at_abs": 384120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 384480
+    },
+    {
+      "at_abs": 384840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 385200
+    },
+    {
+      "at_abs": 385200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 385560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 385560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 385920
+    },
+    {
+      "at_abs": 386280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 386640
+    },
+    {
+      "at_abs": 386640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 387000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 387000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 387360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 387720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 388080
+    },
+    {
+      "at_abs": 388080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 388440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 388440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 388800
+    },
+    {
+      "at_abs": 389160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 389520
+    },
+    {
+      "at_abs": 389520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 389880
+    },
+    {
+      "at_abs": 389880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 390240,
+      "original_stress_emergency_kwh": 436.17545723875975,
+      "candidate_stress_emergency_kwh": 94.09099822134874
+    },
+    {
+      "at_abs": 390600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 390960
+    },
+    {
+      "at_abs": 390960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 391320
+    },
+    {
+      "at_abs": 391320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 391680,
+      "original_stress_emergency_kwh": 675.830585843822,
+      "candidate_stress_emergency_kwh": 95.61755578788416
+    },
+    {
+      "at_abs": 392040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 392400
+    },
+    {
+      "at_abs": 392400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 392760
+    },
+    {
+      "at_abs": 392760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 393120,
+      "original_stress_emergency_kwh": 1096.331843173712,
+      "candidate_stress_emergency_kwh": 92.58780260605113
+    },
+    {
+      "at_abs": 393480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 393840
+    },
+    {
+      "at_abs": 393840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 394200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 394200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 394560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 394920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 395280
+    },
+    {
+      "at_abs": 395280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 395640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 395640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 396000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 396360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 396720
+    },
+    {
+      "at_abs": 396720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 397080
+    },
+    {
+      "at_abs": 397080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 397440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 397800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 398160
+    },
+    {
+      "at_abs": 398160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 398520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 398520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 398880,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 399240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 399600
+    },
+    {
+      "at_abs": 399600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 399960
+    },
+    {
+      "at_abs": 399960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 400320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 400680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 401040
+    },
+    {
+      "at_abs": 401040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 401400
+    },
+    {
+      "at_abs": 401400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 401760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 402120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 402480
+    },
+    {
+      "at_abs": 402480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 402840
+    },
+    {
+      "at_abs": 402840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 403200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 403560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 403920
+    },
+    {
+      "at_abs": 403920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 404280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 404280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 404640,
+      "original_stress_emergency_kwh": 283.66652364152003,
+      "candidate_stress_emergency_kwh": 99.93570450005222
+    },
+    {
+      "at_abs": 405000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 405360
+    },
+    {
+      "at_abs": 405360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 405720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 405720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 406080
+    },
+    {
+      "at_abs": 406440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 406800
+    },
+    {
+      "at_abs": 406800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 407160
+    },
+    {
+      "at_abs": 407160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 407520
+    },
+    {
+      "at_abs": 407880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 408240
+    },
+    {
+      "at_abs": 408240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 408600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 408600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 408960
+    },
+    {
+      "at_abs": 409320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 409680
+    },
+    {
+      "at_abs": 409680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 410040
+    },
+    {
+      "at_abs": 410040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 410400,
+      "original_stress_emergency_kwh": 904.2578848336755,
+      "candidate_stress_emergency_kwh": 100.30627213343496
+    },
+    {
+      "at_abs": 410760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 411120
+    },
+    {
+      "at_abs": 411120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 411480
+    },
+    {
+      "at_abs": 411480,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 411840,
+      "original_stress_emergency_kwh": 1213.3851206252266,
+      "candidate_stress_emergency_kwh": 92.66579593749975
+    },
+    {
+      "at_abs": 412200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 412560
+    },
+    {
+      "at_abs": 412560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 412920
+    },
+    {
+      "at_abs": 412920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 413280,
+      "original_stress_emergency_kwh": 988.0368487216564,
+      "candidate_stress_emergency_kwh": 96.78635090919954
+    },
+    {
+      "at_abs": 413640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 414000
+    },
+    {
+      "at_abs": 414000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 414360
+    },
+    {
+      "at_abs": 414360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 414720,
+      "original_stress_emergency_kwh": 1262.7304171919566,
+      "candidate_stress_emergency_kwh": 93.3587210278688
+    },
+    {
+      "at_abs": 415080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 415440
+    },
+    {
+      "at_abs": 415440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 415800
+    },
+    {
+      "at_abs": 415800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 416160,
+      "original_stress_emergency_kwh": 1643.098812307032,
+      "candidate_stress_emergency_kwh": 97.52088045751759
+    },
+    {
+      "at_abs": 416520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 416880
+    },
+    {
+      "at_abs": 416880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 417240,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 417240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 417600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 417960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 418320
+    },
+    {
+      "at_abs": 418320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 418680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 418680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 419040
+    },
+    {
+      "at_abs": 419400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 419760
+    },
+    {
+      "at_abs": 419760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 420120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 420120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 420480
+    },
+    {
+      "at_abs": 420840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 421200
+    },
+    {
+      "at_abs": 421200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 421560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 421560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 421920
+    },
+    {
+      "at_abs": 422280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 422640
+    },
+    {
+      "at_abs": 422640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 423000
+    },
+    {
+      "at_abs": 423000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 423360
+    },
+    {
+      "at_abs": 423720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 424080
+    },
+    {
+      "at_abs": 424080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 424440
+    },
+    {
+      "at_abs": 424440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 424800,
+      "original_stress_emergency_kwh": 772.938437775645,
+      "candidate_stress_emergency_kwh": 179.6474116269057
+    },
+    {
+      "at_abs": 425160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 425520,
+      "original_stress_emergency_kwh": 9.569716008088221,
+      "candidate_stress_emergency_kwh": 9.569716008088221
+    },
+    {
+      "at_abs": 425520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 425880
+    },
+    {
+      "at_abs": 425880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 426240,
+      "original_stress_emergency_kwh": 300.9136776157707,
+      "candidate_stress_emergency_kwh": 174.5549448906038
+    },
+    {
+      "at_abs": 426600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 426960
+    },
+    {
+      "at_abs": 426960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 427320,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 427320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 427680
+    },
+    {
+      "at_abs": 428040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 428400
+    },
+    {
+      "at_abs": 428400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 428760
+    },
+    {
+      "at_abs": 428760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 429120,
+      "original_stress_emergency_kwh": 781.0671440801016,
+      "candidate_stress_emergency_kwh": 188.59786140414394
+    },
+    {
+      "at_abs": 429480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 429840
+    },
+    {
+      "at_abs": 429840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 430200
+    },
+    {
+      "at_abs": 430200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 430560
+    },
+    {
+      "at_abs": 430920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 431280
+    },
+    {
+      "at_abs": 431280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 431640,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 431640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 432000
+    },
+    {
+      "at_abs": 432360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 432720
+    },
+    {
+      "at_abs": 432720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 433080,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 433080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 433440
+    },
+    {
+      "at_abs": 433800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 434160
+    },
+    {
+      "at_abs": 434160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 434520
+    },
+    {
+      "at_abs": 434520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 434880
+    },
+    {
+      "at_abs": 435240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 435600
+    },
+    {
+      "at_abs": 435600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 435960
+    },
+    {
+      "at_abs": 435960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 436320
+    },
+    {
+      "at_abs": 436680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 437040
+    },
+    {
+      "at_abs": 437040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 437400
+    },
+    {
+      "at_abs": 437400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 437760,
+      "original_stress_emergency_kwh": 1051.0868436312114,
+      "candidate_stress_emergency_kwh": 153.8178179602699
+    },
+    {
+      "at_abs": 438120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 438480
+    },
+    {
+      "at_abs": 438480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 438840
+    },
+    {
+      "at_abs": 438840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 439200,
+      "original_stress_emergency_kwh": 544.1937278825649,
+      "candidate_stress_emergency_kwh": 153.81781796026945
+    },
+    {
+      "at_abs": 439560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 439920
+    },
+    {
+      "at_abs": 439920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 440280
+    },
+    {
+      "at_abs": 440280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 440640,
+      "original_stress_emergency_kwh": 579.9418617500588,
+      "candidate_stress_emergency_kwh": 262.7242275456825
+    },
+    {
+      "at_abs": 441000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 441360
+    },
+    {
+      "at_abs": 441360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 441720
+    },
+    {
+      "at_abs": 441720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 442080
+    },
+    {
+      "at_abs": 442440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 442800
+    },
+    {
+      "at_abs": 442800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 443160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 443160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 443520,
+      "original_stress_emergency_kwh": 749.6829423453205,
+      "candidate_stress_emergency_kwh": 263.4804887989439
+    },
+    {
+      "at_abs": 443880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 444240
+    },
+    {
+      "at_abs": 444240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 444600,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 444600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 444960
+    },
+    {
+      "at_abs": 445320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 445680
+    },
+    {
+      "at_abs": 445680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 446040,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 446040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 446400,
+      "original_stress_emergency_kwh": 354.76896271900904,
+      "candidate_stress_emergency_kwh": 317.48384011836083
+    },
+    {
+      "at_abs": 446760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 447120
+    },
+    {
+      "at_abs": 447120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 447480
+    },
+    {
+      "at_abs": 447480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 447840
+    },
+    {
+      "at_abs": 448200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 448560
+    },
+    {
+      "at_abs": 448560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 448920,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 448920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 449280
+    },
+    {
+      "at_abs": 449640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 450000
+    },
+    {
+      "at_abs": 450000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 450360
+    },
+    {
+      "at_abs": 450360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 450720
+    },
+    {
+      "at_abs": 451080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 451440
+    },
+    {
+      "at_abs": 451440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 451800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 451800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 452160
+    },
+    {
+      "at_abs": 452520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 452880
+    },
+    {
+      "at_abs": 452880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 453240
+    },
+    {
+      "at_abs": 453240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 453600
+    },
+    {
+      "at_abs": 453960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 454320
+    },
+    {
+      "at_abs": 454320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 454680,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 454680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 455040
+    },
+    {
+      "at_abs": 455400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 455760
+    },
+    {
+      "at_abs": 455760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 456120
+    },
+    {
+      "at_abs": 456120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 456480
+    },
+    {
+      "at_abs": 456840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 457200
+    },
+    {
+      "at_abs": 457200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 457560
+    },
+    {
+      "at_abs": 457560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 457920
+    },
+    {
+      "at_abs": 458280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 458640
+    },
+    {
+      "at_abs": 458640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 459000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 459000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 459360,
+      "original_stress_emergency_kwh": 910.8508995266781,
+      "candidate_stress_emergency_kwh": 371.6731877535976
+    },
+    {
+      "at_abs": 459720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 460080
+    },
+    {
+      "at_abs": 460080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 460440
+    },
+    {
+      "at_abs": 460440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 460800
+    },
+    {
+      "at_abs": 461160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 461520
+    },
+    {
+      "at_abs": 461520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 461880,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 461880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 462240,
+      "original_stress_emergency_kwh": 603.8556539911038,
+      "candidate_stress_emergency_kwh": 337.12730284861465
+    },
+    {
+      "at_abs": 462600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 462960
+    },
+    {
+      "at_abs": 462960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 463320
+    },
+    {
+      "at_abs": 463320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 463680
+    },
+    {
+      "at_abs": 464040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 464400,
+      "original_stress_emergency_kwh": 2462.428705814303,
+      "candidate_stress_emergency_kwh": 1925.1599940163799
+    },
+    {
+      "at_abs": 464400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 464760,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 464760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 465120
+    },
+    {
+      "at_abs": 465480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 465840
+    },
+    {
+      "at_abs": 465840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 466200
+    },
+    {
+      "at_abs": 466200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 466560,
+      "original_stress_emergency_kwh": 666.971772599271,
+      "candidate_stress_emergency_kwh": 347.3308084956536
+    },
+    {
+      "at_abs": 466920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 467280
+    },
+    {
+      "at_abs": 467280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 467640
+    },
+    {
+      "at_abs": 467640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 468000,
+      "original_stress_emergency_kwh": 831.5066041234867,
+      "candidate_stress_emergency_kwh": 401.1132078746029
+    },
+    {
+      "at_abs": 468360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 468720
+    },
+    {
+      "at_abs": 468720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 469080
+    },
+    {
+      "at_abs": 469080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 469440
+    },
+    {
+      "at_abs": 469800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 470160
+    },
+    {
+      "at_abs": 470160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 470520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 470520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 470880,
+      "original_stress_emergency_kwh": 182.30493498517689,
+      "candidate_stress_emergency_kwh": 182.30493498517689
+    },
+    {
+      "at_abs": 471240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 471600
+    },
+    {
+      "at_abs": 471600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 471960
+    },
+    {
+      "at_abs": 471960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 472320,
+      "original_stress_emergency_kwh": 405.91269413799193,
+      "candidate_stress_emergency_kwh": 361.6333458888379
+    },
+    {
+      "at_abs": 472680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 473040
+    },
+    {
+      "at_abs": 473040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 473400
+    },
+    {
+      "at_abs": 473400,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 473760,
+      "original_stress_emergency_kwh": 470.5281106976422,
+      "candidate_stress_emergency_kwh": 362.1267015971064
+    },
+    {
+      "at_abs": 474120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 474480
+    },
+    {
+      "at_abs": 474480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 474840
+    },
+    {
+      "at_abs": 474840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 475200
+    },
+    {
+      "at_abs": 475560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 475920
+    },
+    {
+      "at_abs": 475920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 476280,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 476280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 476640
+    },
+    {
+      "at_abs": 477000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 477360
+    },
+    {
+      "at_abs": 477360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 477720
+    },
+    {
+      "at_abs": 477720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 478080
+    },
+    {
+      "at_abs": 478440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 478800
+    },
+    {
+      "at_abs": 478800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 479160
+    },
+    {
+      "at_abs": 479160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 479520,
+      "original_stress_emergency_kwh": 2087.1656563240003,
+      "candidate_stress_emergency_kwh": 312.32046560098877
+    },
+    {
+      "at_abs": 479880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 480240,
+      "original_stress_emergency_kwh": 1349.0463343589436,
+      "candidate_stress_emergency_kwh": 1349.0463343589436
+    },
+    {
+      "at_abs": 480240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 480600
+    },
+    {
+      "at_abs": 480600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 480960
+    },
+    {
+      "at_abs": 481320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 481680
+    },
+    {
+      "at_abs": 481680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 482040
+    },
+    {
+      "at_abs": 482040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 482400,
+      "original_stress_emergency_kwh": 563.3520493395496,
+      "candidate_stress_emergency_kwh": 280.67725334327116
+    },
+    {
+      "at_abs": 482760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 483120
+    },
+    {
+      "at_abs": 483120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 483480
+    },
+    {
+      "at_abs": 483480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 483840
+    },
+    {
+      "at_abs": 484200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 484560
+    },
+    {
+      "at_abs": 484560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 484920
+    },
+    {
+      "at_abs": 484920,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 56.15761215503028,
+      "until_abs": 485280,
+      "original_stress_emergency_kwh": 157.9443249089232,
+      "candidate_stress_emergency_kwh": 190.52059192666337,
+      "restored_stress_emergency_kwh": 157.9443249089232
+    },
+    {
+      "at_abs": 485640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 486000
+    },
+    {
+      "at_abs": 486000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 486360
+    },
+    {
+      "at_abs": 486360,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 10.913792111675662,
+      "until_abs": 486720,
+      "original_stress_emergency_kwh": 236.7183219976189,
+      "candidate_stress_emergency_kwh": 243.61451984645544,
+      "restored_stress_emergency_kwh": 236.7183219976189
+    },
+    {
+      "at_abs": 487080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 487440
+    },
+    {
+      "at_abs": 487440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 487800
+    },
+    {
+      "at_abs": 487800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 488160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 488520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 488880
+    },
+    {
+      "at_abs": 488880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 489240
+    },
+    {
+      "at_abs": 489240,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 489600,
+      "original_stress_emergency_kwh": 26.84602805079819,
+      "candidate_stress_emergency_kwh": 26.84602805079819
+    },
+    {
+      "at_abs": 489960,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 490320,
+      "original_stress_emergency_kwh": 4857.204816913796,
+      "candidate_stress_emergency_kwh": 2327.769368569878
+    },
+    {
+      "at_abs": 490320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 490680
+    },
+    {
+      "at_abs": 490680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 491040,
+      "original_stress_emergency_kwh": 298.1783863230479,
+      "candidate_stress_emergency_kwh": 275.4012501111441
+    },
+    {
+      "at_abs": 491400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 491760
+    },
+    {
+      "at_abs": 491760,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 492120,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 492120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 492480
+    },
+    {
+      "at_abs": 492840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 493200,
+      "original_stress_emergency_kwh": 2978.8482102126577,
+      "candidate_stress_emergency_kwh": 2402.8730143959897
+    },
+    {
+      "at_abs": 493200,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 493560,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 493560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 493920,
+      "original_stress_emergency_kwh": 683.8727095663705,
+      "candidate_stress_emergency_kwh": 267.97890633822624
+    },
+    {
+      "at_abs": 494280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 494640
+    },
+    {
+      "at_abs": 494640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 495000,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 495000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 495360
+    },
+    {
+      "at_abs": 495720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 496080,
+      "original_stress_emergency_kwh": 2017.7370822362464,
+      "candidate_stress_emergency_kwh": 2017.7370822362464
+    },
+    {
+      "at_abs": 496080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 496440,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 496440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 496800,
+      "original_stress_emergency_kwh": 334.8561545407086,
+      "candidate_stress_emergency_kwh": 271.4711674271217
+    },
+    {
+      "at_abs": 497160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 497520
+    },
+    {
+      "at_abs": 497520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 497880
+    },
+    {
+      "at_abs": 497880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 498240
+    },
+    {
+      "at_abs": 498600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 498960
+    },
+    {
+      "at_abs": 498960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 499320
+    },
+    {
+      "at_abs": 499320,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 499680,
+      "original_stress_emergency_kwh": 646.9867068639636,
+      "candidate_stress_emergency_kwh": 285.163233376335
+    },
+    {
+      "at_abs": 500040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 500400
+    },
+    {
+      "at_abs": 500400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 500760
+    },
+    {
+      "at_abs": 500760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 501120
+    },
+    {
+      "at_abs": 501480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 501840
+    },
+    {
+      "at_abs": 501840,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 502200,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 502200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 502560
+    },
+    {
+      "at_abs": 502920,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 503280,
+      "original_stress_emergency_kwh": 2564.2131682715617,
+      "candidate_stress_emergency_kwh": 2487.3448536450132
+    },
+    {
+      "at_abs": 503280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 503640
+    },
+    {
+      "at_abs": 503640,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 504000,
+      "original_stress_emergency_kwh": 298.3462204270679,
+      "candidate_stress_emergency_kwh": 255.13453688089703
+    },
+    {
+      "at_abs": 504360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 504720,
+      "original_stress_emergency_kwh": 2563.9013887812107,
+      "candidate_stress_emergency_kwh": 2464.3449363189366
+    },
+    {
+      "at_abs": 504720,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 505080,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 505080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 505440
+    },
+    {
+      "at_abs": 505800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 506160,
+      "original_stress_emergency_kwh": 3565.2587358720566,
+      "candidate_stress_emergency_kwh": 2479.203923494136
+    },
+    {
+      "at_abs": 506160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 506520,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 506520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 506880,
+      "original_stress_emergency_kwh": 496.7189788391873,
+      "candidate_stress_emergency_kwh": 255.82222068349918
+    },
+    {
+      "at_abs": 507240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 507600
+    },
+    {
+      "at_abs": 507600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 507960,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 507960,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 508320
+    },
+    {
+      "at_abs": 508680,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 509040,
+      "original_stress_emergency_kwh": 1603.3534406513422,
+      "candidate_stress_emergency_kwh": 1603.3534406513422
+    },
+    {
+      "at_abs": 509040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 509400,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 509400,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 509760
+    },
+    {
+      "at_abs": 510120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 510480,
+      "original_stress_emergency_kwh": 2542.8806809862626,
+      "candidate_stress_emergency_kwh": 2461.1748275161603
+    },
+    {
+      "at_abs": 510480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 510840
+    },
+    {
+      "at_abs": 510840,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 19.490106198916806,
+      "until_abs": 511200,
+      "original_stress_emergency_kwh": 179.25531819722488,
+      "candidate_stress_emergency_kwh": 180.68154373816603,
+      "restored_stress_emergency_kwh": 179.25531819722488
+    },
+    {
+      "at_abs": 511560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 511920
+    },
+    {
+      "at_abs": 511920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 512280
+    },
+    {
+      "at_abs": 512280,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 512640,
+      "original_stress_emergency_kwh": 63.213964468010886,
+      "candidate_stress_emergency_kwh": 63.213964468010886
+    },
+    {
+      "at_abs": 513000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 513360,
+      "original_stress_emergency_kwh": 2485.2415468476975,
+      "candidate_stress_emergency_kwh": 2470.3496062500158
+    },
+    {
+      "at_abs": 513360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 513720,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 513720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 514080
+    },
+    {
+      "at_abs": 514440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 514800,
+      "original_stress_emergency_kwh": 2250.360101916874,
+      "candidate_stress_emergency_kwh": 2250.360101916874
+    },
+    {
+      "at_abs": 514800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 515160
+    },
+    {
+      "at_abs": 515160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 515520,
+      "original_stress_emergency_kwh": 904.0863146490058,
+      "candidate_stress_emergency_kwh": 353.7895549423618
+    },
+    {
+      "at_abs": 515880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 516240
+    },
+    {
+      "at_abs": 516240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 516600
+    },
+    {
+      "at_abs": 516600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 516960
+    },
+    {
+      "at_abs": 517320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 517680
+    },
+    {
+      "at_abs": 517680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 518040
+    },
+    {
+      "at_abs": 518040,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 518400,
+      "original_stress_emergency_kwh": 914.7125097065411,
+      "candidate_stress_emergency_kwh": 375.8895871869268
+    },
+    {
+      "at_abs": 518760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 519120
+    },
+    {
+      "at_abs": 519120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 519480
+    },
+    {
+      "at_abs": 519480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 519840
+    },
+    {
+      "at_abs": 520200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 520560
+    },
+    {
+      "at_abs": 520560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 520920,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 520920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 521280
+    },
+    {
+      "at_abs": 521640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 522000
+    },
+    {
+      "at_abs": 522000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 522360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 522360,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 522720,
+      "original_stress_emergency_kwh": 560.0094914008574,
+      "candidate_stress_emergency_kwh": 349.8353887169198
+    },
+    {
+      "at_abs": 523080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 523440
+    },
+    {
+      "at_abs": 523440,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 523800,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 523800,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 28.253818943133638,
+      "until_abs": 524160,
+      "original_stress_emergency_kwh": 186.88156619401389,
+      "candidate_stress_emergency_kwh": 190.47425934245075,
+      "restored_stress_emergency_kwh": 186.88156619401389
+    },
+    {
+      "at_abs": 524520,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 524880,
+      "original_stress_emergency_kwh": 1356.5291939110566,
+      "candidate_stress_emergency_kwh": 1356.5291939110566
+    },
+    {
+      "at_abs": 524880,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 525240
+    },
+    {
+      "at_abs": 525240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 525600
+    }
+  ],
+  "notes": "Guard guarantees no worsening only under the current deterministic stress before the next legal node. Risk penalties are excluded from bills."
+}

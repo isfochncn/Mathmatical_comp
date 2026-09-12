@@ -97,7 +97,7 @@ class RunConfig:
 
     def effective_pv_method(self) -> str:
         if self.pv_method == 'auto':
-            return 'report_blend' if self.problem == 'problem3' and self.load_method == 'adaptive' else 'pooled'
+            return 'report_blend' if self.problem in ('problem3','problem4-2','problem4-3') and self.load_method == 'adaptive' else 'pooled'
         return self.pv_method
 
     def __post_init__(self) -> None:
@@ -114,8 +114,8 @@ class RunConfig:
             raise ValueError('Unknown forecast method')
         if self.pv_method not in ('auto','pooled','report_blend'):
             raise ValueError('Unknown PV forecast method')
-        if self.effective_pv_method() == 'report_blend' and (self.problem != 'problem3' or self.load_method != 'adaptive'):
-            raise ValueError('Report blend is currently enabled only for adaptive problem three')
+        if self.effective_pv_method() == 'report_blend' and (self.problem not in ('problem3','problem4-2','problem4-3') or self.load_method != 'adaptive'):
+            raise ValueError('Report blend requires an adaptive branch with published-PV permission')
         if not np.isfinite(self.risk_quantile) or not 0 <= self.risk_quantile < 1:
             raise ValueError('risk_quantile must be in [0, 1)')
         if self.load_method != 'adaptive' and self.risk_quantile:
@@ -139,6 +139,28 @@ POLICIES: dict[str, Policy] = {
     "problem4-2": Policy("problem4-2", False, True, "historical"),
     "problem4-3": Policy("problem4-3", True, True, "historical", _ADJUST_NODES),
 }
+
+
+def describe_model(config: RunConfig) -> dict[str, object]:
+    """Resolved run identity; this is recorded before any expensive solve."""
+    policy = POLICIES[config.problem]
+    pv = config.effective_pv_method()
+    if config.problem == 'problem1':
+        return dict(problem=config.problem, pv_method='given_day', load_method='given_day',
+                    forecast_class='GivenDay', price_mode=policy.price_mode,
+                    use_published_pv=False, can_adjust_plan=False, risk_quantile=0,
+                    notice='Deterministic attachment-one daily cycle; initial and terminal SOC are 6000 kWh.')
+    return dict(problem=config.problem, pv_method=pv, load_method=config.load_method,
+                forecast_class=('CumulativeReportForecaster' if pv == 'report_blend' and config.problem.startswith('problem4') else
+                                'ReportAwareForecaster' if pv == 'report_blend' else
+                                'AdaptiveForecaster' if config.load_method == 'adaptive' else 'Forecaster'),
+                price_mode=policy.price_mode, use_published_pv=policy.use_published_pv,
+                can_adjust_plan=policy.can_adjust_plan, risk_quantile=config.risk_quantile,
+                notice=('Economic problem four v5: 3% cold reserve, stage-matched errors, 80/20 emergency-cost blend (50/50 in frozen first week) and legal-node reduction guard; '
+                        'empirical risk protection is not a reliability guarantee.' if config.problem.startswith('problem4') and pv=='report_blend' else
+                        'Historical reproduction: known emergency-purchase and reserve-path issues.'
+                        if config.problem.startswith('problem4') else
+                        'Empirical reserve is a soft planning approximation, not a 90% supply guarantee.'))
 
 
 # ==========================================================================
@@ -365,6 +387,10 @@ def _p1_summary(run: AbsoluteRun, result: WindowResult, totals: LabelTotals, for
 def make_forecaster(config: RunConfig, bundle: DataBundle, timeline: Timeline):
     if config.load_method == 'adaptive':
         if config.effective_pv_method() == 'report_blend':
+            if config.problem.startswith('problem4'):
+                from .cumulative_risk import CumulativeReportForecaster
+                return CumulativeReportForecaster(bundle,timeline,history_days=config.history_days,
+                    risk_quantile=config.risk_quantile,variant='blend',nowcast=True)
             from .report_forecast import ReportAwareForecaster
             return ReportAwareForecaster(bundle,timeline,history_days=config.history_days,
                                          risk_quantile=config.risk_quantile,variant='blend',nowcast=True)
@@ -464,7 +490,8 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
     loss = physics.loss_accounting(arrays["charge_kwh"][report_mask], arrays["discharge_kwh"][report_mask])
     summary: dict[str, object] = {
         "problem": config.problem,
-        "forecast_policy_version": ('report-hourly-blend-risk-v2' if config.effective_pv_method() == 'report_blend'
+        "forecast_policy_version": ('report-economic-reserve-v5' if config.problem.startswith('problem4') and config.effective_pv_method()=='report_blend' else
+                                    'report-hourly-blend-risk-v2' if config.effective_pv_method() == 'report_blend'
                                     else 'adaptive-risk-v1' if config.load_method == 'adaptive' else 'legacy-point-v1'),
         "forecast_method": config.load_method,
         "pv_forecast_method": config.effective_pv_method(),
@@ -504,6 +531,11 @@ def run_rolling(config: RunConfig, bundle: DataBundle | None = None) -> RunResul
         "n_simultaneous_intervals": loss["n_simultaneous_intervals"],
         "window_solves": outcome.window_solves,
         "plan_revisions": outcome.revisions,
+        "reduction_guard_checks": sum(bool(a.get('reduction_guard',{}).get('checked')) for a in outcome.forecast_audits),
+        "reduction_guard_blocks": sum(bool(a.get('reduction_guard',{}).get('blocked')) for a in outcome.forecast_audits),
+        "reduction_guard_restored_kwh": sum(a.get('reduction_guard',{}).get('restored_kwh',0.) for a in outcome.forecast_audits),
+        "stress_emergency_windows": sum(a.get('stress_emergency_kwh',0.)>1e-5 for a in outcome.forecast_audits),
+        "stress_emergency_max_kwh": max(a.get('stress_emergency_kwh',0.) for a in outcome.forecast_audits),
         "infeasible_intervals": outcome.infeasible_abs,
         "output_days": len(output_day_bills),
         "output_row_purchase_kwh": output_totals.total_kwh,

@@ -1,0 +1,25 @@
+{
+  "problem": "problem4-2",
+  "compared_intervals": 2016,
+  "all_v5_prefix_checks_passed": true,
+  "source_and_template_hashes_identical": true,
+  "maximum_absolute_difference_by_array": {
+    "abs_minute": 0.0,
+    "grid_kwh": 0.0,
+    "emergency_kwh": 0.0,
+    "charge_kwh": 0.0,
+    "discharge_kwh": 0.0,
+    "curtail_kwh": 0.0,
+    "surplus_kwh": 0.0,
+    "demand_kwh": 0.0,
+    "pv_kwh": 0.0,
+    "price_actual": 0.0,
+    "plan_initial_kwh": 0.0,
+    "plan_exec_kwh": 0.0,
+    "add_exec_kwh": 0.0,
+    "soc_boundary_kwh": 0.0
+  },
+  "simultaneous_above_1e_9": 0,
+  "max_smaller_charge_discharge_kwh": 0.0,
+  "simultaneous_above_1e_6": 0
+}

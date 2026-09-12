@@ -18,6 +18,7 @@ from .absolute_run import (
     RunConfig,
     run,
     save_run,
+    describe_model,
 )
 from .constants import OUTPUT_END, OUTPUT_START, SPECIAL_DATES
 from .data_io import load_all
@@ -55,6 +56,8 @@ def build_parser() -> argparse.ArgumentParser:
     runp.add_argument("--out", default="out")
     runp.add_argument("--solver", default="appsi_highs")
     runp.add_argument("--history-days", type=int, default=28)
+    runp.add_argument('--pv-method', choices=('auto', 'pooled', 'report_blend'), default='auto',
+                      help='问题三/四auto启用优化光伏；问题四同时启用累计备用和调减检查，pooled仅历史复现')
     runp.add_argument(
         "--load-method",
         choices=("adaptive", "same_clock_mean", "same_weekday"),
@@ -88,7 +91,7 @@ def build_parser() -> argparse.ArgumentParser:
     runp.add_argument("--strict-no-spill", action="store_true", help="旧版禁止弃购电对照；需指定 --experiment 名称")
     runp.add_argument("--no-save", action="store_true")
 
-    exp = sub.add_parser("export", help="由已保存的运行结果生成结果文件与论文用表")
+    exp = sub.add_parser("export", help="问题一及历史兼容导出；滚动分支正式交付使用tools中的strict_result流程")
     exp.add_argument(
         "--problem",
         required=True,
@@ -152,6 +155,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         history_days=args.history_days,
         experiment=args.experiment,
         load_method=args.load_method,
+        pv_method=args.pv_method,
         risk_quantile=args.risk_quantile,
         absorption_safety_kwh=args.absorption_safety_kwh,
         plan_refresh_intervals=args.plan_refresh_intervals,
@@ -160,7 +164,9 @@ def cmd_run(args: argparse.Namespace) -> int:
         solver_name=args.solver,
         run_from=_parse_date(args.run_from),
         run_to=_parse_date(args.run_to),
+        progress_every_days=args.progress_every_days,
     )
+    print(json.dumps(describe_model(config), ensure_ascii=False), flush=True)
     result = run(config)
     s = result.summary
     g = lambda k, d=0.0: float(s.get(k, d))  # noqa: E731

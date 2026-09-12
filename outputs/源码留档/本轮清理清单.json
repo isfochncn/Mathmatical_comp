@@ -1,0 +1,637 @@
+[
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\result4-3.xlsx.inspect.ndjson",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\artifact_errors.jsonl",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_充放电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_调整购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_调整购电量_1.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_计划购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_计划购电量_1.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_紧急购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\result4-2.xlsx.inspect.ndjson",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\artifact_errors.jsonl",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_充放电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_计划购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_计划购电量_1.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_紧急购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\问题三_2025年2月_逐时购电与电费.xlsx.inspect.ndjson",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\node_modules",
+    "Kind": "junction",
+    "Reason": "Bundled runtime reference duplicated in results"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\adjustment_fee.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\build_workbook.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\comparison.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\daily.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\fees.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\forecasts.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\penalties.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\physics.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\purchase.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\summary.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\result3.xlsx.inspect.ndjson",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\node_modules",
+    "Kind": "junction",
+    "Reason": "Bundled runtime reference duplicated in results"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\artifact_errors.jsonl",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\build_strict_result.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_充放电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_调整购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_调整购电量_1.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_计划购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_计划购电量_1.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_紧急购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\template_surface.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\artifact_errors.jsonl",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_充放电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_调整购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_调整购电量_1.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_计划购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_计划购电量_1.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_紧急购电量_0.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\问题三_2025年2月_逐时购电与电费.xlsx.inspect.ndjson",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\node_modules",
+    "Kind": "junction",
+    "Reason": "Bundled runtime reference duplicated in results"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\adjustment_fee.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\build_workbook.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\daily.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\fees.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\forecasts.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\penalties.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\physics.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\purchase.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题三_1至2月检验_20260912_120602\\核验\\summary.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_7月检验_20260912_110048\\核验\\node_modules",
+    "Kind": "junction",
+    "Reason": "Bundled runtime reference duplicated in results"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_7月检验_20260912_110048\\核验\\build_workbook.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\问题二_2025年2月_逐时购电与电费.xlsx.inspect.ndjson",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\node_modules",
+    "Kind": "junction",
+    "Reason": "Bundled runtime reference duplicated in results"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\build_workbook.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\daily.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\fees.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\forecasts.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\physics.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\purchase.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\read_freeze_help.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_2月检验_20260912_111238\\核验\\summary.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\node_modules",
+    "Kind": "junction",
+    "Reason": "Bundled runtime reference duplicated in results"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\inspect_workbooks.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result1.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result1.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result2.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result2.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result2.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_调整购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result4-2.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result4-2.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result4-2.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_调整购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result1.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result1.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result2.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result2.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result2.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_调整购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result4-2.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result4-2.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result4-2.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_充放电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_调整购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_计划购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_紧急购电量.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\光伏与负荷_一月至二月预测检验.xlsx.inspect.ndjson",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\node_modules",
+    "Kind": "junction",
+    "Reason": "Bundled runtime reference duplicated in results"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\blocks.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\build_workbook.mjs",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\february.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\horizons.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\january.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\load_net.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\notes.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\summary.png",
+    "Kind": "file",
+    "Reason": "Regenerable preview, old builder, or inspection scratch"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\code",
+    "Kind": "directory",
+    "Reason": "Empty, scratch, migrated history, or cancelled run"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tmp",
+    "Kind": "directory",
+    "Reason": "Empty, scratch, migrated history, or cancelled run"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\out",
+    "Kind": "directory",
+    "Reason": "Empty, scratch, migrated history, or cancelled run"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\.pytest_cache",
+    "Kind": "directory",
+    "Reason": "Empty, scratch, migrated history, or cancelled run"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题二_7月检验_20260912_110048",
+    "Kind": "directory",
+    "Reason": "Empty, scratch, migrated history, or cancelled run"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\src\\microgrid\\__pycache__",
+    "Kind": "directory",
+    "Reason": "Python cache"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tests\\__pycache__",
+    "Kind": "directory",
+    "Reason": "Python cache"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\__pycache__",
+    "Kind": "directory",
+    "Reason": "Python cache"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\run_all_problems.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\finish_exports.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\run_problem2_month.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\prepare_problem2_month.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\prepare_problem3_month.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\verify_problem2_month.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\verify_problem3_month.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  },
+  {
+    "Path": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\tools\\compare_problem3_month.py",
+    "Kind": "file",
+    "Reason": "Superseded by common runner and strict exporter; source snapshot retained"
+  }
+]

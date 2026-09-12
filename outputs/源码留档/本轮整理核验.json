@@ -1,0 +1,580 @@
+{
+  "status": "source_cleanup_complete_physical_generated_cleanup_partial",
+  "tests": "97 passed; final routing checks 8 passed",
+  "protected_workbooks_unchanged": 26,
+  "source_snapshot_hash_verified": true,
+  "dependency_files_removed_from_git_index": 54572,
+  "generated_files_removed_from_git_index_total": 54670,
+  "old_month_pipeline_scripts_deleted": 8,
+  "old_output_builder_scripts_deleted": 9,
+  "experiments_moved": 13,
+  "active_tools": [
+    "build_strict_result.mjs",
+    "prepare_strict_result.py",
+    "run_selected_period.py",
+    "verify_strict_result.py"
+  ],
+  "physical_cleanup_block": "Automatic approval review rejected both batch deletion and single dependency-junction deletion: blocked by policy. No reason beyond that was provided.",
+  "remaining_generated_items": [
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\result4-3.xlsx.inspect.ndjson",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\artifact_errors.jsonl",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_充放电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_调整购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_调整购电量_1.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_计划购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_计划购电量_1.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-3\\核验\\result_紧急购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\result4-2.xlsx.inspect.ndjson",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\artifact_errors.jsonl",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_充放电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_计划购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_计划购电量_1.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题四_1至2月检验_20260912_165702\\problem4-2\\核验\\result_紧急购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\问题三_2025年2月_逐时购电与电费.xlsx.inspect.ndjson",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\node_modules",
+      "kind": "junction",
+      "reason": "Bundled runtime reference duplicated in results"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\adjustment_fee.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\comparison.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\daily.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\fees.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\forecasts.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\penalties.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\physics.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\purchase.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_优化光伏_1至2月_20260912_134112\\核验\\summary.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\result3.xlsx.inspect.ndjson",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\node_modules",
+      "kind": "junction",
+      "reason": "Bundled runtime reference duplicated in results"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\artifact_errors.jsonl",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_充放电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_调整购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_调整购电量_1.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_计划购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_计划购电量_1.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\result_紧急购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\artifact_errors.jsonl",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_充放电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_调整购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_调整购电量_1.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_计划购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_计划购电量_1.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_全年_优化光伏_20260912_140712\\核验\\导出数据核验\\核验\\layout_紧急购电量_0.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\问题三_2025年2月_逐时购电与电费.xlsx.inspect.ndjson",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\node_modules",
+      "kind": "junction",
+      "reason": "Bundled runtime reference duplicated in results"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\adjustment_fee.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\daily.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\fees.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\forecasts.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\penalties.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\physics.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\purchase.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题三_1至2月检验_20260912_120602\\核验\\summary.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题二_7月检验_20260912_110048\\核验\\node_modules",
+      "kind": "junction",
+      "reason": "Bundled runtime reference duplicated in results"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\问题二_2025年2月_逐时购电与电费.xlsx.inspect.ndjson",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\核验\\node_modules",
+      "kind": "junction",
+      "reason": "Bundled runtime reference duplicated in results"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\核验\\daily.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\核验\\fees.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\核验\\forecasts.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\核验\\physics.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\核验\\purchase.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\问题二_2月检验_20260912_111238\\核验\\summary.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\node_modules",
+      "kind": "junction",
+      "reason": "Bundled runtime reference duplicated in results"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result1.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result1.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result2.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result2.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result2.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_调整购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result3.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result4-2.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result4-2.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result4-2.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_调整购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\outputs_result4-3.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result1.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result1.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result2.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result2.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result2.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_调整购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result3.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result4-2.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result4-2.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result4-2.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_充放电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_调整购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_计划购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\全年结果_20260911_221834\\核验\\templates_result4-3.xlsx_紧急购电量.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\光伏与负荷_一月至二月预测检验.xlsx.inspect.ndjson",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\node_modules",
+      "kind": "junction",
+      "reason": "Bundled runtime reference duplicated in results"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\blocks.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\february.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\horizons.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\january.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\load_net.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\notes.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "outputs\\光伏预报优化_1至2月_20260912_130151\\核验\\summary.png",
+      "kind": "file",
+      "reason": "Regenerable preview, old builder, or inspection scratch"
+    },
+    {
+      "path": "code",
+      "kind": "directory",
+      "reason": "Empty, scratch, migrated history, or cancelled run"
+    },
+    {
+      "path": "tmp",
+      "kind": "directory",
+      "reason": "Empty, scratch, migrated history, or cancelled run"
+    },
+    {
+      "path": "out",
+      "kind": "directory",
+      "reason": "Empty, scratch, migrated history, or cancelled run"
+    },
+    {
+      "path": ".pytest_cache",
+      "kind": "directory",
+      "reason": "Empty, scratch, migrated history, or cancelled run"
+    },
+    {
+      "path": "outputs\\问题二_7月检验_20260912_110048",
+      "kind": "directory",
+      "reason": "Empty, scratch, migrated history, or cancelled run"
+    },
+    {
+      "path": "src\\microgrid\\__pycache__",
+      "kind": "directory",
+      "reason": "Python cache"
+    },
+    {
+      "path": "tests\\__pycache__",
+      "kind": "directory",
+      "reason": "Python cache"
+    },
+    {
+      "path": "tools\\__pycache__",
+      "kind": "directory",
+      "reason": "Python cache"
+    }
+  ],
+  "remaining_counts": {
+    "file": 95,
+    "junction": 7,
+    "directory": 8
+  },
+  "notes": [
+    "Generated index deletions are staged; no commit was created.",
+    "Dependency targets outside the workspace were not modified.",
+    "Empty scratch directories and Python caches may remain ignored on disk."
+  ]
+}

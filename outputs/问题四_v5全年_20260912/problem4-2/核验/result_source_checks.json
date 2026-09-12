@@ -1,0 +1,19 @@
+{
+  "problem": "problem4-2",
+  "file_name": "result4-2.xlsx",
+  "template": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\data\\附件5\\result4-2.xlsx",
+  "from": "2025-02-01",
+  "to": "2025-12-31",
+  "days": 334,
+  "execution_intervals": 52560,
+  "report_quantity_kwh": 20685511.31917775,
+  "report_cost_yuan": 17129763.479259882,
+  "whole_run_cost_yuan": 19492571.703006607,
+  "initial_soc_kwh": 6000,
+  "end_soc_kwh": 3887.7859684586865,
+  "template_sha256": "1c26494cfc6d754e0bd9bff7e13e1126a73d2d2da6c5336eb251d89b9a1a1a47",
+  "physics_valid": true,
+  "ledger_valid": true,
+  "all_daily_totals_reconciled": true,
+  "source_and_templates_unchanged": true
+}

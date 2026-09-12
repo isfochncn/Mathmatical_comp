@@ -1,0 +1,388 @@
+{
+  "problem": "problem4-3",
+  "version": "report-economic-reserve-v5",
+  "all_correction_audits_passed": true,
+  "stress_paths_checked": 57,
+  "continuous_soc_verified": true,
+  "sections": {
+    "warmup": {
+      "n_intervals": 1008,
+      "start_abs": 10,
+      "end_abs": 10090,
+      "initial_plan_kwh": 557293.0005876198,
+      "ordinary_kwh": 597617.5501554515,
+      "added_kwh": 41449.74244745924,
+      "emergency_kwh": 47635.236546198765,
+      "emergency_intervals": 197,
+      "emergency_cost_yuan": 298659.06967396336,
+      "total_cost_yuan": 768038.8449378632,
+      "spill_kwh": 24658.719616821432,
+      "soc_start_kwh": 6000.0,
+      "soc_end_kwh": 6702.7759562261535,
+      "soc_min_kwh": 1200.000000011111,
+      "soc_max_kwh": 10799.999999991,
+      "guard_nodes": 21,
+      "guard_checks": 4,
+      "guard_blocks": 3,
+      "guard_restored_kwh": 70.69555830333502,
+      "cold_start_windows": 1008,
+      "load_mae_kwh": 149.83741369791665,
+      "pv_mae_kwh": 10.38748370632165,
+      "load_bias_kwh_per_interval": 4.0404373382385845,
+      "pv_bias_kwh_per_interval": 1.357517130594149
+    },
+    "report": {
+      "n_intervals": 1008,
+      "start_abs": 10090,
+      "end_abs": 20170,
+      "initial_plan_kwh": 575889.1888938969,
+      "ordinary_kwh": 581618.5949645031,
+      "added_kwh": 6393.025772720616,
+      "emergency_kwh": 1317.1537410279384,
+      "emergency_intervals": 21,
+      "emergency_cost_yuan": 8068.77788078345,
+      "total_cost_yuan": 429819.6842059103,
+      "spill_kwh": 923.7804133782338,
+      "soc_start_kwh": 6702.7759562261535,
+      "soc_end_kwh": 7515.865449948297,
+      "soc_min_kwh": 1200.000000011111,
+      "soc_max_kwh": 10799.999999991,
+      "guard_nodes": 21,
+      "guard_checks": 9,
+      "guard_blocks": 1,
+      "guard_restored_kwh": 34.829722194130454,
+      "cold_start_windows": 1008,
+      "load_mae_kwh": 24.91787210648148,
+      "pv_mae_kwh": 9.578185722919729,
+      "load_bias_kwh_per_interval": -0.03980534060842439,
+      "pv_bias_kwh_per_interval": -0.6777569677828031
+    }
+  },
+  "guard_events": [
+    {
+      "at_abs": 360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 720
+    },
+    {
+      "at_abs": 720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 1080
+    },
+    {
+      "at_abs": 1080,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 1440,
+      "original_stress_emergency_kwh": 6267.523536998204,
+      "candidate_stress_emergency_kwh": 508.0839618249999
+    },
+    {
+      "at_abs": 1800,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 2160
+    },
+    {
+      "at_abs": 2160,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 2520
+    },
+    {
+      "at_abs": 2520,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 2880
+    },
+    {
+      "at_abs": 3240,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 26.952424990000395,
+      "until_abs": 3600,
+      "original_stress_emergency_kwh": 71.0544695000001,
+      "candidate_stress_emergency_kwh": 98.0068944900006,
+      "restored_stress_emergency_kwh": 71.0544695000001
+    },
+    {
+      "at_abs": 3600,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 3960
+    },
+    {
+      "at_abs": 3960,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 23.38684999000111,
+      "until_abs": 4320,
+      "original_stress_emergency_kwh": 188.84500875000015,
+      "candidate_stress_emergency_kwh": 212.23185874000188,
+      "restored_stress_emergency_kwh": 188.84500875000015
+    },
+    {
+      "at_abs": 4680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 5040
+    },
+    {
+      "at_abs": 5040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 5400
+    },
+    {
+      "at_abs": 5400,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 20.356283323333514,
+      "until_abs": 5760,
+      "original_stress_emergency_kwh": 150.42522333333218,
+      "candidate_stress_emergency_kwh": 170.78150665666635,
+      "restored_stress_emergency_kwh": 150.42522333333218
+    },
+    {
+      "at_abs": 6120,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 6480
+    },
+    {
+      "at_abs": 6480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 6840
+    },
+    {
+      "at_abs": 6840,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 7200
+    },
+    {
+      "at_abs": 7560,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 7920
+    },
+    {
+      "at_abs": 7920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 8280
+    },
+    {
+      "at_abs": 8280,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 8640
+    },
+    {
+      "at_abs": 9000,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 9360
+    },
+    {
+      "at_abs": 9360,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 9720
+    },
+    {
+      "at_abs": 9720,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 10080
+    },
+    {
+      "at_abs": 10440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 10800
+    },
+    {
+      "at_abs": 10800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 11160,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 11160,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 11520,
+      "original_stress_emergency_kwh": 179.02605725602558,
+      "candidate_stress_emergency_kwh": 179.02605725602558
+    },
+    {
+      "at_abs": 11880,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 12240,
+      "original_stress_emergency_kwh": 793.9997940446567,
+      "candidate_stress_emergency_kwh": 793.9997940446567
+    },
+    {
+      "at_abs": 12240,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 12600
+    },
+    {
+      "at_abs": 12600,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 12960,
+      "original_stress_emergency_kwh": 609.5934366515086,
+      "candidate_stress_emergency_kwh": 505.01311877062955
+    },
+    {
+      "at_abs": 13320,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 13680
+    },
+    {
+      "at_abs": 13680,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 14040
+    },
+    {
+      "at_abs": 14040,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 14400
+    },
+    {
+      "at_abs": 14760,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 15120
+    },
+    {
+      "at_abs": 15120,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 15480,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 15480,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 15840
+    },
+    {
+      "at_abs": 16200,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 16560
+    },
+    {
+      "at_abs": 16560,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 16920,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 16920,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 17280
+    },
+    {
+      "at_abs": 17640,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 18000
+    },
+    {
+      "at_abs": 18000,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 18360,
+      "original_stress_emergency_kwh": 0.0,
+      "candidate_stress_emergency_kwh": 0.0
+    },
+    {
+      "at_abs": 18360,
+      "checked": true,
+      "blocked": true,
+      "restored_kwh": 34.829722194130454,
+      "until_abs": 18720,
+      "original_stress_emergency_kwh": 58.5204400507743,
+      "candidate_stress_emergency_kwh": 64.78206435632094,
+      "restored_stress_emergency_kwh": 58.5204400507743
+    },
+    {
+      "at_abs": 19080,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 19440
+    },
+    {
+      "at_abs": 19440,
+      "checked": false,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 19800
+    },
+    {
+      "at_abs": 19800,
+      "checked": true,
+      "blocked": false,
+      "restored_kwh": 0.0,
+      "until_abs": 20160,
+      "original_stress_emergency_kwh": 164.87791405051172,
+      "candidate_stress_emergency_kwh": 164.87791405051172
+    }
+  ],
+  "notes": "Guard guarantees no worsening only under the current deterministic stress before the next legal node. Risk penalties are excluded from bills."
+}

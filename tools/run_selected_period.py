@@ -8,18 +8,27 @@ import json
 import time
 import traceback
 
-from microgrid.absolute_run import RunConfig, run, save_run
+from microgrid.absolute_run import RunConfig, run, save_run, describe_model
 
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument('--problem',required=True,choices=('problem3','problem4-2','problem4-3'))
-    ap.add_argument('--out',required=True)
+    ap.add_argument('--problem',required=True,choices=('problem2','problem3','problem4-2','problem4-3'))
+    ap.add_argument('--out')
+    ap.add_argument('--describe',action='store_true',help='Resolve the model without creating files or running the solver')
     ap.add_argument('--run-from',default='2025-02-01')
     ap.add_argument('--run-to',default='2025-12-31')
     ap.add_argument('--pv-method',default='auto',choices=('auto','pooled','report_blend'))
     args=ap.parse_args()
-    out=Path(args.out).resolve()
+    if not args.out and not args.describe:
+        ap.error('--out is required unless --describe is used')
+    out=Path(args.out or '.').resolve()
+    config=RunConfig(problem=args.problem,pv_method=args.pv_method,out_dir=out/'运行记录',
+        run_from=date.fromisoformat(args.run_from),run_to=date.fromisoformat(args.run_to),progress_every_days=1)
+    contract=describe_model(config)
+    print(json.dumps(contract,ensure_ascii=True,indent=2),flush=True)
+    if args.describe:
+        return
     out.mkdir(parents=True,exist_ok=True)
     status_path=out/'status.json'
     if status_path.exists():
@@ -27,8 +36,7 @@ def main():
     files=list(Path('src/microgrid').glob('*.py'))+list(Path('data/附件5').glob('result*.xlsx'))
     hashes={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     (out/'source_and_template_hashes.json').write_text(json.dumps(hashes,ensure_ascii=False,indent=2),encoding='utf-8')
-    config=RunConfig(problem=args.problem,pv_method=args.pv_method,out_dir=out/'运行记录',
-        run_from=date.fromisoformat(args.run_from),run_to=date.fromisoformat(args.run_to),progress_every_days=1)
+    (out/'run_contract.json').write_text(json.dumps(contract,ensure_ascii=False,indent=2),encoding='utf-8')
     status={'state':'running','problem':args.problem,'report_from':args.run_from,'report_to':args.run_to,
         'started_at':datetime.now().isoformat(),'out':str(out),'pv_method':config.effective_pv_method()}
     write=lambda:status_path.write_text(json.dumps(status,ensure_ascii=False,indent=2),encoding='utf-8')

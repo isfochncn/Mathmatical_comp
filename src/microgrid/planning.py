@@ -82,6 +82,8 @@ class WindowForecast:
     provenance: np.ndarray       # (n,) of str, same values as timeline markers
     reserve_energy_kwh: np.ndarray | None = None  # (n+1,) delivered-energy buffer
     net_upper_kwh: np.ndarray | None = None       # (n,) calibrated upper net load
+    stress_demand_kwh: np.ndarray | None = None   # cumulative-prefix stress load
+    stress_weight: float = .2   # planning blend only, not a reliability guarantee
 
     def __post_init__(self) -> None:
         n = np.asarray(self.abs_minutes, dtype=np.int64).size
@@ -117,6 +119,8 @@ class WindowResult:
     risk_penalty_yuan: float = 0.0  # planning preference only; never a settled bill
     reserve_stock_shortfall_kwh: float = 0.0
     reserve_power_shortfall_kwh: np.ndarray = field(default_factory=lambda: np.empty(0))
+    stress_emergency_kwh: np.ndarray = field(default_factory=lambda: np.empty(0))
+    stress_soc_boundary_kwh: np.ndarray = field(default_factory=lambda: np.empty(0))
 
     def require_ok(self) -> "WindowResult":
         self.report.require_ok()
@@ -239,6 +243,7 @@ class _WindowShape:
     allow_emergency: bool
     allow_spill: bool
     risk_reserve: bool
+    cumulative_stress: bool
 
 
 @dataclass
@@ -278,6 +283,7 @@ def _window_shape(
     allow_emergency: bool,
     allow_spill: bool,
     risk_reserve: bool,
+    cumulative_stress: bool,
 ) -> _WindowShape:
     """由本次调用的输入推出结构指纹（只取真正影响模型形状的部分）。"""
     mask = None
@@ -294,6 +300,7 @@ def _window_shape(
         allow_emergency=allow_emergency,
         allow_spill=allow_spill,
         risk_reserve=risk_reserve,
+        cumulative_stress=cumulative_stress,
         fee_mode=fee_mode,
         absorption=absorption_upper_kwh is not None and committed_mask is None,
         commitment_floor=commitment_lower_kwh is not None and committed_mask is None,
@@ -480,11 +487,13 @@ def _build_window_model(
         m.reserve_shortfall = pyo.Var(domain=pyo.NonNegativeReals)
         m.power_shortfall = pyo.Var(m.T, domain=pyo.NonNegativeReals)
         m.reserve_stock = pyo.Constraint(m.S, rule=lambda m, s:
-            pyo.Constraint.Skip if s == 0 else
+            pyo.Constraint.Skip if s == 0 or shape.cumulative_stress else
             (m.soc[s]-E_MIN)/DISCHARGE_BATTERY_FACTOR + m.reserve_shortfall >= m.reserve_energy[s])
         m.reserve_power = pyo.Constraint(m.T, rule=lambda m, t:
+            pyo.Constraint.Skip if shape.cumulative_stress else
             m.grid[t]+Q_DIS_MAX+m.power_shortfall[t] >= m.net_upper[t])
         m.reserve_deliverable = pyo.Constraint(m.T, rule=lambda m, t:
+            pyo.Constraint.Skip if shape.cumulative_stress else
             m.grid[t]+(m.soc[t]-E_MIN)/DISCHARGE_BATTERY_FACTOR+m.power_shortfall[t] >= m.net_upper[t])
         # Do not manufacture room for a *new reserve purchase* through cycling
         # losses. Paid surplus must fit into space available at the interval start.
@@ -493,6 +502,31 @@ def _build_window_model(
             m.grid[t] <= m.demand[t]+(E_MAX-m.soc[t])*CHARGE_BUS_FACTOR)
         m.risk_cost.set_value(m.risk_price*m.reserve_shortfall
             + sum(FEE_EMERGENCY*m.price[t]*m.power_shortfall[t] for t in m.T))
+        if shape.cumulative_stress:
+            m.reserve_shortfall.fix(0.)
+            m.power_shortfall.fix(0.)
+            m.stress_weight=pyo.Param(mutable=True,initialize=.2)
+            m.stress_demand=pyo.Param(m.T,mutable=True,initialize=0.)
+            m.stress_charge=pyo.Var(m.T,bounds=(0,Q_MAX))
+            m.stress_discharge=pyo.Var(m.T,bounds=(0,Q_DIS_MAX))
+            m.stress_curtail=pyo.Var(m.T,domain=pyo.NonNegativeReals)
+            m.stress_spill=pyo.Var(m.T,domain=pyo.NonNegativeReals)
+            m.stress_emergency=pyo.Var(m.T,domain=pyo.NonNegativeReals)
+            m.stress_soc=pyo.Var(m.S,bounds=(E_MIN,E_MAX))
+            m.stress_start=pyo.Constraint(expr=m.stress_soc[0]==m.soc_start_kwh)
+            m.stress_balance=pyo.Constraint(m.T,rule=lambda m,t:
+                m.grid[t]+m.stress_emergency[t]+m.pv[t]-m.stress_curtail[t]+m.stress_discharge[t]
+                ==m.stress_demand[t]+m.stress_charge[t]*CHARGE_BUS_FACTOR+m.stress_spill[t])
+            m.stress_transition=pyo.Constraint(m.T,rule=lambda m,t:
+                m.stress_soc[t+1]==m.stress_soc[t]+m.stress_charge[t]-m.stress_discharge[t]*DISCHARGE_BATTERY_FACTOR)
+            m.stress_pv_bound=pyo.Constraint(m.T,rule=lambda m,t:m.stress_curtail[t]<=m.pv[t])
+            m.stress_spill_bound=pyo.Constraint(m.T,rule=lambda m,t:m.stress_spill[t]<=m.grid[t])
+            m.stress_discharge_bound=pyo.Constraint(m.T,rule=lambda m,t:m.stress_discharge[t]<=m.stress_demand[t])
+            # Ordinary purchases are charged once. Blend the two emergency
+            # costs with strictly positive nominal weight, avoiding both the
+            # old double risk penalty and zero-cost nominal emergency cycling.
+            m.risk_cost.set_value(sum(FEE_EMERGENCY*m.price[t]*m.stress_weight*
+                (m.stress_emergency[t]-m.emergency[t]) for t in m.T))
     m.obj = pyo.Objective(expr=m.fee_objective+m.risk_cost, sense=pyo.minimize)
 
     if shape.allow_spill:
@@ -543,6 +577,9 @@ def _load_window_inputs(
         # Five times the mean forecast tariff prices an uncovered delivered kWh.
         # This is a soft planning tradeoff, explicitly excluded from settlement.
         m.risk_price.set_value(FEE_EMERGENCY*float(np.mean(forecast.price_yuan_per_kwh)))
+        if shape.cumulative_stress:
+            _load(m.stress_demand,forecast.stress_demand_kwh)
+            m.stress_weight.set_value(float(forecast.stress_weight))
 
     if shape.absorption:
         _load(m.cap, absorption_upper_kwh)
@@ -634,6 +671,12 @@ def solve_window(
             if np.asarray(vector).shape != (size,) or not np.isfinite(vector).all() or np.any(np.asarray(vector) < 0):
                 raise ValueError("Invalid risk reserve quantities")
     T = list(range(n))
+    if forecast.stress_demand_kwh is not None:
+        if not np.isfinite(forecast.stress_weight) or not 0 < forecast.stress_weight < 1:
+            raise ValueError('Stress weight must leave positive cost on both physical paths')
+        stress=np.asarray(forecast.stress_demand_kwh)
+        if not risk_reserve or stress.shape!=(n,) or not np.isfinite(stress).all() or np.any(stress<forecast.demand_kwh-1e-7):
+            raise ValueError('Invalid cumulative stress demand')
     for name, arr in (("demand", forecast.demand_kwh), ("pv", forecast.pv_kwh), ("price", forecast.price_yuan_per_kwh)):
         if not np.isfinite(arr).all() or np.any(arr < 0):
             raise ValueError(f"{name} must be finite and nonnegative")
@@ -700,6 +743,7 @@ def solve_window(
         allow_emergency=allow_emergency,
         allow_spill=allow_spill,
         risk_reserve=risk_reserve,
+        cumulative_stress=forecast.stress_demand_kwh is not None,
     )
     template = _CACHE.get(shape)
     if template is None:
@@ -819,6 +863,8 @@ def solve_window(
         risk_penalty_yuan=float(pyo.value(m.risk_cost)),
         reserve_stock_shortfall_kwh=float(pyo.value(m.reserve_shortfall)) if risk_reserve else 0.,
         reserve_power_shortfall_kwh=np.array([get(m.power_shortfall, t) for t in T]) if risk_reserve else np.zeros(n),
+        stress_emergency_kwh=np.array([get(m.stress_emergency,t) for t in T]) if shape.cumulative_stress else np.zeros(n),
+        stress_soc_boundary_kwh=np.array([get(m.stress_soc,s) for s in m.S]) if shape.cumulative_stress else np.empty(0),
     )
 
 
@@ -830,6 +876,18 @@ def solve_window(
         surplus_kwh=answer.spill_kwh, soc_boundary_kwh=answer.soc_boundary_kwh,
         demand_kwh=forecast.demand_kwh, pv_kwh=forecast.pv_kwh,
         soc_start_kwh=soc_start_kwh, allow_spill=allow_spill, validate_feedback=False)
+    if shape.cumulative_stress:
+        stress_diag=validate_absolute_run(
+            abs_minutes=answer.abs_minutes,grid_kwh=answer.grid_kwh,
+            emergency_kwh=answer.stress_emergency_kwh,
+            charge_kwh=np.array([get(m.stress_charge,t) for t in T]),
+            discharge_kwh=np.array([get(m.stress_discharge,t) for t in T]),
+            curtail_kwh=np.array([get(m.stress_curtail,t) for t in T]),
+            surplus_kwh=np.array([get(m.stress_spill,t) for t in T]),
+            soc_boundary_kwh=answer.stress_soc_boundary_kwh,
+            demand_kwh=forecast.stress_demand_kwh,pv_kwh=forecast.pv_kwh,
+            soc_start_kwh=soc_start_kwh,allow_spill=True,validate_feedback=False)
+        report.max_residual=max(stress_diag.max_bus_residual_kwh,stress_diag.max_soc_error_kwh)
     # Recompute the exact labels, including zero-price epigraph degeneracy.
     price = forecast.price_yuan_per_kwh
     exact = price * answer.grid_kwh
@@ -843,7 +901,7 @@ def solve_window(
     exact_total = float(exact.sum() + FEE_EMERGENCY * np.dot(price, answer.emergency_kwh))
     if not np.isclose(exact_total, answer.objective_yuan, atol=1e-5, rtol=1e-9):
         raise RuntimeError("Window fee recomputation failed")
-    report.max_residual = max(diag.max_bus_residual_kwh, diag.max_soc_error_kwh)
+    report.max_residual = max(report.max_residual or 0.,diag.max_bus_residual_kwh, diag.max_soc_error_kwh)
     return answer
 
 

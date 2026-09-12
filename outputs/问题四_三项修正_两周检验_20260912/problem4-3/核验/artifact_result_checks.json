@@ -1,0 +1,20 @@
+{
+  "file": "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_三项修正_两周检验_20260912\\problem4-3\\result4-3.xlsx",
+  "days": 7,
+  "headers_preserved": true,
+  "values_match_payload": true,
+  "sheets": [
+    "计划购电量",
+    "调整购电量",
+    "充放电量",
+    "紧急购电量"
+  ],
+  "previews": [
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_三项修正_两周检验_20260912\\problem4-3\\核验\\result_计划购电量_0.png",
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_三项修正_两周检验_20260912\\problem4-3\\核验\\result_计划购电量_1.png",
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_三项修正_两周检验_20260912\\problem4-3\\核验\\result_调整购电量_0.png",
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_三项修正_两周检验_20260912\\problem4-3\\核验\\result_调整购电量_1.png",
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_三项修正_两周检验_20260912\\problem4-3\\核验\\result_充放电量_0.png",
+    "D:\\WorkSpace\\Project\\Mathmatical\\Mathmatical_comp\\outputs\\问题四_三项修正_两周检验_20260912\\problem4-3\\核验\\result_紧急购电量_0.png"
+  ]
+}

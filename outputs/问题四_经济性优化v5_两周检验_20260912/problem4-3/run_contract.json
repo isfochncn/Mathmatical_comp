@@ -1,0 +1,11 @@
+{
+  "problem": "problem4-3",
+  "pv_method": "report_blend",
+  "load_method": "adaptive",
+  "forecast_class": "CumulativeReportForecaster",
+  "price_mode": "historical",
+  "use_published_pv": true,
+  "can_adjust_plan": true,
+  "risk_quantile": 0.9,
+  "notice": "Economic problem four v5: 3% cold reserve, stage-matched errors, 80/20 emergency-cost blend (50/50 in frozen first week) and legal-node reduction guard; empirical risk protection is not a reliability guarantee."
+}
